@@ -1,11 +1,11 @@
 
-A modification of Emil's Flagmatic-2.0
+A version of [Flagmati-dev](https://github.com/jsliacan/flagmatic-dev) that is being made Sage-friendly.
 
 
-Flagmatic-dev
+Flagmatic
 =============
 
-A package for the Sage system.
+A package for the Sage.
 
 To install for the first time, type (this will remove other versions of flagmatic and install this one):
 
