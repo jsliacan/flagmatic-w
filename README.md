@@ -1,23 +1,20 @@
 
-A modification of Emil's Flagmatic-2.0
+A version of [Flagmatic-dev](https://github.com/jsliacan/flagmatic-dev) that is being made Sage-friendly.
 
 
-Flagmatic-dev
+flagmatic
 =============
 
-A package for the Sage system.
+To install, navigate to the directory with `setup.py` file:
 
-To install for the first time, type (this will remove other versions of flagmatic and install this one):
+   $ cd path/to/flagmatic/pkg
 
-    $ cd pkg
-    $ cp install-dev-flagmatic /usr/local/bin/
-    $ sudo chmod +x /usr/local/bin/install-dev-flagmatic
-    $ cd; install-dev-flagmatic
+Then run the following code to install CSDP solver:
 
-To install again (e.g. after having installed another version of flagmatic in the meantime), type:
+   $ sage -i csdp
 
-    $ install-dev-flagmatic
+Finally, install Flagmatic with the code below.
 
-Then, from the Sage prompt, type:
+   $ sage -python setup.py install
 
-    sage: from flagmatic.all import *
+Have fun.
