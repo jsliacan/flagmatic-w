@@ -8,4 +8,4 @@ eval "sudo rm Flagmatic*.egg-info"
 
 # install new flagmatic version                                                                                                                                                
 cd $FLAGMATIC_PKG
-eval "sudo -E sage-dev python setup.py install"
+eval "sudo -E sage-dev -python setup.py install"

@@ -33,6 +33,7 @@ http://cordis.europa.eu/project/rcn/104324_en.html
 
 import gzip, json, os, sys
 import numpy
+import itertools
 import pexpect
 import sage.all
 
@@ -42,16 +43,18 @@ from sage.functions.other import floor
 from sage.matrix.all import matrix, identity_matrix, block_matrix, block_diagonal_matrix
 from sage.modules.misc import gram_schmidt
 from sage.misc.misc import SAGE_TMP
-from sage.combinat.all import Permutations
+from sage.combinat.all import Permutations, Combinations, Tuples
+from sage.matrix.constructor import ones_matrix, vector
 from copy import copy
 
-from hypergraph_flag import make_graph_block
+from hypergraph_flag import make_graph_block, print_graph_block
 from flag import *
 from three_graph_flag import *
 from graph_flag import *
 from oriented_graph_flag import *
 from multigraph_flag import *
 from construction import *
+from blowup_construction import *
 
 # pexpect in Sage 4.8 has a bug, which prevents it using commands with full paths.
 # So for now, CSDP has to be in a directory in $PATH.
@@ -64,7 +67,7 @@ dsdp_cmd = "dsdp"
 
 
 def block_structure(M):
-    r"""
+    """
     Given a matrix, this function returns a tuple. The first entry is the number of
     row subdivisions that the matrix has. The second entry is a list of the sizes of the
     row subdivisions, and the third entry is a list containing the rows at which each
@@ -82,7 +85,7 @@ def block_structure(M):
 
 
 def safe_gram_schmidt(M):
-    r"""
+    """
     Performs Gram Schmidt orthogonalization using Sage functions. The returned matrix
     will have the same subdivisions are the input matrix, and it will be sparse if and
     only if the input matrix is sparse.
@@ -177,6 +180,8 @@ class Problem(SageObject):
             raise ValueError
 
         self._stable = False
+        self._robustly_stable = False
+        self._perfectly_stable = False
         
         self._n = 0
         self._mode = "plain"
@@ -194,6 +199,14 @@ class Problem(SageObject):
         self.state("specify", "yes")
         self.set_objective(minimize=minimize)
 
+        # following wouldn't need to be stored
+        # but want them when problem is re-run for stability purposes
+        self._forbid_homomorphic_images = forbid_homomorphic_images
+        self._max_flags = max_flags
+        self._compute_products = compute_products
+        self._type_orders = type_orders
+        self._types_from_input = types
+        
         if density is None:
             self.set_density(flag_cls.default_density_graph())
         else:
@@ -217,9 +230,10 @@ class Problem(SageObject):
         if forbid_homomorphic_images:
             self.forbid_homomorphic_images()
 
+            
         if not order is None:
-            self.generate_flags(order, type_orders=type_orders, types=types, max_flags=max_flags,
-                                compute_products=compute_products)
+            self.generate_flags(order, type_orders=type_orders, types=types, max_flags=max_flags, compute_products=compute_products)
+            
 
     def state(self, state_name=None, action=None):
         r"""
@@ -739,6 +753,8 @@ class Problem(SageObject):
         of graphs already specified using ``forbid``. For certain problems this will make the
         computation simpler, without affecting the result.
         """
+        self._forbid_homomorphic_images = True
+        
         L = sum([g.homomorphic_images() for g in self._forbidden_graphs], [])
         LM = self._flag_cls.minimal_by_inclusion(L)
         if len(LM) == 0:
@@ -830,7 +846,7 @@ class Problem(SageObject):
                             if not is_in_lcomb:
                                 lcomb.append([H,-cst])
                     else:
-                        fg = ThreeGraphFlag(tg._repr_() + "("+str(tg.n)+")")
+                        fg = GraphFlag(tg._repr_() + "("+str(tg.n)+")")
                         lcomb.append([fg, -cst])
 
                 cst = 0 # make RHS zero. (not necessary though, not used again)
@@ -937,23 +953,19 @@ class Problem(SageObject):
         """
         if tg.n == 0:
             num_densities = 1
-        """ 
-        print "=="*10, tg, terms, "=="*10
+        """
+        
         m = self.n - max([t[0].n for t in terms]) + tg.n
-        print "m = ", m
 
         assumption_flags = self._flag_cls.generate_flags(m, tg, forbidden_edge_numbers=self._forbidden_edge_numbers,
                                                     forbidden_graphs=self._forbidden_graphs,
                                                     forbidden_induced_graphs=self._forbidden_induced_graphs)
-        print "assumption flags: ", assumption_flags
+
         num_densities = len(assumption_flags)
-        print "num_densities: ", num_densities
         sys.stdout.write("Added %d quantum graphs.\n" % num_densities)
         
         num_graphs = len(self._graphs)
-        print "num_graphs: ", num_graphs
         quantum_graphs = [[Integer(0) for i in range(num_graphs)] for j in range(num_densities)]
-        print "quantum_graphs (init): ", quantum_graphs
         
         assumption_flags_block = make_graph_block(assumption_flags, m)
         graph_block = make_graph_block(self._graphs, self.n)
@@ -962,20 +974,17 @@ class Problem(SageObject):
             fg = terms[i][0]
             flags_block = make_graph_block([fg], fg.n)
             rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, assumption_flags_block)
-            print rarray
-
+            
             for row in rarray:
                 gi = row[0]
                 j = row[1]  # always 0
                 k = row[2]
                 value = Integer(row[3]) / Integer(row[4])
-                print "k=", k, "gi=", gi
                 quantum_graphs[k][gi] += value * terms[i][1]
 
-        print "quantum_graphs (loaded): ", quantum_graphs
         self._assumptions.append((tg, terms))
         self._assumption_flags.append(assumption_flags)
-        
+
         num_previous_densities = len(self._density_graphs)
         
         for qg in quantum_graphs:
@@ -985,7 +994,6 @@ class Problem(SageObject):
                     dg.append((self._graphs[gi], qg[gi]))
             self._density_graphs.append(dg)
 
-        #print quantum_graphs
         new_density_indices = range(num_previous_densities, num_previous_densities + len(quantum_graphs))
         self._active_densities.extend(new_density_indices)
 
@@ -1105,7 +1113,8 @@ class Problem(SageObject):
             self._construction = None
             self._field = field
             sys.stdout.write("Field is \"%s\" with embedding x=%s.\n" %
-                (str(self._field), self._field.gen_embedding().n(digits=10)))
+                            #(str(self._field), self._field.gen_embedding().n(digits=10)))
+                             (str(self._field), self._field.gen().n(digits=10)))
             self._target_bound = target_bound
             sys.stdout.write("Set target bound to be %s (%s).\n" %
                 (self._target_bound, self._target_bound.n(digits=10)))
@@ -1612,7 +1621,7 @@ class Problem(SageObject):
                 for mi in range(num_extra_matrices):
                     f.write("0 %d %d %d %s\n" % (total_num_blocks + 4, mi + 1, mi + 1, "1.0" if self._minimize else "-1.0"))
 
-            # buffer vars and bound c for each constraint
+            # slack vars and bound c for each constraint
             for i in range(num_graphs):
                 if not self._minimize:
                     f.write("%d 1 1 1 -1.0\n" % (i + 1,))
@@ -1882,6 +1891,7 @@ class Problem(SageObject):
             if p.eof():
                 break
             try:
+                sys.stdout.write("Reading output file...\n")
                 p.expect("\r\n")
                 line = p.before.strip() + "\n"
                 self._sdp_solver_output += line
@@ -2977,18 +2987,20 @@ class Problem(SageObject):
         INPUT:
         - "tgraph": graph string of the type that we want to use in the proof
         - "fgraph": usually the minimum graph that will be blown up (F in PDF file)
-        
+
+        CLAIM 1: forbidding tgraph gives strictly worse bound
+        CLAIM 2: Q_tgraph has rank 1 less than dimension
+        CLAIM 3: unique embeddability
+        CLAIM 4: every sharp graph of order N admits a strong homomorphism into F
         """
 
         # check if construction set
         # check if density met
 
-        # 1. check if forbidding a type gives strictly worse bound
-        #    - find the type automatically
-        #    - let user specify the type
-        # 2. check if Q_tau has rank 1 less than dimension
-        # 3. unique embeddability
-        # 4. every sharp graph of order N admits a strong homomorphism into F
+        if self._stable:
+            print "The problem is already stable! Nothing to verify.\n"
+            return
+        
 
         # start off modestly
         claim1 = False # forbidding type gives strictly worse bound
@@ -3010,17 +3022,20 @@ class Problem(SageObject):
         Tgraph = None
         try:
             Tgraph = GraphFlag(tgraph)
-            tindex = (self.types).index(Tgraph)
+            tindex = (self.types).index(Tgraph) # CAREFULL! Tgraph may NOT be in self.types!!
             print "You selected the following type:", tgraph, "\n"
         except:
             raise ValueError
 
+        # ---------- CLAIM 2 -----------
         # check the rank/dim of Q
         theQ = self._exact_Q_matrices[tindex]
         if theQ.dimensions()[0] - theQ.rank() == 1:
             print "dim(Q)-rank(Q) = 1"
             claim2 = True
-            
+
+
+        # ---------- CLAIM 3 -----------
         # every sharp graph of order N admits a strong homomorphism into F
         Fgraph = None
         try:
@@ -3041,6 +3056,7 @@ class Problem(SageObject):
             print "Every sharp graph is embeddable into a blowup of", fgraph+".\n"
             claim4 = True
 
+        # ---------- CLAIM 4 -----------
         # check if type is uniquely embeddable into F
         claim3a = False # unique embeddability
         claim3b = False # distinct attachment
@@ -3091,8 +3107,6 @@ class Problem(SageObject):
         restricted_neighbourhoods = [[] for x in range(Flabelled.n)]
         nn = Tgraph.n
         for x,y in Flabelled.edges:
-            print Flabelled.edges
-            print Tgraph.edges
             # if (x,y) edge has x in Tgraph
             if x < nn+1: restricted_neighbourhoods[y-1].append(x)
             # if (x,y) edge has y in Tgraph
@@ -3105,6 +3119,7 @@ class Problem(SageObject):
         if claim3:
             print tgraph, "is uniquely embeddable into", fgraph, "and different vertices of", fgraph, "attach differently to", tgraph+".\n"
 
+        # --------- CLAIM 1 ----------
         self.forbid(tgraph)
         # reset states
         for state_name, state_value in self._states.items():
@@ -3116,10 +3131,17 @@ class Problem(SageObject):
         self.write_sdp_input_file()
         self.solve_sdp(import_solution_file=None)
         self.make_exact()
-        
-        if self._bound < thebound:
-            print "Forbidding", Tgraph, "yields a bound of", self._bound, "which is strictly less than", str(thebound)+"."
-            claim1 = True
+
+        if not self._minimize:
+            if self._bound < thebound:
+                print "Forbidding", Tgraph, "yields a bound of", self._bound, "which is strictly less than", str(thebound)+"."
+                claim1 = True
+
+        if self._minimize:
+            if self._bound > thebound:
+                print "Forbidding", Tgraph, "yields a bound of", self._bound, "which is strictly more than", str(thebound)+"."
+                claim1 = True
+            
 
         if claim1: print "Claim 1: verified."
         else: print "Claim 1: NOT verified."
@@ -3138,6 +3160,659 @@ class Problem(SageObject):
         return
         
 
+
+    def verify_robust_stability(self, tgraph, fgraph=None):
+
+        """
+        INPUT:
+        - "tgraph": graph string of the type that we want to use in the proof
+        - "fgraph": usually the minimum graph that will be blown up (F in PDF file)
+
+        ASSUMPTION 1.2: Forbidden graphs are not subgraphs of extremal construction.
+        CLAIM 0: Bound is sharp, exact, and construction is a blow-up
+        CLAIM 1: forbidding tgraph gives strictly worse bound
+        CLAIM 2: unique embeddability
+        CLAIM 3: every sharp graph of order N admits a strong homomorphism into F
+
+        Thm 4.1:
+        1. CLAIM 0
+        2. CLAIM 1 & 2
+        3. CLAIM 3
+        Then the problem is robustly F-stable.
+        """
+
+        print "\n\n", "-"*30, "VERIFYING ROBUST STABILITY...", "-"*30, "\n\n"
+
+        
+        # check if work needed
+        if self._robustly_stable:
+            print "The problem is already robustly stable! Nothing to verify.\n"
+            return
+        
+        # start off modestly
+        assumption12 = False # blowups of F are admissible
+        claim0 = False # previous work OK, i.e. flag algebras problem OK and bound sharp
+        claim1 = False # forbidding type gives strictly worse bound
+        claim2 = False # uniquely embeddable && different vertices attach differently to type
+        claim3 = False # every sharp graphs strongly embeds into F
+
+        # preliminaries
+        
+        Fblow = self._construction
+        if Fblow is None:
+            raise ValueError("You first need to set extremal construction and it must be a Blowup Construction.")
+        Fgraph = Fblow.graph
+        forbidden = self._forbidden_graphs
+        forbidden_induced = self._forbidden_induced_graphs
+
+        Tgraph = None
+        try:
+            if self._flag_cls().r == 2:
+                Tgraph = GraphFlag(tgraph)
+                self.tgraph = Tgraph
+                if not (fgraph is None):
+                    Fgraph = GraphFlag(fgraph)
+                    print "You selected the following type:", tgraph, "and the following F graph:", fgraph, "\n"
+                else:
+                    print "You selected the following type:", tgraph, "and F graph was taken from extremal construction:", Fgraph, "\n"
+            elif self._flag_cls().r == 3:
+                Tgraph = ThreeGraphFlag(tgraph)
+                if not (fgraph is None):
+                    Fgraph = ThreeGraphFlag(fgraph)
+                    print "You selected the following type:", tgraph, "and the following F graph:", fgraph, "\n"
+                else:
+                    print "You selected the following type:", tgraph, "and F graph was taken from extremal construction:", Fgraph, "\n"
+        except:
+            raise ValueError
+
+
+        
+        # --------- ASSUMPTION 1.2 ----------
+        # blowups of F are admissible
+        # -----------------------------------
+
+        if forbidden: # if any forbidden graphs
+          for g in forbidden:
+            if g in Fblow.subgraphs(g.n):
+                break
+            else:
+                assumption12 = True
+        else: # vacuously true
+            assumption12 = True
+                
+        # ---------- CLAIM 0 -----------
+        # previous work OK, i.e. flag algebras problem OK and bound sharp
+        # claim0a and claim0b
+        # ------------------------------
+        claim0a = False
+        claim0b = False
+        
+        # first check if the bound obtained is exact and sharp?
+        # claim0a
+        if not self.state("check_exact") == "yes":
+            sys.stdout.write("Exact bound was not verified. Call make_exact() first.\n")
+            return
+        claim0a = True
+        
+        thebound = self._bound
+        print "The problem is exact with a sharp bound of", str(thebound)+".\n"
+        
+        # check if the construction is a blowup (then we implicitly have the vector \bf{a}
+        # claim0b
+        if not isinstance(self._construction, BlowupConstruction):
+            print "The construction is not a blow-up construction."
+        else:
+            claim0b = True
+
+        claim0 = claim0a and claim0b
+        
+
+
+        # ---------- CLAIM 3 -----------
+        # every sharp graph of order N admits a strong homomorphism into F
+        # ------------------------------
+        
+
+        num_sharps = len(self._sharp_graphs)
+        c_subgraphs = self._construction.subgraphs(self._n)
+        count_embeddable = 0
+        for gi in self._sharp_graphs:
+            g = self.graphs[gi]
+            if g in c_subgraphs:
+                count_embeddable += 1
+            else:
+                break
+        if count_embeddable == num_sharps:
+            print "Every sharp graph is embeddable into a blowup of", Fgraph, ".\n"
+            claim3 = True
+
+
+
+        # ---------- CLAIM 2 -----------
+        # claim2a: tgraph is uniquely embeddable
+        # claim2b: different vertices of F attach differently to tgraph (when embedded in F)
+        
+        # ------------------------------
+        claim2a = False # unique embeddability
+        claim2b = False # distinct attachment
+
+        otuples = Tuples(range(1,Fgraph.n+1), Tgraph.n)        
+        coTgraph = Tgraph.complement()
+        coFgraph = Fgraph.complement()
+        sageF = Graph(Fgraph.n)
+        for e in Fgraph.edges:
+            sageF.add_edge(e)
+        Faut_group_order = sageF.automorphism_group().order()
+        
+        strong_hom_count = 0
+        for tpl in otuples:
+            # for each map into F, check if it induces T
+            edge_missing = False
+            for edge in Tgraph.edges:
+                if edge_missing == True:
+                    break
+                imedge1 = (tpl[edge[0]-1],tpl[edge[1]-1])
+                imedge2 = (tpl[edge[1]-1],tpl[edge[0]-1])
+                if imedge1 in Fgraph.edges or imedge2 in Fgraph.edges:
+                    continue
+                else:
+                    edge_missing = True
+                    break
+            if edge_missing==True:
+                continue # go to next perm
+            coedge_missing = False
+            for coedge in coTgraph.edges:
+                if coedge_missing == True:
+                    break
+                imcoedge1 = (tpl[coedge[0]-1],tpl[coedge[1]-1])
+                imcoedge2 = (tpl[coedge[1]-1],tpl[coedge[0]-1])
+                if imcoedge1 in coFgraph.edges or imcoedge2 in coFgraph.edges:
+                    continue
+                else:
+                    coedge_missing = True
+                    break
+                
+            if coedge_missing or edge_missing:
+                continue # this wasn't a strong hom embedding of T into F
+            else:
+                strong_hom_count += 1
+                #sys.stdout.write("%s\n" %str(tpl))
+                
+        claim2a = strong_hom_count == Faut_group_order
+        # sys.stdout.write("Order of Aut(F) is %d.\n" % Faut_group_order)
+        # sys.stdout.write("Number of strong homs of T into F is %d.\n\n" % strong_hom_count)
+                    
+            
+                
+        # work towards claim2b:
+
+        # find how to strongly embed Tgraph into Fgraph == (find induced copy in B(Fgraph) )
+
+        NF = Fgraph.n
+        NT = Tgraph.n
+        Fgraph_vertex_set = range(1,NF+1)
+        
+        combs = Combinations(range(1,NF+1), NT)
+        neighbourhoods_in_TinF = list()
+        
+        for comb in combs:
+            TinF = Fgraph.degenerate_induced_subgraph(comb)
+
+            if TinF == Tgraph:
+                comb_c = copy(Fgraph_vertex_set)
+                for x in comb:
+                    comb_c.remove(x)
+
+                for v in comb_c:
+                    v_neighbourhood_in_TinF = list()
+                    for u in comb:
+                        if (u,v) in Fgraph.edges or (v,u) in Fgraph.edges:
+                            v_neighbourhood_in_TinF.append(u)
+                    neighbourhoods_in_TinF.append(v_neighbourhood_in_TinF)
+            break
+
+        num_neighbourhoods_in_TinF = len(neighbourhoods_in_TinF)
+                         
+        for nbhd in neighbourhoods_in_TinF:
+            nbhd.sort()
+            
+
+        all_pairs_are_ok = True
+        for nbhd1_i in range(num_neighbourhoods_in_TinF-1):
+            this_pair_is_ok = True # to begin with
+            for nbhd2_i in range(nghd1_i+1, neighbourhoods_in_TinF):
+                if neighbourhoods_in_TinF[nbhd1_i] == neighbourhoods_in_TinF[nbhd2_i]:
+                    this_pair_is_ok = False
+                    break
+            if this_pair_is_ok == False:
+                all_pairs_ar_ok = False
+                break
+
+        if all_pairs_are_ok == True:
+            claim2b = True
+            sys.stdout.write("Claim 2b is True. All vertices of F attach differently to T.\n")
+            sys.stdout.flush()
+        else:
+            sys.stdout.write("Claim 2b is False.\n")
+            sys.stdout.flush()
+            
+        """
+        Flabelled = copy(Fgraph)
+        Flabelled.t = Fgraph.n # now the copy is fully labelled
+        perms = Permutations(range(1,Fgraph.n+1))
+
+        # first retrieve how to embed Tgraph into Fgraph
+        if claim2a:
+            for perm in perms:
+                Ffresh = copy(Flabelled)
+                Ffresh.relabel(perm)
+                is_embeddable = True
+                for i in range(1,Tgraph.n+1):
+                    for j in range(1,Tgraph.n+1):
+                        e = [i,j]
+                        e.sort()
+                        e = tuple(e)
+                        if (e in Tgraph.edges and e in Ffresh.edges) or (not(e in Tgraph.edges) and not(e in Ffresh.edges)):
+                            continue
+                        else:
+                            is_embeddable = False # could break after this, improve once correct
+                        
+                if is_embeddable:
+                    Flabelled = copy(Ffresh)
+                    break
+
+        
+        # have our Ffresh with Tgraph as an induced subgraph on first Tgraph.n vertices of Ffresh
+        # now check if attachments are all distinct
+        restricted_neighbourhoods = [[] for x in range(Flabelled.n)]
+        nn = Tgraph.n
+        for x,y in Flabelled.edges:
+            # if (x,y) edge has x in Tgraph
+            if x < nn+1: restricted_neighbourhoods[y-1].append(x)
+            # if (x,y) edge has y in Tgraph
+            if y < nn+1: restricted_neighbourhoods[x-1].append(y)
+
+        if len(restricted_neighbourhoods) == len(set(map(tuple,restricted_neighbourhoods) )):
+            claim2b = True
+        """
+        
+        claim2 = claim2a and claim2b
+        if claim2:
+            print Tgraph, "is uniquely embeddable into", Fgraph, "and different vertices of", Fgraph, "attach differently to", str(Tgraph)+".\n"
+
+
+            
+        # ---------- CLAIM 1 -----------
+        # forbidding Tgraph will decrease objective function
+        # ------------------------------
+
+        newproblem = None
+        
+        if Tgraph.n > 1:
+            newproblem = GraphProblem(order=self._n,
+                                       forbid_induced=self._forbidden_induced_graphs+[tgraph],
+                                       forbid=self._forbidden_graphs,
+                                       forbid_homomorphic_images=self._forbid_homomorphic_images,
+                                       density=self._density_graphs[0],
+                                       minimize=self._minimize,
+                                       type_orders=self._type_orders,
+                                       types=self._types_from_input,
+                                       max_flags=self._max_flags,
+                                       compute_products=self._compute_products,
+                                       mode=self._mode)
+
+            """
+            # NOTE: this used to be here instead of above before correction!!
+
+            self.forbid(tgraph)
+            # reset states
+            for state_name, state_value in self._states.items():
+                if state_name == 'specify':
+                    self._states[state_name] = "yes"
+                else:
+                    self._states[state_name] = "no"
+            self.generate_flags(order=self._n)
+            self.write_sdp_input_file()
+            """
+            newproblem.solve_sdp(import_solution_file=None)
+            newproblem.make_exact()
+            
+
+            if not self._minimize:
+                if newproblem._bound < thebound:
+                    print "Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is strictly less than", str(thebound)+"."
+                    claim1 = True
+                else:
+                    print "Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is at least", str(thebound)+"."
+
+            else:
+                if newproblem._bound > thebound:
+                    print "Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is strictly more than", str(thebound)+"."
+                    claim1 = True
+                else:
+                    print "Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is at most", str(thebound)+"."
+
+        else: #case: Tgraph.n <= 1
+            if not self._minimize:
+                if 0 < thebound:
+                    print "Forbidding", Tgraph, "yields a bound of", 0, "which is strictly less than", str(thebound)+"."
+                    claim1 = True
+                else:
+                    print "Forbidding", Tgraph, "yields a bound of", 0, "which is at least", str(thebound)+"."
+
+            else: 
+                if 1 > thebound:
+                    print "Forbidding", Tgraph, "yields a bound of", 0, "which is strictly more than", str(thebound)+"."
+                    claim1 = True
+                else:
+                    print "Forbidding", Tgraph, "yields a bound of", 0, "which is at most", str(thebound)+"."
+                    
+
+
+        
+
+        print # newline
+
+        # ASSUMPTION 1.2
+        if assumption12:
+            print "Assumption 1.2 verified."
+        else:
+            print "Assumption 1.2 NOT verified."
+
+        # CONDITION 1, THM 4.1
+        if claim0:
+            print "Condition 1 of Thm 4.1 verified."
+        else:
+            print "Condition 1 of Thm 4.1 NOT verified."
+
+        # CONDITION 2, THM 4.1
+        if claim1 and claim2:
+            print "Condition 2 of Thm 4.1 verified."
+        elif claim1 and not claim2:
+            print "Condition 2 of Thm 4.1 NOT verified."
+            print "Forbidding your type graph", Tgraph, "does yield a strictly worse bound, but the rest of Condition 2 in Thm 4.1 does NOT hold."
+        elif claim2 and not claim1:
+            print "Condition 2 of Thm 4.1 NOT verified."
+            print "Forbidding your type graph", Tgraph, "does NOT yield a strictly worse bound, but the rest of Condition 2 in Thm 4.1 holds."
+        else:
+            print "Condition 2 of Thm 4.1 NOT verified."
+            print "Forbidding your type graph", Tgraph, "does NOT yield a strictly worse bound, and the rest of Condition 2 in Thm 4.1 does NOT hold either."
+
+        # CONDITION 3, THM 4.1
+        if claim3:
+            print "Condition 3 of Thm 4.1 verified."
+        else:
+            print "Condition 3 of Thm 4.1 NOT verified."
+                    
+        if assumption12 and claim0 and claim1 and claim2 and claim3:
+            self._robustly_stable = True
+            print "\nOooh la la - early Christmas! The problem is robustly", str(Fgraph)+"-stable!\n"
+            print "*"*20, "ROBUST STABILITY -- OK", "*"*20
+            if newproblem:
+                newproblem.write_certificate("cert_robust_stab.js") # only writes certificate of the FA problem with forbidden Tgraph
+                print "Certificates written into 'cert_flag_alg.js' and 'cert_robust_stab.js'."
+            else: # newproblem is None
+                print "Certificate is trivial, since everything is forbidden in a graph that avoids a 1-vertex subgraph.\n"
+            self.write_certificate("cert_flag_alg.js")
+        return
+    
+
+    def verify_perfect_stability(self, fgraph=None):
+        """Verify conditions of Thm 5.9 for Perfect Stability.
+
+        Conditions:
+        1. Assumption 1.2
+        2. Robust fgraph-stability
+        3. Assumption 5.1
+
+        1. and 2. are automatically met if problem is robustly stable (prerequisite to this method)
+        3. needs following claims:
+        (a) family of forbidden graphs is twin-free
+        (b) fgraph is \lambda-minimal
+        (c) problem is classically fgraph-stable (follows from robust stability)
+        
+        CLAIM 1: all forbidden graphs are twin-free
+        CLAIM 2: fgraph is \lambda-minimal is implied from forbidding B resulting in a smaller extremal value
+
+
+        INPUT
+        
+        - fgraph: graph string of F graph that is blown up into the extremal construction. 
+        If it is not provided as an argument, it will be taken from the construction.
+        """
+        
+        print "\n\n", "-"*30, "VERIFYING PERFECT STABILITY...", "-"*30, "\n\n"
+
+
+        # nothing to do
+        if self._perfectly_stable:
+            print "The problem is already perfectly stable! Nothing to verify.\n"
+            return
+
+        # missing prerequisite
+        if not self._robustly_stable:
+            print "Please verify robust stability first (call verify_robust_stability() method).\n"
+            return
+
+        # start modestly
+        claim1 = False
+        claim2 = False
+        
+        # ----------- CLAIM 1 ------------
+        # all forbidden graphs are twin-free
+        # twin-free: no x,y have same neighbours
+        # --------------------------------
+
+        twins_exist = False
+        twins_graph = None # forbidden graph F that has twins
+        twins_vx = None # 2-tuple of x,y twins in F
+        
+        for g in self._forbidden_graphs:
+
+            if twins_exist: # only continue if no twins found in previous graphs
+                break
+            
+            vg = range(1,g.n+1) # vertices of g
+            eg = g.edges # tuple of tuples
+
+            for x in vg:
+
+                if twins_exist: # only continue if no twins found for previous x vertices
+                    break
+                
+                Nx = list()
+                for (a,b) in eg:
+                    if a == x:
+                        Nx.append(b)
+                    elif b == x:
+                        Nx.append(a)
+
+                for y in range(x+1,g.n+1):
+                    Ny = list()
+                    if not ((x,y) in eg or (y,x) in eg):
+                        for (a,b) in eg or (b,a) in eg:
+                            if a == y:
+                                Ny.append(b)
+                            elif b == x:
+                                Ny.append(b)
+                                
+                            # compare with Nx
+                        if set(Nx) & set(Ny):
+                            twins_exist = True
+                            twins_graph = g
+                            twins_vx = (x,y)
+                            break
+
+        if twins_exist:
+            print "CLAIM 1 NOT verified.\n(At least one of the forbidden graphs is not twin-free."
+            print "Example:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".)\n"
+        else:
+            print "CLAIM 1 verified. All forbidden graphs are twin-free.\n"
+            claim1 = True
+
+        # ----------- CLAIM 2 ------------
+        # F is \lambda-minimal
+        # \lambda-minimal: F without any vertex, and blown-up reduces \lambda
+        # --------------------------------
+
+        Fgraph = None
+        if fgraph == None:
+            Fgraph = self._construction.graph
+        else:
+            try:
+                Fgraph = GraphFlag(fgraph)
+            except ValueError:
+                print "Ooops! F graph could not be initialized. Try providing a nicer one. More pink!"
+
+
+        original_bound = self._bound
+        perfstabproblem = GraphProblem(order=self._n,
+                                  forbid_induced=self._forbidden_induced_graphs+[str(Fgraph)],
+                                  forbid=self._forbidden_graphs,
+                                  forbid_homomorphic_images=self._forbid_homomorphic_images,
+                                  density=self._density_graphs[0],
+                                  minimize=self._minimize,
+                                  type_orders=self._type_orders,
+                                  types=self._types_from_input,
+                                  max_flags=self._max_flags,
+                                  compute_products=self._compute_products,
+                                  mode=self._mode)
+        
+        perfstabproblem.solve_sdp(solver="csdp")
+        perfstabproblem.make_exact()
+
+        new_bound = perfstabproblem._bound
+
+        if self._minimize == False:
+            if new_bound < original_bound:
+                print "The bound of", new_bound, "is strictly less than the original bound of", original_bound, ", OK."
+                claim2 = True
+            else:
+                print "The bound of", new_bound, "is NOT strictly less than the original bound of", original_bound, "."
+        else:
+            if new_bound > original_bound:
+                print "The bound of", new_bound, "is strictly more than the original bound of", original_bound, ", OK."
+                claim2 = True
+            else:
+                print "The bound of", new_bound, "is NOT strictly more than the original bound of", original_bound,"."
+
+        if claim2 == True:
+            print "CLAIM 2 verified: fgraph is \lambda-minimal.\n"
+        else:
+            print "CLAIM 2 NOT verified.\n(With "+str(Fgraph)+" forbidden, the bound is  not strictly smaller than the current bound."
+ 
+
+        if claim1 and claim2:
+            print "\n","*"*20, "PERFECT STABILITY -- OK", "*"*20,"\n"
+            self._perfectly_stable = True
+            perfstabproblem.write_certificate("cert_perf_stab.js")
+
+         
+                        
+
+        #==========================================================
+        # construct matrix M
+        #==========================================================
+        
+        C = self._construction
+        B = C.graph
+        B.make_minimal_isomorph()
+        Bc = B.complement()
+        tau = self.tgraph
+        tau_index = self.types.index(tau)
+        tau_flags = self.flags[tau_index]
+
+        maps_tau_B = itertools.product(range(1,B.n+1), repeat=tau.n) # generates all (tau.n)-tuples with entries in [1,...,B.n]
+        
+        # for each map h in maps_tau_B
+        # check if "(i,j) edge/nonedge in tau" implies "(h(i),h(j)) edge/nonedge in B"
+        # if yes, add it to X
+        X = list()
+        for h in maps_tau_B:
+            is_hom = True
+            
+            for e in tau.edges:
+                he = [h[e[0]-1],h[e[1]-1]]
+                he.sort()
+                he = tuple(he)
+                if not he in B.edges:
+                    # h not homomorphism
+                    is_hom = False
+                    break
+            if is_hom:
+                tauc = tau.complement()
+                for ec in tauc.edges:
+                    hec = [h[ec[0]-1], h[ec[1]-1]]
+                    hec.sort()
+                    hec = tuple(hec)
+                    if not hec in Bc.edges:
+                        # h not homomorphism
+                        is_hom = False
+                        break
+            if is_hom:
+                X.append(h)
+        
+        # for each f in X, construct matrix Mf
+        numflags = len(self.flags[tau_index])
+        D = matrix(QQ, ones_matrix(1,B.n))
+        Q_tau = self._sdp_Q_matrices[tau_index]
+
+        count = 0
+        for f_tuple in X:
+            f = list(f_tuple)
+
+            Mf = [[0 for x in range(B.n)] for y in range(numflags)]
+
+            for j in range(numflags): # rows of Mf
+                Fj = self.flags[tau_index][j]
+                
+                for w in range(1,B.n+1): # columns of Mf
+                    fj = f+[w]
+                    edges_match_so_far = True
+                    for i in range(tau.n):
+                        if not edges_match_so_far:
+                            break
+                        pairF = [i+1,tau.n+1]
+                        pairB = [fj[i],w]
+                        pairF.sort()
+                        pairB.sort()
+                        pairF = tuple(pairF)
+                        pairB = tuple(pairB)
+
+                        if pairB in B.edges and pairF in Fj.edges:
+                            continue
+                        elif not (pairB in B.edges) and not (pairF in Fj.edges):
+                            continue
+                        else:
+                            if f_tuple == (4,3,1):
+                                print "true C", pairF, pairB, w, Fj, B
+                            edges_match_so_far = False
+
+                    if edges_match_so_far:
+                        Mf[j][w-1] = 1
+
+            Mf = matrix(Mf)
+            """
+            print f_tuple, Mf
+            print
+            """
+            Mf_dash = Mf.transpose()*self._exact_Q_matrices[tau_index]*Mf
+            D = D.transpose().augment(Mf_dash.transpose()).transpose()
+
+
+        b = [0 for x in range(D.dimensions()[0])]
+        b[0] = 1
+        b = vector(b)
+        a = D.solve_right(b)
+        print a
+                                           
+                                
+                        
+                        
+            
+
+            
+    
 def ThreeGraphProblem(order=None, **kwargs):
     r"""
     Returns a Problem object, that will represent a Turán-type 3-graph problem. For help
@@ -3300,7 +3975,7 @@ def fpds(tp, flg1, flg2, nn):
     fblock2 = make_graph_block([f2], f2.n)
     
     try:
-        prod = the_most_ridiculous_name._flag_cls.flag_products(gblock, t, fblock1, fblock2)       
+        prod = the_most_ridiculous_name._flag_cls.flag_products(gblock, t, fblock1, fblock2)
     except ValueError:
         print "You are feeding unhealthy things to the function!"
         sys.exit(1)

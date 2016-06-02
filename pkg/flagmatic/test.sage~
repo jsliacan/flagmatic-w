@@ -1,6 +1,0 @@
-a = "plain"
-
-if not a "plain":
-    print "Works!"
-else:
-    print "Does not work!"
