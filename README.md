@@ -7,14 +7,14 @@ flagmatic
 
 To install, navigate to the directory with `setup.py` file:
 
-   $ cd path/to/flagmatic/pkg
+    $ cd path/to/flagmatic/pkg
 
 Then run the following code to install CSDP solver:
 
-   $ sage -i csdp
+    $ sage -i csdp
 
 Finally, install Flagmatic with the code below.
 
-   $ sage -python setup.py install
+    $ sage -python setup.py install
 
 Have fun.
