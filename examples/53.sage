@@ -1,5 +1,0 @@
-problem = GraphProblem(6, forbid_induced=(3,0), density=(5, binomial(5, 2)), minimize=True)
-construction = GraphBlowupConstruction("5:12233445511122334455")
-problem.set_extremal_construction(construction)
-problem.solve_sdp()
-problem.make_exact(2^20)

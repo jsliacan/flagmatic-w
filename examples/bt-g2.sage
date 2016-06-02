@@ -1,6 +1,0 @@
-problem = ThreeGraphProblem(7, forbid=["7:123124135256167467", "5:123124125345", "4:123124134"], forbid_homomorphic_images=True)
-problem.set_inactive_types(3, 4)
-construction = BlowupConstruction(ThreeGraphFlag("5:123234345145125"))
-problem.set_extremal_construction(C)
-problem.solve_sdp(True)
-problem.make_exact(2^30)

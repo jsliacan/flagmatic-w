@@ -1,5 +1,0 @@
-problem = GraphProblem(5, forbid_induced=(4,0), density=(3,3), minimize=True)
-construction = GraphBlowupConstruction("3:112233", phantom_edge=(1,2))
-problem.set_extremal_construction(construction)
-problem.solve_sdp()
-problem.make_exact()

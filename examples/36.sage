@@ -1,5 +1,0 @@
-problem = GraphProblem(7, forbid_induced=(6, 0), density=(3, 3), minimize=True, types=["1:", "3:", "3:12", "3:1213", "3:121323", "5:12131415232425343545"])
-construction = GraphBlowupConstruction("5:1122334455", phantom_edge=(1, 2))
-problem.set_extremal_construction(construction)
-problem.solve_sdp(True, tolerance=1e-4)
-problem.make_exact()

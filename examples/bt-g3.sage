@@ -1,5 +1,0 @@
-problem = ThreeGraphProblem(6, forbid=["4:123124134234", "6:123124125345346", "6:123124345156256", "6:123124125346356456"], forbid_homomorphic_images=True)
-construction = ThreeGraphBlowupConstruction("4:123124134", weights=[1/3, 2/9, 2/9, 2/9])
-problem.set_extremal_construction(construction)
-problem.solve_sdp(True)
-problem.make_exact(2^30)
