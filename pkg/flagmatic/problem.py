@@ -3166,19 +3166,24 @@ class Problem(SageObject):
         """
         INPUT:
         - "tgraph": graph string of the type that we want to use in the proof
-        - "fgraph": usually the minimum graph that will be blown up (F in PDF file)
+        - "fgraph": usually the minimum graph that will be blown up (B in the paper)
 
         ASSUMPTION 1.2: Forbidden graphs are not subgraphs of extremal construction.
-        CLAIM 0: Bound is sharp, exact, and construction is a blow-up
-        CLAIM 1: forbidding tgraph gives strictly worse bound
-        CLAIM 2: unique embeddability
-        CLAIM 3: every sharp graph of order N admits a strong homomorphism into F
+
+        CLAIM 0:  Bound is sharp, exact, and construction is a blow-up (balanced, weights are equal in Flagmatic)
+        CLAIM 1:  |tgraph| <= N-2, and forbidding tgraph gives strictly worse bound
+        CLAIM 2a: There exists unique (up to automorph of tgraph in F) strong homomorphism f from tgraph to F
+        CLAIM 2b: Every distinct x,y in V(F), neigh_F(x) \cap f(V(tgraph)) \neq neigh_F(y) \cap f(V(tgraph))
+        CLAIM 3:  Every sharp graph of order N admits a strong homomorphism into F
 
         Thm 4.1:
         1. CLAIM 0
         2. CLAIM 1 & 2
         3. CLAIM 3
         Then the problem is robustly F-stable.
+
+        NOTE:
+        Fgraph, or F, is denoted by B in the paper.
         """
 
         print "\n\n", "-"*30, "VERIFYING ROBUST STABILITY...", "-"*30, "\n\n"
@@ -3241,7 +3246,8 @@ class Problem(SageObject):
             assumption12 = True
                 
         # ---------- CLAIM 0 -----------
-        # previous work OK, i.e. flag algebras problem OK and bound sharp
+        # claim0a: previous work OK, i.e. flag algebras problem OK and bound sharp
+        # claim0b: construction is a blowup
         # claim0a and claim0b
         # ------------------------------
         claim0a = False
@@ -3257,7 +3263,7 @@ class Problem(SageObject):
         thebound = self._bound
         print "The problem is exact with a sharp bound of", str(thebound)+".\n"
         
-        # check if the construction is a blowup (then we implicitly have the vector \bf{a}
+        # check if the construction is a blowup (then we implicitly have the part ratios)
         # claim0b
         if not isinstance(self._construction, BlowupConstruction):
             print "The construction is not a blow-up construction."
@@ -3300,147 +3306,122 @@ class Problem(SageObject):
         coTgraph = Tgraph.complement()
         coFgraph = Fgraph.complement()
         sageF = Graph(Fgraph.n)
-        for e in Fgraph.edges:
-            sageF.add_edge(e)
-        Faut_group_order = sageF.automorphism_group().order()
+
+        if Fgraph.n > 0:
+
+            sys.stdout.write("Verifying Claim 2...\n")
+            
+            for e in Fgraph.edges:
+                sageF.add_edge(e)
+            Faut_group_order = sageF.automorphism_group().order()
         
-        strong_hom_count = 0
-        for tpl in otuples:
-            # for each map into F, check if it induces T
-            edge_missing = False
-            for edge in Tgraph.edges:
-                if edge_missing == True:
-                    break
-                imedge1 = (tpl[edge[0]-1],tpl[edge[1]-1])
-                imedge2 = (tpl[edge[1]-1],tpl[edge[0]-1])
-                if imedge1 in Fgraph.edges or imedge2 in Fgraph.edges:
-                    continue
-                else:
-                    edge_missing = True
-                    break
-            if edge_missing==True:
-                continue # go to next perm
-            coedge_missing = False
-            for coedge in coTgraph.edges:
-                if coedge_missing == True:
-                    break
-                imcoedge1 = (tpl[coedge[0]-1],tpl[coedge[1]-1])
-                imcoedge2 = (tpl[coedge[1]-1],tpl[coedge[0]-1])
-                if imcoedge1 in coFgraph.edges or imcoedge2 in coFgraph.edges:
-                    continue
-                else:
-                    coedge_missing = True
-                    break
-                
-            if coedge_missing or edge_missing:
-                continue # this wasn't a strong hom embedding of T into F
-            else:
-                strong_hom_count += 1
-                #sys.stdout.write("%s\n" %str(tpl))
-                
-        claim2a = strong_hom_count == Faut_group_order
-        # sys.stdout.write("Order of Aut(F) is %d.\n" % Faut_group_order)
-        # sys.stdout.write("Number of strong homs of T into F is %d.\n\n" % strong_hom_count)
+            strong_hom_count = 0
+            for tpl in otuples:
+                # for each map into F, check if it induces T
+                edge_missing = False
+                for edge in Tgraph.edges:
+                    if edge_missing == True:
+                        break
+                    imedge1 = (tpl[edge[0]-1],tpl[edge[1]-1])
+                    imedge2 = (tpl[edge[1]-1],tpl[edge[0]-1])
+                    if imedge1 in Fgraph.edges or imedge2 in Fgraph.edges:
+                        continue
+                    else:
+                        edge_missing = True
+                        break
+                if edge_missing==True:
+                    continue # go to next perm
+                coedge_missing = False
+                for coedge in coTgraph.edges:
+                    if coedge_missing == True:
+                        break
+                    imcoedge1 = (tpl[coedge[0]-1],tpl[coedge[1]-1])
+                    imcoedge2 = (tpl[coedge[1]-1],tpl[coedge[0]-1])
+                    if imcoedge1 in coFgraph.edges or imcoedge2 in coFgraph.edges:
+                        continue
+                    else:
+                        coedge_missing = True
+                        break
                     
+                if coedge_missing or edge_missing:
+                    continue # this wasn't a strong hom embedding of T into F
+                else:
+                    strong_hom_count += 1
+                    
+                    
+            claim2a = strong_hom_count == Faut_group_order            
             
+            
+            # work towards claim2b:
+            # find how to strongly embed Tgraph into Fgraph == (find induced copy in Blowup(Fgraph) )
+            
+            claim2b_message = ""
+        
+
+            # this is quite big for brute force, just skip.
+            
+            NF = Fgraph.n
+            NT = Tgraph.n
+            Fgraph_vertex_set = range(1,NF+1)
+            
+            combs = Combinations(range(1,NF+1), NT)
+            neighbourhoods_in_TinF = list()
+            
+            for comb in combs:
                 
-        # work towards claim2b:
-
-        # find how to strongly embed Tgraph into Fgraph == (find induced copy in B(Fgraph) )
-
-        NF = Fgraph.n
-        NT = Tgraph.n
-        Fgraph_vertex_set = range(1,NF+1)
-        
-        combs = Combinations(range(1,NF+1), NT)
-        neighbourhoods_in_TinF = list()
-        
-        for comb in combs:
-            TinF = Fgraph.degenerate_induced_subgraph(comb)
-
-            if TinF == Tgraph:
-                comb_c = copy(Fgraph_vertex_set)
-                for x in comb:
-                    comb_c.remove(x)
-
-                for v in comb_c:
-                    v_neighbourhood_in_TinF = list()
-                    for u in comb:
-                        if (u,v) in Fgraph.edges or (v,u) in Fgraph.edges:
-                            v_neighbourhood_in_TinF.append(u)
-                    neighbourhoods_in_TinF.append(v_neighbourhood_in_TinF)
-            break
-
-        num_neighbourhoods_in_TinF = len(neighbourhoods_in_TinF)
-                         
-        for nbhd in neighbourhoods_in_TinF:
-            nbhd.sort()
-            
-
-        all_pairs_are_ok = True
-        for nbhd1_i in range(num_neighbourhoods_in_TinF-1):
-            this_pair_is_ok = True # to begin with
-            for nbhd2_i in range(nghd1_i+1, neighbourhoods_in_TinF):
-                if neighbourhoods_in_TinF[nbhd1_i] == neighbourhoods_in_TinF[nbhd2_i]:
-                    this_pair_is_ok = False
-                    break
-            if this_pair_is_ok == False:
-                all_pairs_ar_ok = False
+                TinF = Fgraph.degenerate_induced_subgraph(comb)
+                
+                if TinF == Tgraph:
+                    comb_c = copy(Fgraph_vertex_set)
+                    for x in comb:
+                        comb_c.remove(x)
+                        
+                    for v in comb_c:
+                        v_neighbourhood_in_TinF = list()
+                        for u in comb:
+                            if (u,v) in Fgraph.edges or (v,u) in Fgraph.edges:
+                                v_neighbourhood_in_TinF.append(u)
+                                neighbourhoods_in_TinF.append(v_neighbourhood_in_TinF)
                 break
 
-        if all_pairs_are_ok == True:
-            claim2b = True
-            sys.stdout.write("Claim 2b is True. All vertices of F attach differently to T.\n")
-            sys.stdout.flush()
-        else:
-            sys.stdout.write("Claim 2b is False.\n")
-            sys.stdout.flush()
+            num_neighbourhoods_in_TinF = len(neighbourhoods_in_TinF)
+        
+            for nbhd in neighbourhoods_in_TinF:
+                nbhd.sort()
             
-        """
-        Flabelled = copy(Fgraph)
-        Flabelled.t = Fgraph.n # now the copy is fully labelled
-        perms = Permutations(range(1,Fgraph.n+1))
-
-        # first retrieve how to embed Tgraph into Fgraph
-        if claim2a:
-            for perm in perms:
-                Ffresh = copy(Flabelled)
-                Ffresh.relabel(perm)
-                is_embeddable = True
-                for i in range(1,Tgraph.n+1):
-                    for j in range(1,Tgraph.n+1):
-                        e = [i,j]
-                        e.sort()
-                        e = tuple(e)
-                        if (e in Tgraph.edges and e in Ffresh.edges) or (not(e in Tgraph.edges) and not(e in Ffresh.edges)):
-                            continue
-                        else:
-                            is_embeddable = False # could break after this, improve once correct
-                        
-                if is_embeddable:
-                    Flabelled = copy(Ffresh)
+            
+            all_pairs_are_ok = True
+            for nbhd1_i in range(num_neighbourhoods_in_TinF-1):
+                this_pair_is_ok = True # to begin with
+                for nbhd2_i in range(nbhd1_i+1, num_neighbourhoods_in_TinF):
+                    if neighbourhoods_in_TinF[nbhd1_i] == neighbourhoods_in_TinF[nbhd2_i]:
+                        this_pair_is_ok = False
+                        break
+                if this_pair_is_ok == False:
+                    all_pairs_ar_ok = False
                     break
 
+            if all_pairs_are_ok == True:
+                claim2b = True
+                sys.stdout.write("Claim 2b is True. All vertices of F attach differently to T.\n")
+                sys.stdout.flush()
+            else:
+                sys.stdout.write("Claim 2b is False.\n")
+                sys.stdout.flush()
+
         
-        # have our Ffresh with Tgraph as an induced subgraph on first Tgraph.n vertices of Ffresh
-        # now check if attachments are all distinct
-        restricted_neighbourhoods = [[] for x in range(Flabelled.n)]
-        nn = Tgraph.n
-        for x,y in Flabelled.edges:
-            # if (x,y) edge has x in Tgraph
-            if x < nn+1: restricted_neighbourhoods[y-1].append(x)
-            # if (x,y) edge has y in Tgraph
-            if y < nn+1: restricted_neighbourhoods[x-1].append(y)
+            claim2 = claim2a and claim2b
+            if claim2:
+                print Tgraph, "is uniquely embeddable into", Fgraph, "and different vertices of", Fgraph, "attach differently to", str(Tgraph)+".\n"
+            else:
+                if not claim2a:
+                    print "Claim 2a is False.\n"
+                if not claim2b:
+                    print "Claim 2b is False.\n"
 
-        if len(restricted_neighbourhoods) == len(set(map(tuple,restricted_neighbourhoods) )):
-            claim2b = True
-        """
-        
-        claim2 = claim2a and claim2b
-        if claim2:
-            print Tgraph, "is uniquely embeddable into", Fgraph, "and different vertices of", Fgraph, "attach differently to", str(Tgraph)+".\n"
-
-
+        else: # if Fgraph is too large
+            
+            claim2b_message = "Fgraph is too big. Not verifying claim2b.\n"
             
         # ---------- CLAIM 1 -----------
         # forbidding Tgraph will decrease objective function
@@ -3461,19 +3442,7 @@ class Problem(SageObject):
                                        compute_products=self._compute_products,
                                        mode=self._mode)
 
-            """
-            # NOTE: this used to be here instead of above before correction!!
 
-            self.forbid(tgraph)
-            # reset states
-            for state_name, state_value in self._states.items():
-                if state_name == 'specify':
-                    self._states[state_name] = "yes"
-                else:
-                    self._states[state_name] = "no"
-            self.generate_flags(order=self._n)
-            self.write_sdp_input_file()
-            """
             newproblem.solve_sdp(import_solution_file=None)
             newproblem.make_exact()
             
@@ -3558,22 +3527,26 @@ class Problem(SageObject):
     
 
     def verify_perfect_stability(self, fgraph=None):
-        """Verify conditions of Thm 5.9 for Perfect Stability.
+        """Verify conditions of Thm 7.1 for Perfect Stability.
 
         Conditions:
-        1. Assumption 1.2
+        1. Assumption 2.1
         2. Robust fgraph-stability
-        3. Assumption 5.1
+        3. Assumption 5.1.1 (each forbidden graph is twin-free)
 
+        and one of the following:
+
+        4. rk(Q_tau) = dim(Q_tau)-1
+        5. \lambda(Forb(\F \cup F)) < \lambda(Forb(\F)) (assuming \lambda is being maximized)
+
+        
         1. and 2. are automatically met if problem is robustly stable (prerequisite to this method)
-        3. needs following claims:
-        (a) family of forbidden graphs is twin-free
-        (b) fgraph is \lambda-minimal
-        (c) problem is classically fgraph-stable (follows from robust stability)
+
         
         CLAIM 1: all forbidden graphs are twin-free
-        CLAIM 2: fgraph is \lambda-minimal is implied from forbidding B resulting in a smaller extremal value
-
+        CLAIM 2: rk(Q_tau) = dim(Q_tau)-1
+        CLAIM 3: forbidding B resulting in a smaller extremal value (assuming \lambda is being maximized)
+        
 
         INPUT
         
@@ -3597,6 +3570,7 @@ class Problem(SageObject):
         # start modestly
         claim1 = False
         claim2 = False
+        claim3 = False
         
         # ----------- CLAIM 1 ------------
         # all forbidden graphs are twin-free
@@ -3650,66 +3624,94 @@ class Problem(SageObject):
             print "CLAIM 1 verified. All forbidden graphs are twin-free.\n"
             claim1 = True
 
-        # ----------- CLAIM 2 ------------
-        # F is \lambda-minimal
-        # \lambda-minimal: F without any vertex, and blown-up reduces \lambda
-        # --------------------------------
 
-        Fgraph = None
-        if fgraph == None:
-            Fgraph = self._construction.graph
-        else:
-            try:
-                Fgraph = GraphFlag(fgraph)
-            except ValueError:
-                print "Ooops! F graph could not be initialized. Try providing a nicer one. More pink!"
+        # ----------- CLAIM 2 -----------
+        # rk(Q_tau) = dim(Q_tau)-1
+        # -------------------------------
 
+        # note that tau = tgraph (just different notation)
 
-        original_bound = self._bound
-        perfstabproblem = GraphProblem(order=self._n,
-                                  forbid_induced=self._forbidden_induced_graphs+[str(Fgraph)],
-                                  forbid=self._forbidden_graphs,
-                                  forbid_homomorphic_images=self._forbid_homomorphic_images,
-                                  density=self._density_graphs[0],
-                                  minimize=self._minimize,
-                                  type_orders=self._type_orders,
-                                  types=self._types_from_input,
-                                  max_flags=self._max_flags,
-                                  compute_products=self._compute_products,
-                                  mode=self._mode)
-        
-        perfstabproblem.solve_sdp(solver="csdp")
-        perfstabproblem.make_exact()
-
-        new_bound = perfstabproblem._bound
-
-        if self._minimize == False:
-            if new_bound < original_bound:
-                print "The bound of", new_bound, "is strictly less than the original bound of", original_bound, ", OK."
+        tau_index = None
+        try:
+            tau_index = self.types.index(self.tgraph)
+            Q_tau = self._exact_Q_matrices[tau_index]
+            Q_tau_rk = Q_tau.rank()
+            if Q_tau.dimensions()[0]-1 == Q_tau_rk:
                 claim2 = True
+                print "CLAIM 2 verified. Q_tau has dimensions", Q_tau.dimensions(), "and rank", str(Q_tau_rk)+".\n"
             else:
-                print "The bound of", new_bound, "is NOT strictly less than the original bound of", original_bound, "."
-        else:
-            if new_bound > original_bound:
-                print "The bound of", new_bound, "is strictly more than the original bound of", original_bound, ", OK."
-                claim2 = True
-            else:
-                print "The bound of", new_bound, "is NOT strictly more than the original bound of", original_bound,"."
+                print "CLAIM 2 NOT verified. Matrix Q_tau of dimensions", Q_tau.dimensions(), "has rank", str(Q_tau_rk)+".\n"
+                
+        except Exception:
+            print "Most probably, tgraph is not among the Flagmatic's types. Will attempt to verify Claim 3 now...\n"
+            
 
-        if claim2 == True:
-            print "CLAIM 2 verified: fgraph is \lambda-minimal.\n"
-        else:
-            print "CLAIM 2 NOT verified.\n(With "+str(Fgraph)+" forbidden, the bound is  not strictly smaller than the current bound."
+
+
+
+        if not claim2: # only verify claim3 if claim2 failed.
+            
+            
+            # ----------- CLAIM 3 ------------
+            # Adding F to forbidden family reduces \lambda value
+            # --------------------------------
+            
+            Fgraph = None
+            if fgraph == None:
+                Fgraph = self._construction.graph
+            else:
+                try:
+                    Fgraph = GraphFlag(fgraph)
+                except ValueError:
+                    print "Ooops! F graph could not be initialized. Try providing a nicer one. More pink!"
+                    
+                    
+            original_bound = self._bound
+            perfstabproblem = GraphProblem(order=self._n,
+                                           forbid_induced=self._forbidden_induced_graphs+[str(Fgraph)],
+                                           forbid=self._forbidden_graphs,
+                                           forbid_homomorphic_images=self._forbid_homomorphic_images,
+                                           density=self._density_graphs[0],
+                                           minimize=self._minimize,
+                                           type_orders=self._type_orders,
+                                           types=self._types_from_input,
+                                           max_flags=self._max_flags,
+                                           compute_products=self._compute_products,
+                                           mode=self._mode)
+            
+            perfstabproblem.solve_sdp(solver="csdp")
+            perfstabproblem.make_exact()
+            
+            new_bound = perfstabproblem._bound
+            
+            if self._minimize == False:
+                if new_bound < original_bound:
+                    print "The bound of", new_bound, "is strictly less than the original bound of", original_bound, ", OK."
+                    claim3 = True
+                else:
+                    print "The bound of", new_bound, "is NOT strictly less than the original bound of", original_bound, "."
+            else:
+                if new_bound > original_bound:
+                    print "The bound of", new_bound, "is strictly more than the original bound of", original_bound, ", OK."
+                    claim3 = True
+                else:
+                    print "The bound of", new_bound, "is NOT strictly more than the original bound of", original_bound,"."
+                    
+            if claim3 == True:
+                print "CLAIM 3 verified: fgraph is \lambda-minimal.\n"
+            else:
+                print "CLAIM 3 NOT verified.\n(With "+str(Fgraph)+" forbidden, the bound is  not strictly smaller than the current bound."
  
 
-        if claim1 and claim2:
+        if claim1 and (claim2 or claim3):
             print "\n","*"*20, "PERFECT STABILITY -- OK", "*"*20,"\n"
             self._perfectly_stable = True
-            perfstabproblem.write_certificate("cert_perf_stab.js")
+            if not claim2:
+                perfstabproblem.write_certificate("cert_perf_stab.js")
 
          
                         
-
+        """
         #==========================================================
         # construct matrix M
         #==========================================================
@@ -3792,10 +3794,7 @@ class Problem(SageObject):
                         Mf[j][w-1] = 1
 
             Mf = matrix(Mf)
-            """
-            print f_tuple, Mf
-            print
-            """
+
             Mf_dash = Mf.transpose()*self._exact_Q_matrices[tau_index]*Mf
             D = D.transpose().augment(Mf_dash.transpose()).transpose()
 
@@ -3805,7 +3804,7 @@ class Problem(SageObject):
         b = vector(b)
         a = D.solve_right(b)
         print a
-                                           
+        """
                                 
                         
                         
