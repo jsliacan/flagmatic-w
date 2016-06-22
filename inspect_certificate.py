@@ -45,6 +45,7 @@ Possible options:
 --verify-bound               Verify the bound.
 --sharp-graphs               Display the admissible graphs that are sharp.
 --flag-algebra-coefficients  Display each admissible graph's flag algebra coefficient.
+--verify-robust-stability    Display whether the problem is B-robustly stable.
 """
 
 try:
