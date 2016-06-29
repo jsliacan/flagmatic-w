@@ -969,7 +969,7 @@ class Problem(SageObject):
         
         assumption_flags_block = make_graph_block(assumption_flags, m)
         graph_block = make_graph_block(self._graphs, self.n)
-
+        
         for i in range(len(terms)):
             fg = terms[i][0]
             flags_block = make_graph_block([fg], fg.n)
@@ -996,14 +996,16 @@ class Problem(SageObject):
 
         new_density_indices = range(num_previous_densities, num_previous_densities + len(quantum_graphs))
         self._active_densities.extend(new_density_indices)
-
+        
         if not independent: # never happens in optimization mode
             # make assumptions look like one big assumption (some coeffs must be > 0)
             if not self._density_coeff_blocks:
                 self._density_coeff_blocks.append(new_density_indices)
             else:
                 self._density_coeff_blocks[0].extend(new_density_indices)
-                
+
+        sys.stdout.write("Re-computing densities...\n")
+        sys.stdout.flush()
         self._compute_densities()
 
 
@@ -1887,11 +1889,11 @@ class Problem(SageObject):
         p = pexpect.spawn(cmd, timeout=60 * 60 * 24 * 7)
         obj_val = None
         self._sdp_solver_output = ""
+        sys.stdout.write("Reading output file...\n")
         while True:
             if p.eof():
                 break
             try:
-                sys.stdout.write("Reading output file...\n")
                 p.expect("\r\n")
                 line = p.before.strip() + "\n"
                 self._sdp_solver_output += line
