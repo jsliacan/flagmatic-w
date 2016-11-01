@@ -3188,7 +3188,7 @@ class Problem(SageObject):
         Fgraph, or F, is denoted by B in the paper.
         """
 
-        print "\n\n", "-"*30, "VERIFYING ROBUST STABILITY...", "-"*30, "\n\n"
+        print "Verifying robust stability...", "-"*30
 
         
         # check if work needed
@@ -3517,14 +3517,12 @@ class Problem(SageObject):
                     
         if assumption12 and claim0 and claim1 and claim2 and claim3:
             self._robustly_stable = True
-            print "\nOooh la la - early Christmas! The problem is robustly", str(Fgraph)+"-stable!\n"
-            print "*"*20, "ROBUST STABILITY -- OK", "*"*20
             if newproblem:
                 newproblem.write_certificate("cert_robust_stab.js") # only writes certificate of the FA problem with forbidden Tgraph
-                print "Certificates written into 'cert_flag_alg.js' and 'cert_robust_stab.js'."
             else: # newproblem is None
                 print "Certificate is trivial, since everything is forbidden in a graph that avoids a 1-vertex subgraph.\n"
             self.write_certificate("cert_flag_alg.js")
+            print "\n[OK] ROBUST STABILITY\n"
         return
     
 
@@ -3556,7 +3554,7 @@ class Problem(SageObject):
         If it is not provided as an argument, it will be taken from the construction.
         """
         
-        print "\n\n", "-"*30, "VERIFYING PERFECT STABILITY...", "-"*30, "\n\n"
+        print "Verifying perfect stability...", "-"*30
 
 
         # nothing to do
@@ -3706,11 +3704,10 @@ class Problem(SageObject):
  
 
         if claim1 and (claim2 or claim3):
-            print "\n","*"*20, "PERFECT STABILITY -- OK", "*"*20,"\n"
             self._perfectly_stable = True
             if not claim2:
                 perfstabproblem.write_certificate("cert_perf_stab.js")
-
+            print "[OK] PERFECT STABILITY"
          
                         
         """
