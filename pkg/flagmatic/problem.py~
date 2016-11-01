@@ -3188,7 +3188,7 @@ class Problem(SageObject):
         Fgraph, or F, is denoted by B in the paper.
         """
 
-        print "Verifying robust stability..."
+        print "Verifying robust stability...", "-"*30
 
         
         # check if work needed
@@ -3554,7 +3554,7 @@ class Problem(SageObject):
         If it is not provided as an argument, it will be taken from the construction.
         """
         
-        print "Verifying perfect stability..."
+        print "Verifying perfect stability...", "-"*30
 
 
         # nothing to do
