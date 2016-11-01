@@ -1,5 +1,5 @@
 
-A version of [Flagmatic-dev](https://github.com/jsliacan/flagmatic-dev) that works with Sage-7.2.
+A version of [Flagmatic-dev](https://github.com/jsliacan/flagmatic-dev) that works with Sage-7.4.
 
 
 flagmatic
