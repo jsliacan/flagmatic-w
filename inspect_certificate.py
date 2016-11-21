@@ -45,8 +45,6 @@ Possible options:
 --verify-bound               Verify the bound.
 --sharp-graphs               Display the admissible graphs that are sharp.
 --flag-algebra-coefficients  Display each admissible graph's flag algebra coefficient.
---verify-robust-stability    Display whether the problem is B-robustly stable.
---verify-perfect-stability   Display whether the problem is B-perfectly stable.
 """
 
 try:
@@ -466,3 +464,5 @@ if action == "print flag algebra coefficients":
     for i, g in enumerate(admissible_graphs):
         print "{}. ({}) : {}".format(i + 1, g, bounds[i])
     sys.exit(0)
+
+

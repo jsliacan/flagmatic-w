@@ -3045,17 +3045,18 @@ class Problem(SageObject):
         except:
             raise ValueError
 
-        num_sharps = len(self._sharp_graphs)
+        # self._sharp_graphs stores subgraphs of construction that have non-zero density in it
         c_subgraphs = self._construction.subgraphs(self._n)
-        count_embeddable = 0
-        for gi in self._sharp_graphs:
-            g = self.graphs[gi]
-            if g in c_subgraphs:
-                count_embeddable += 1
-            else:
-                break
-        if count_embeddable == num_sharps:
-            print "Every sharp graph is embeddable into a blowup of", fgraph+".\n"
+        num_embeddable = 0
+        num_sharps = 0
+        for i in len(self.graphs):
+            if self._bounds[i] == self._bound: # gi sharp
+                num_sharps += 1
+                if i in self._sharp_graphs: # gi embeddable
+                    num_embeddable += 1
+        sys.stdout.write("num_embeddable = %d" %num_embeddable)
+        if num_embeddable == num_sharps:
+            print "slfkjdsfoakjpsdfoajskdf Every sharp graph is embeddable into a blowup of", fgraph+".\n"
             claim4 = True
 
         # ---------- CLAIM 4 -----------
@@ -3281,16 +3282,19 @@ class Problem(SageObject):
         # ------------------------------
         
 
-        num_sharps = len(self._sharp_graphs)
-        c_subgraphs = self._construction.subgraphs(self._n)
-        count_embeddable = 0
-        for gi in self._sharp_graphs:
-            g = self.graphs[gi]
-            if g in c_subgraphs:
-                count_embeddable += 1
-            else:
-                break
-        if count_embeddable == num_sharps:
+        c_subgraphs = self._sharp_graphs # these are subgraphs of construction
+        num_embeddable = 0
+        num_sharp = 0
+        for gi in range(len(self.graphs)):
+            if self._bounds[gi] == self._bound:
+                num_sharp += 1
+                if gi in c_subgraphs:
+                    num_embeddable += 1
+                else:
+                    print "Not every sharp graph is embeddable in the blowup of", Fgraph, ". For example, ", self._graphs[gi], " isn't.\n"
+                    print "Claim 3 is FALSE."
+                    break
+        if num_embeddable == num_sharp:
             print "Every sharp graph is embeddable into a blowup of", Fgraph, ".\n"
             claim3 = True
 
@@ -3473,7 +3477,7 @@ class Problem(SageObject):
 
             else: 
                 if 1 > thebound:
-                    print "Forbidding", Tgraph, "yields a bound of", 0, "which is strictly more than", str(thebound)+"."
+                    print "Forbidding", Tgraph, "yields a bound of", 1, "which is strictly more than", str(thebound)+"."
                     claim1 = True
                 else:
                     print "Forbidding", Tgraph, "yields a bound of", 0, "which is at most", str(thebound)+"."
