@@ -19,4 +19,6 @@ Finally, install Flagmatic with the code below.
 
     $ sage -python setup.py install
 
+If you are getting an error about a missing `gcc` command you are probably on a Mac and  you will need to install Command Line Tools by typing `xcode-select --install` in Terminal.
+
 Have fun.
