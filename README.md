@@ -13,7 +13,7 @@ Then run the following code to install CSDP solver:
 
     $ sage -i csdp
 
-or alternatively, download the CSDP package from [https://projects.coin-or.org/Csdp/](https://projects.coin-or.org/Csdp/) and copy csdp to your PATH.
+or alternatively, download the CSDP package from [https://projects.coin-or.org/Csdp/](https://projects.coin-or.org/Csdp/) and copy `csdp` to your PATH.
 
 Finally, install Flagmatic with the code below.
 
