@@ -31,9 +31,11 @@ import itertools
 import json
 import re
 import sys
+import numpy
+
 
 HELP_TEXT = """
-Usage: inspect_certificate.py CERTIFICATE OPTIONS
+Usage: inspect_certificate.py CERTIFICATE [BOUND TAU_GRAPH B_GRAPH CERTIFICATE_TAU [CERTIFICATE_B]]  OPTIONS
 Possible options:
 --help                       Display this message.
 --admissible-graphs          Display the admissible graphs.
@@ -45,6 +47,7 @@ Possible options:
 --verify-bound               Verify the bound.
 --sharp-graphs               Display the admissible graphs that are sharp.
 --flag-algebra-coefficients  Display each admissible graph's flag algebra coefficient.
+--stability                  Verify stability as well.
 """
 
 try:
@@ -59,13 +62,13 @@ try:
     opts, args = getopt.gnu_getopt(sys.argv[1:], "", ["help", "admissible-graphs",
                                                       "flags", "r-matrices", "qdash-matrices",
                                                       "pair-densities", "q-matrices", "verify-bound",
-                                                      "sharp-graphs", "flag-algebra-coefficients"])
+                                                      "sharp-graphs", "flag-algebra-coefficients", "stability"])
 
 except getopt.GetoptError:
     should_print_help = True
     opts, args = ((), ())
 
-if len(args) != 1:
+if len(args) < 1:
     should_print_help = True
 
 action = ""
@@ -91,13 +94,42 @@ for o, a in opts:
         action = "print sharp graphs"
     elif o == "--flag-algebra-coefficients":
         action = "print flag algebra coefficients"
+    elif o == "--stability":
+        action = "verify stability"
 
 if should_print_help:
     print HELP_TEXT
     sys.exit(0)
 
 certificate_filename = args[0]
+lower_bound = ""
+tau = ""
+B = ""
+certificate_filename_tau = ""
 
+if action == "verify stability":
+    if len(args) < 4:
+        raise ValueError("If '--stability' option chosen, need at least 4 arguments: certificate, bound, tau, F.\n")
+    
+    # target bound
+    lb = map(int, args[1].split("/"))
+    lower_bound = fractions.Fraction(lb[0],lb[1])
+    print lower_bound
+    # tau graph
+    tau = str(args[2])
+    print tau
+    # B graph
+    B = str(args[3])
+    print B
+
+    if tau != "1:" and len(args) < 5:
+        raise ValueError("With '--stability' option and tau is not '1:', second certificate is needed.\n")
+    # cert_tau
+    if tau != "1:":
+        certificate_filename_tau = str(args[4])
+
+
+    
 try:
     if certificate_filename[-3:] == ".gz":
         import gzip
@@ -466,3 +498,14 @@ if action == "print flag algebra coefficients":
     sys.exit(0)
 
 
+if action == "verify stability":
+
+    # Check that the problem is sharp
+    print "Lower bound and upper bound match:", bound==fractions.Fraction(lower_bound)
+
+    # Check perfect stability by rk(Q_tau)
+    print "Matrix Q_tau is s.t. rk(Q_tau) = dim(Q_tau)-1:", numpy.linalg.matrix_rank(numpy.array(Qs[0])) == numpy.array(Qs[0]).shape[0]-1
+
+    print tau
+    print B
+    print certificate_filename_tau
