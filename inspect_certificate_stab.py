@@ -33,7 +33,6 @@ import re
 import sys
 import numpy
 
-
 HELP_TEXT = """
 Usage: inspect_certificate.py CERTIFICATE [BOUND TAU_GRAPH B_GRAPH CERTIFICATE_TAU [CERTIFICATE_B]]  OPTIONS
 Possible options:
@@ -48,6 +47,7 @@ Possible options:
 --sharp-graphs               Display the admissible graphs that are sharp.
 --flag-algebra-coefficients  Display each admissible graph's flag algebra coefficient.
 --stability                  Verify stability as well.
+--log                        Log the bound.
 """
 
 try:
@@ -62,7 +62,7 @@ try:
     opts, args = getopt.gnu_getopt(sys.argv[1:], "", ["help", "admissible-graphs",
                                                       "flags", "r-matrices", "qdash-matrices",
                                                       "pair-densities", "q-matrices", "verify-bound",
-                                                      "sharp-graphs", "flag-algebra-coefficients", "stability"])
+                                                      "sharp-graphs", "flag-algebra-coefficients", "stability", "log"])
 
 except getopt.GetoptError:
     should_print_help = True
@@ -96,7 +96,9 @@ for o, a in opts:
         action = "print flag algebra coefficients"
     elif o == "--stability":
         action = "verify stability"
-
+    elif o == "--log":
+        action = "log"
+        
 if should_print_help:
     print HELP_TEXT
     sys.exit(0)
@@ -108,26 +110,30 @@ B = ""
 certificate_filename_tau = ""
 
 if action == "verify stability":
+    if using_sage == False:
+        print "This step needs Sage. Please run 'sage -python inspect_certificate.py ...'."
+        sys.exit()
+        
     if len(args) < 4:
-        raise ValueError("If '--stability' option chosen, need at least 4 arguments: certificate, bound, tau, F.\n")
-    
+        raise ValueError("If '--stability' option chosen, need at least 4 arguments: certificate, bound, tau, B.\n")
+
     # target bound
     lb = map(int, args[1].split("/"))
-    lower_bound = fractions.Fraction(lb[0],lb[1])
-    print lower_bound
+    lower_bound = Integer(lb[0])/lb[1] #fractions.Fraction(lb[0],lb[1])
+    print "Lower bound:", lower_bound
     # tau graph
     tau = str(args[2])
-    print tau
+    print "Type tau:", tau
     # B graph
     B = str(args[3])
-    print B
+    print "Graph B:", B
 
     if tau != "1:" and len(args) < 5:
         raise ValueError("With '--stability' option and tau is not '1:', second certificate is needed.\n")
     # cert_tau
     if tau != "1:":
         certificate_filename_tau = str(args[4])
-
+        print "Certificate when tau is forbidden:", certificate_filename_tau
 
     
 try:
@@ -139,9 +145,11 @@ try:
         certf = bz2.BZ2File(certificate_filename)
     else:
         certf = open(certificate_filename)
+    print "Certificate for the original FA problem:", certificate_filename
 except IOError:
     sys.stdout.write("Could not open certificate.\n")
     sys.exit(1)
+print
 
 certificate = json.load(certf)
 
@@ -498,14 +506,124 @@ if action == "print flag algebra coefficients":
     sys.exit(0)
 
 
+
+
+if action == "log":
+    try:
+        f = open("bound.txt", 'w')
+        f.write(str(bound))
+        print "Bound logged to 'bound.txt'."
+    except IOError:
+        print "Couldn't open 'bound.txt' file for writing."
+        sys.exit()
+        
+
+
 if action == "verify stability":
 
-    # Check that the problem is sharp
-    print "Lower bound and upper bound match:", bound==fractions.Fraction(lower_bound)
+    # Check that each forbidden graph is twin-free
+    # --------------------------------------------
 
-    # Check perfect stability by rk(Q_tau)
-    print "Matrix Q_tau is s.t. rk(Q_tau) = dim(Q_tau)-1:", numpy.linalg.matrix_rank(numpy.array(Qs[0])) == numpy.array(Qs[0]).shape[0]-1
+    # read forbidden graphs from certificate (in description)
+    forbidden_graphs = list()
+    begin = False
+    descr = certificate["description"]
+    if "forbid" in descr:
+        descr_list = descr.strip().split(" ")
+        for i in range(len(descr_list)):
+            item = descr_list[i]
+            if item == "forbid":
+                begin = True
+                continue
+            if begin == True:
+                if item[-1] == ";" or item[-1] == ",":
+                    item = item[:-1]
+                if item[1] == ":":
+                    forbidden_graphs.append(Flag(item))
+
+
+    #check twin-freeness
+    claim1 = False # assume to begin with        
+    twins_exist = False
+    twins_graph = None # forbidden graph B that has twins
+    twins_vx = None # 2-tuple of x,y twins in B
+    for g in forbidden_graphs:
+        
+        if twins_exist: # only continue if no twins found in previous graphs
+            break
+        
+        vg = range(1,g.n+1) # vertices of g
+        eg = g.edges # tuple of tuples
+        
+        for x in vg:
+            
+            if twins_exist: # only continue if no twins found for previous x vertices
+                break
+            
+            Nx = list()
+            for (a,b) in eg:
+                if a == x:
+                    Nx.append(b)
+                elif b == x:
+                    Nx.append(a)
+                    
+            for y in range(x+1,g.n+1):
+                Ny = list()
+                if not ((x,y) in eg or (y,x) in eg):
+                    for (a,b) in eg or (b,a) in eg:
+                        if a == y:
+                            Ny.append(b)
+                        elif b == x:
+                            Ny.append(b)
+                            
+                    # compare with Nx
+                    if set(Nx) & set(Ny):
+                        twins_exist = True
+                        twins_graph = g
+                        twins_vx = (x,y)
+                        break
+
+        
+    if twins_exist:
+        print "\033[31m[FAIL] \033[mAt least one of the forbidden graphs is NOT twin-free."
+        print "       Witness:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".\n"
+    else:
+        claim1 = True
+        print "\033[32m[OK]   \033[mAll forbidden graphs are twin-free."
+
+
+    # Check that the upper bound is tight
+    # -----------------------------------
+    claim2 = False
+    if bound == lower_bound:
+        claim2 = True
+        print "\033[32m[OK]   \033[mLower bound and upper bound match", str(bound)+"."
+    else:
+        print "\033[31m[FAIL] \033[mLower bound is", lower_bound, "and upper bound is", str(bound)+"."
+
+    # Check perfect stability by rk(Q_tau) = dim(Q_tau)-1
+    # ---------------------------------------------------
+    claim3 = False
+
+    itau = types.index(Flag(tau))
+    dminus = numpy.array(Qs[itau]).shape[0]-1
+    Q_tau = [[0 for x in range(dminus+1)] for y in range(dminus+1)]
+    k = 0
+    for i in range(dminus+1):
+        for j in range(i,dminus+1):
+            Q_tau[i][j] = Qs[itau][i][j-i]
+            Q_tau[j][i] = Q_tau[i][j]
+        
+    Q_tau = matrix(QQ, Q_tau)
+    rk =  rank(Q_tau)
+
+    if rk == dminus:
+        claim3 = True
+        print "\033[32m[OK]   \033[mMatrix Q_tau has rk(Q_tau) = dim(Q_tau)-1 =", str(rk)+"."
+    else:
+        print "\033[31m[FAIL] \033[mMatrix Q_tau has rank", rk, "and dim", str(dminus+1)+"."
 
     print tau
     print B
     print certificate_filename_tau
+

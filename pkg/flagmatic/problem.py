@@ -3621,12 +3621,13 @@ class Problem(SageObject):
                             twins_vx = (x,y)
                             break
 
-        if twins_exist:
-            print "CLAIM 1 NOT verified.\n(At least one of the forbidden graphs is not twin-free."
-            print "Example:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".)\n"
-        else:
-            print "CLAIM 1 verified. All forbidden graphs are twin-free.\n"
-            claim1 = True
+            if twins_exist:
+                print "CLAIM 1 NOT verified.\n(At least one of the forbidden graphs is not twin-free."
+                print "Example:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".)\n"
+            else:
+                print "CLAIM 1 verified. All forbidden graphs are twin-free.\n"
+                claim1 = True
+                
 
 
         # ----------- CLAIM 2 -----------
