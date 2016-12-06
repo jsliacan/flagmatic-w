@@ -288,7 +288,25 @@ class Flag(object):
         h.edges = tuple(edges)
         return h
 
+    def delete_vertex(self, vi):
+        # delete vi without normalizing edges
+        if self.t > 0:
+            raise ValueError("Can only delete vertices of unlabelled graphs.\n")
+        if not 1 <= vi <= n:
+            raise ValueError("Vertex index (1,...,n) must be in that range.\n")
 
+        ledges = list(self.edges)
+        newledges = list()
+        for e in ledges:
+            if vi in e:
+                continue
+            else:
+                newledges.append(e)
+
+        self.n = self.n-1
+        self.edges = tuple(newledges)
+        
+                
 admissible_graphs = [Flag(s) for s in certificate["admissible_graphs"]]
 types = [Flag(s) for s in certificate["types"]]
 flags = [[Flag(s) for s in f] for f in certificate["flags"]]
@@ -521,6 +539,8 @@ if action == "log":
 
 if action == "verify stability":
 
+    print "\nChecking conditions for robust stability:"
+    
     # Check that each forbidden graph is twin-free
     # --------------------------------------------
 
@@ -601,6 +621,18 @@ if action == "verify stability":
     else:
         print "\033[31m[FAIL] \033[mLower bound is", lower_bound, "and upper bound is", str(bound)+"."
 
+    
+    # Check that |tau| <= N-2
+    # -----------------------
+    tgraph = Flag(tau)
+    claim3 = (tgraph.n <= admissible_graphs[0].n)
+
+    if claim3:
+        print "\033[32m[OK]   \033[mTau is on", tgraph.n, "vertices, which is at most", str(admissible_graphs[0].n)+"."
+    else:
+        print "\033[31m[FAIL] \033[mThe order of tau is wrong:", str(tgraph.n)+". It must be at most", str(admissible_graphs[0].n)+"."
+
+        
     # Check perfect stability by rk(Q_tau) = dim(Q_tau)-1
     # ---------------------------------------------------
     claim3 = False
@@ -623,7 +655,193 @@ if action == "verify stability":
     else:
         print "\033[31m[FAIL] \033[mMatrix Q_tau has rank", rk, "and dim", str(dminus+1)+"."
 
-    print tau
-    print B
-    print certificate_filename_tau
+
+    # Check that all sharp graphs have a strong hom into construction
+    # (strong hom = preserves edges & nonedges; no need injective)
+    # ---------------------------------------------------------------
+
+    # sharp graphs
+    sharp_graphs = list()
+    for i, g in enumerate(admissible_graphs):
+        if bounds[i] == bound:
+            sharp_graphs.append(g)
+    
+    # IDEA: contract twins until no more twins; then check if subgraph of B
+    count = 0
+    failed_graph = None
+    for graph in sharp_graphs:
+        g = Flag(graph.__repr__())
+        gedges = g.edges # making copy
+        neighborhoods = [list() for x in range(1,g.n+1)]
+        for edge in gedges:
+            neighborhoods[edge[0]-1].append(edge[1])
+            neighborhoods[edge[1]-1].append(edge[0])
+        for neigh in neighborhoods:
+            neigh.sort()
+
+        twins = list()
+        for i in range(1,g.n):
+            for j in range(i+1,g.n+1):
+                if neighborhoods[i-1] == neighborhoods[j-1]:
+                    twin = [i,j]
+                    twin.sort()
+                    twins.append(twin)
+        todelete = [x for x,y in twins]
+        todelete = list(set(todelete))
+        for u in todelete:
+            g.delete_vertex(u)
+
+        # update g.edges to reflect vertex deletion
+        newedges = list()
+        for u,v in g.edges:
+            for x in todelete[::-1]:
+                if u >  x:
+                    u -= 1
+                if v > x:
+                    v -= 1
+            newedges.append((u,v))
+        g.edges = tuple(newedges)
+        g = g.minimal_isomorph() # easier to compare
+
+        # Check if this contracted sharp graph has strong hom into B
+        Bgraph = Flag(B)
+        Bgraph = Bgraph.minimal_isomorph()
+        combs = Combinations(range(1,Bgraph.n+1),g.n)
+        inB = False
+
+        for c in combs:
+            subg = Bgraph.induced_subgraph(c)
+            if subg == g:
+                inB = True
+                break
+        if inB:
+            continue
+        else:
+            failed_graph = g
+            break # out of loop going through sharp graphs
+        
+    if not failed_graph:
+        print "\033[32m[OK]   \033[mAll sharp graphs admit strong hom into B."
+    else:
+        print "\033[31m[FAIL] \033[mNOT all sharp graphs admit strong homomorphism into B."
+        print "       e.g. no strong hom from", failed_graph, "into B", "("+B+")."
+
+
+
+    # There is exactly one strong homomorphism from tau to B (up to automorph of tau)
+    # -------------------------------------------------------------------------------
+    claim2a = False
+    strong_hom = None # will store the unique strong hom if found
+    
+    Tgraph = Flag(tau)
+    Bgraph = Flag(B)
+
+    # set-up
+    otuples = Tuples(range(1, Bgraph.n+1), Tgraph.n)
+    possible_edges_t = Combinations(range(1,Tgraph.n+1), 2) # edge size = 2, assume
+    coTgraph = Flag(Tgraph.__repr__()) # easiest way to make a copy
+    coTgraph.edges = tuple([tuple(x) for x in possible_edges_t if tuple(x) not in Tgraph.edges])
+    possible_edges_B = Combinations(range(1, Bgraph.n+1), 2)
+    coBgraph = Flag(Bgraph.__repr__())
+    coBgraph.edges = tuple([tuple(x) for x in possible_edges_B if tuple(x) not in Bgraph.edges])
+
+    # make use of Sage functions
+    sageF = Graph(Bgraph.n)
+    if Bgraph.n > 0:
+            
+        for e in Bgraph.edges:
+            sageF.add_edge(e)
+        Faut_group_order = sageF.automorphism_group().order()
+        
+        strong_hom_count = 0
+        for tpl in otuples:
+            # for each map into B, check if it induces T
+            edge_missing = False
+            for edge in Tgraph.edges:
+                if edge_missing == True:
+                    break
+                imedge1 = (tpl[edge[0]-1],tpl[edge[1]-1])
+                imedge2 = (tpl[edge[1]-1],tpl[edge[0]-1])
+                if imedge1 in Bgraph.edges or imedge2 in Bgraph.edges:
+                    continue
+                else:
+                    edge_missing = True
+                    break
+            if edge_missing==True:
+                continue # go to next perm
+            coedge_missing = False
+            for coedge in coTgraph.edges:
+                if coedge_missing == True:
+                    break
+                imcoedge1 = (tpl[coedge[0]-1],tpl[coedge[1]-1])
+                imcoedge2 = (tpl[coedge[1]-1],tpl[coedge[0]-1])
+                if imcoedge1 in coBgraph.edges or imcoedge2 in coBgraph.edges:
+                    continue
+                else:
+                    coedge_missing = True
+                    break
+
+            if coedge_missing or edge_missing:
+                continue # this wasn't a strong hom embedding of tau into B
+            else:
+                strong_hom = tpl
+                strong_hom_count += 1
+                    
+                    
+        if strong_hom_count == Faut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
+            claim2a = True
+            print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
+        else:
+            if strong_hom_count > 1:
+                print "\033[31m[FAIL] \033[mThere are", strong_hom_count, "strong homomorphisms from tau into B. There should be exactly 1."
+            else:
+                print "\033[31m[FAIL] \033[mThere is no strong homomorphism from tau into B. There should be exactly 1."
+                
+
+
+
+    # Different vertices of B attach differently to an embedding of tau in it
+    # -----------------------------------------------------------------------
+
+    found_identical_neighbourhoods = False
+    witness_neighbourhood = None
+    
+    # take strong_hom from previous search
+    if strong_hom == None:
+        print "\033[31m[FAIL] \033[mThere is no strong homomorphism from tau into B. There should be exactly 1."
+
+    else:
+        NB = Bgraph.n
+        NT = Tgraph.n
+        Bgraph_vertex_set = range(1,NB+1)
+        neighbourhoods_in_TinB = list()
+        TinB = Bgraph.induced_subgraph(strong_hom)
+        
+        if TinB != Tgraph: # verify again that strong hom induces a copy of tau in B
+            print "\033[31m[FAIL] \033[mThe provided strong homomorphism", strong_hom, "is wrong."
+        else:
+            # construct neighbourhoods in tau of verts outside of tau (in B)
+            tpl_c = copy(Bgraph_vertex_set)
+            for x in strong_hom:
+                tpl_c.remove(x)
+
+            for v in tpl_c:
+                v_neighbourhood_in_TinB = list()
+                for u in strong_hom:
+                    if (u,v) in Bgraph.edges or (v,u) in Bgraph.edges:
+                        v_neighbourhood_in_TinB.append(u)
+                neighbourhoods_in_TinB.append(v_neighbourhood_in_TinB)
+
+        num_neighbourhoods_in_TinB = len(neighbourhoods_in_TinB)
+
+        combs = Combinations(num_neighbourhoods_in_TinB, 2)
+        for c in combs:
+            if neighbourhoods_in_TinB[c[0]] == neighbourhoods_in_TinB[c[1]]:
+                found_identical_neighbourhoods = True
+                witness_neighbourhood = neighbourhoods_in_TinB[c[0]]
+                break
+        if not found_identical_neighbourhoods:
+            print "\033[32m[OK]   \033[mDifferent vertices of B attach differently to an embedding of tau in B."
+        else:
+            print "\033[31m[FAIL] \033[mAt least two vertices of B have identical neighbourhoods in tau:", str(witness_neighbourhood)+"."
 
