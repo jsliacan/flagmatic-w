@@ -751,7 +751,7 @@ if action == "verify stability":
             
         for e in Bgraph.edges:
             sageF.add_edge(e)
-        Faut_group_order = sageF.automorphism_group().order()
+        Baut_group_order = sageF.automorphism_group().order()
         
         strong_hom_count = 0
         for tpl in otuples:
@@ -788,7 +788,7 @@ if action == "verify stability":
                 strong_hom_count += 1
                     
                     
-        if strong_hom_count == Faut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
+        if strong_hom_count == Baut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
             claim2a = True
             print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
         else:
