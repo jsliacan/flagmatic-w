@@ -21,4 +21,18 @@ Finally, install Flagmatic with the code below.
 
 If you are getting an error about a missing `gcc` command you are probably on a Mac and  you will need to install Command Line Tools by typing `xcode-select --install` in Terminal.
 
+### Verifying stability ###
+
+* make sure you are in a folder where your certificates are and that you have writing permission in that folder
+* type
+
+    $ sage -python inspect_certificate.py <certificateFA> --stability <bound> <tau> <B> <certificateTau>
+* where 
+  * `<certificateFA>` is the filename of the flag algebras certificate for the problem you want to verify stability for
+  * `<bound>` is the lower bound for this problem (should match the FA upper bound)
+  * `<tau>` is the type you chose, e.g. `"3:12"`
+  * `<B>` is the B-graph you chose, e.g. `"5:1223344551"`
+  * `<certificateTau>` is the filename of the FA certificate with, additionally, tau forbidden as induced subgraph.
+
+
 Have fun.
