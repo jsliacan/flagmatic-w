@@ -26,7 +26,7 @@ If you are getting an error about a missing `gcc` command you are probably on a 
 * make sure you are in a folder where your certificates are and that you have writing permission in that folder
 * type
 
-    $ sage -python inspect_certificate.py <certificateFA> --stability <bound> <tau> <B> <certificateTau>
+    $ sage -python inspect_certificate.py \<certificateFA\> --stability \<bound\> \<tau\> \<B\> \<certificateTau\>
 
 * where 
   
