@@ -25,15 +25,16 @@ If you are getting an error about a missing `gcc` command you are probably on a 
 
 From a folder where your certificates are and where you have writing permissions, type:
 
-    $ sage -python inspect_certificate.py \<certificateFA\> --stability \<bound\> \<tau\> \<B\> \<certificateTau\>
+    $ sage -python inspect_certificate.py <cert1> --stability <bound> <tau> <B> [[<cert2>] <cert3>]
 
 The arguments are:
   
-  * `<certificateFA>` is the filename of the flag algebras certificate for the problem you want to verify stability for, e.g. `cert_flag_alg.js`
+  * `<cert1>` is the filename of the flag algebras certificate for the problem you want to verify stability for, e.g. `cert_flag_alg.js`
   * `<bound>` is the lower bound for this problem (should match the FA upper bound), e.g. `24/625`
   * `<tau>` is the type you chose, e.g. `"3:12"`
   * `<B>` is the B-graph you chose, e.g. `"5:1223344551"`
-  * `<certificateTau>` is the filename of the FA certificate with, additionally, tau forbidden as induced subgraph, e.g. `cert_robust_stab.js`
+  * `<cert2>` is the filename of the FA certificate with, additionally, tau forbidden as induced subgraph, e.g. `cert_robust_stab.js`; not needed, if tau = `1:`.
+  * `<cert3>` is the filename of the FA certificate with, additionally, B forbidden as induced subgraph, e.g. `cert_perfect_stab.js`; not needed if Q_tau has corank 1.
 
 
 Have fun.
