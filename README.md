@@ -36,5 +36,9 @@ The arguments are:
   * `<cert2>` is the filename of the FA certificate with, additionally, tau forbidden as induced subgraph, e.g. `cert_robust_stab.js`; not needed, if tau = `1:`.
   * `<cert3>` is the filename of the FA certificate with, additionally, B forbidden as induced subgraph, e.g. `cert_perfect_stab.js`; not needed if Q_tau has corank 1.
 
+EXAMPLE:
+Prove that the Turán C<sub>5</sub>-density of a triangle is 24/625. Prove that this problem is perfectly-C<sub>5</sub>-stable. Given are certificates `cert.js` and `cert_tau.js`. 
 
-Have fun.
+    $ sage -python inspect_certificate.py cert.js --stability 24/625 "3:12" "5:1223344551" cert_tau.js
+
+Check the output, it indicates if conditions of the Theorem 7.1 are met.
