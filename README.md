@@ -23,7 +23,7 @@ If you are getting an error about a missing `gcc` command you are probably on a 
 
 ### Verifying stability ###
 
-*Sage is needed.* Tested with Sage-7.4 on Mac OSX Sierra and Ubuntu 16.04
+**Sage is needed.** Tested with Sage7.4 on Mac OSX Sierra and Ubuntu 16.04.
 
 From a folder where your certificates are and where you have writing permissions, type:
 
@@ -43,4 +43,4 @@ Prove that the Turán C<sub>5</sub>-density of a triangle is 24/625. Prove that 
 
     $ sage -python inspect_certificate.py cert.js --stability 24/625 "3:12" "5:1223344551" cert_tau.js
 
-Check the output, it indicates if conditions of the Theorem 7.1 are met.
+Check the output, it indicates if conditions of the Theorem 7.1 in bla-bla are met.
