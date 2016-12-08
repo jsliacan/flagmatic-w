@@ -23,6 +23,8 @@ If you are getting an error about a missing `gcc` command you are probably on a 
 
 ### Verifying stability ###
 
+*Sage is needed.* Tested with Sage-7.4 on Mac OSX Sierra and Ubuntu 16.04
+
 From a folder where your certificates are and where you have writing permissions, type:
 
     $ sage -python inspect_certificate.py <cert1> --stability <bound> <tau> <B> [[<cert2>] <cert3>]
