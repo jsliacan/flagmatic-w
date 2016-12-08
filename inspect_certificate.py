@@ -32,6 +32,7 @@ import json
 import re
 import sys
 import numpy
+import subprocess
 
 HELP_TEXT = """
 Usage: inspect_certificate.py CERTIFICATE [BOUND TAU_GRAPH B_GRAPH CERTIFICATE_TAU [CERTIFICATE_B]]  OPTIONS
@@ -145,7 +146,6 @@ try:
         certf = bz2.BZ2File(certificate_filename)
     else:
         certf = open(certificate_filename)
-    print "Certificate for the original FA problem:", certificate_filename
 except IOError:
     sys.stdout.write("Could not open certificate.\n")
     sys.exit(1)
@@ -531,6 +531,7 @@ if action == "log":
         f = open("bound.txt", 'w')
         f.write(str(bound))
         print "Bound logged to 'bound.txt'."
+        f.close()
     except IOError:
         print "Couldn't open 'bound.txt' file for writing."
         sys.exit()
@@ -543,7 +544,8 @@ if action == "verify stability":
     
     # Check that each forbidden graph is twin-free
     # --------------------------------------------
-
+    claim1 = False # assume to begin with
+    
     # read forbidden graphs from certificate (in description)
     forbidden_graphs = list()
     begin = False
@@ -563,7 +565,6 @@ if action == "verify stability":
 
 
     #check twin-freeness
-    claim1 = False # assume to begin with        
     twins_exist = False
     twins_graph = None # forbidden graph B that has twins
     twins_vx = None # 2-tuple of x,y twins in B
@@ -628,38 +629,17 @@ if action == "verify stability":
     claim3 = (tgraph.n <= admissible_graphs[0].n)
 
     if claim3:
-        print "\033[32m[OK]   \033[mTau is on", tgraph.n, "vertices, which is at most", str(admissible_graphs[0].n)+"."
+        print "\033[32m[OK]   \033[mTau is on", tgraph.n, "vertices, which is at most", admissible_graphs[0].n-2,"=",admissible_graphs[0].n,"- 2."
     else:
         print "\033[31m[FAIL] \033[mThe order of tau is wrong:", str(tgraph.n)+". It must be at most", str(admissible_graphs[0].n)+"."
 
-        
-    # Check perfect stability by rk(Q_tau) = dim(Q_tau)-1
-    # ---------------------------------------------------
-    claim3 = False
-
-    itau = types.index(Flag(tau))
-    dminus = numpy.array(Qs[itau]).shape[0]-1
-    Q_tau = [[0 for x in range(dminus+1)] for y in range(dminus+1)]
-    k = 0
-    for i in range(dminus+1):
-        for j in range(i,dminus+1):
-            Q_tau[i][j] = Qs[itau][i][j-i]
-            Q_tau[j][i] = Q_tau[i][j]
-        
-    Q_tau = matrix(QQ, Q_tau)
-    rk =  rank(Q_tau)
-
-    if rk == dminus:
-        claim3 = True
-        print "\033[32m[OK]   \033[mMatrix Q_tau has rk(Q_tau) = dim(Q_tau)-1 =", str(rk)+"."
-    else:
-        print "\033[31m[FAIL] \033[mMatrix Q_tau has rank", rk, "and dim", str(dminus+1)+"."
 
 
     # Check that all sharp graphs have a strong hom into construction
     # (strong hom = preserves edges & nonedges; no need injective)
     # ---------------------------------------------------------------
-
+    claim4 = False
+    
     # sharp graphs
     sharp_graphs = list()
     for i, g in enumerate(admissible_graphs):
@@ -721,6 +701,7 @@ if action == "verify stability":
             break # out of loop going through sharp graphs
         
     if not failed_graph:
+        claim4 = True
         print "\033[32m[OK]   \033[mAll sharp graphs admit strong hom into B."
     else:
         print "\033[31m[FAIL] \033[mNOT all sharp graphs admit strong homomorphism into B."
@@ -730,11 +711,13 @@ if action == "verify stability":
 
     # There is exactly one strong homomorphism from tau to B (up to automorph of tau)
     # -------------------------------------------------------------------------------
-    claim2a = False
+    claim5 = False
     strong_hom = None # will store the unique strong hom if found
     
     Tgraph = Flag(tau)
     Bgraph = Flag(B)
+    Tgraph = Tgraph.minimal_isomorph()
+    Bgraph = Bgraph.minimal_isomorph()
 
     # set-up
     otuples = Tuples(range(1, Bgraph.n+1), Tgraph.n)
@@ -745,14 +728,12 @@ if action == "verify stability":
     coBgraph = Flag(Bgraph.__repr__())
     coBgraph.edges = tuple([tuple(x) for x in possible_edges_B if tuple(x) not in Bgraph.edges])
 
-    # make use of Sage functions
-    sageF = Graph(Bgraph.n)
     if Bgraph.n > 0:
-            
+        # make use of Sage functions        
+        sageB = Graph(Bgraph.n)
         for e in Bgraph.edges:
-            sageF.add_edge(e)
-        Faut_group_order = sageF.automorphism_group().order()
-        
+            sageB.add_edge(e)
+        Baut_group_order = sageB.automorphism_group().order()
         strong_hom_count = 0
         for tpl in otuples:
             # for each map into B, check if it induces T
@@ -788,21 +769,18 @@ if action == "verify stability":
                 strong_hom_count += 1
                     
                     
-        if strong_hom_count == Faut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
-            claim2a = True
+        if strong_hom_count == Baut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
+            claim5 = True
             print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
         else:
-            if strong_hom_count > 1:
-                print "\033[31m[FAIL] \033[mThere are", strong_hom_count, "strong homomorphisms from tau into B. There should be exactly 1."
-            else:
-                print "\033[31m[FAIL] \033[mThere is no strong homomorphism from tau into B. There should be exactly 1."
-                
+            print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
 
 
 
     # Different vertices of B attach differently to an embedding of tau in it
     # -----------------------------------------------------------------------
-
+    claim6 = False
+    
     found_identical_neighbourhoods = False
     witness_neighbourhood = None
     
@@ -841,7 +819,100 @@ if action == "verify stability":
                 witness_neighbourhood = neighbourhoods_in_TinB[c[0]]
                 break
         if not found_identical_neighbourhoods:
+            claim6 = True
             print "\033[32m[OK]   \033[mDifferent vertices of B attach differently to an embedding of tau in B."
         else:
             print "\033[31m[FAIL] \033[mAt least two vertices of B have identical neighbourhoods in tau:", str(witness_neighbourhood)+"."
 
+
+
+    # Check if forbidding tau improves the bound
+    # ------------------------------------------
+    claim7 = False
+    
+    print "Verifying that forbidding tau improves the bound..."
+    command = "sage -python inspect_certificate.py "+certificate_filename_tau+" --log"
+    try:
+        f = subprocess.call(command, shell=True)
+    except ValueError:
+        print "Ooops! Things went wrong! Bound probably not written into 'bound.txt'."
+    
+    try:
+        bfile = open("bound.txt", 'r')
+        bound_tau = Rational(bfile.readlines()[0])
+        if minimize == False and bound_tau < bound:
+            claim7 = True
+            print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) > lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
+        elif minimize == True and bound_tau > bound:
+            claim7 = True
+            print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) < lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
+        else:
+            print "\033[31m[FAIL] \033[m"+str(bound), "= lambda(Forb(\cal F)) while lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
+
+    except ValueError:
+        print "Couldn't open file bound.txt and read the bound."
+
+        
+    # PERFECT STABILITY
+
+    # only hope for perfect stability, if problem robustly stable
+    if not (claim1 and claim2 and claim3 and claim4 and claim5 and claim6 and claim7):
+        raise ValueError("Robust stability has not been verified. Please do that first.")
+        sys.exit()
+
+    print "Robust stability verified!"
+    
+    # Verifying CLAIM 3: rk(Q_tau) = dim(Q_tau)-1
+    # ---------------------------------------------------
+    claimQ = False
+
+    itau = types.index(Flag(tau))
+    dminus = numpy.array(Qs[itau]).shape[0]-1
+    Q_tau = [[0 for x in range(dminus+1)] for y in range(dminus+1)]
+    k = 0
+    for i in range(dminus+1):
+        for j in range(i,dminus+1):
+            Q_tau[i][j] = Qs[itau][i][j-i]
+            Q_tau[j][i] = Q_tau[i][j]
+        
+    Q_tau = matrix(QQ, Q_tau)
+    rk =  rank(Q_tau)
+
+    if rk == dminus:
+        claimQ = True
+        print "\033[32m[OK]   \033[mMatrix Q_tau has rk(Q_tau) = dim(Q_tau)-1 =", str(rk)+"."
+        print "Perfect stability verified! Done."
+    else:
+        print "\033[31m[FAIL] \033[mMatrix Q_tau has rank", rk, "and dim", str(dminus+1)+"."
+
+
+    if not claimQ:
+        # Check if forbidding B improves the bound (only if claimQ fails)
+        claimB = False
+
+        try:
+            certB_filename = args[5].strip()
+        except IOError:
+            print "You did not provide a certificate file to verify perfect stability. Giving up..."
+            sys.exit()
+
+        command = "sage -python inspect_certificate.py "+certB_filename+" --log"
+        try:
+            f = subprocess.call(command, shell=True)
+        except ValueError:
+            print "Ooops! Things went wrong! Bound probably not written into 'bound.txt'."
+
+        try:
+            bfile = open("bound.txt", 'r')
+            bound_tau = Rational(bfile.readlines()[0])
+            if minimize == False and bound_tau < bound:
+                claimB = True
+                print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) > lambda(Forb(\cal F and B)) =", str(bound_tau)+"."
+            elif minimize == True and bound_tau > bound:
+                claimB = True
+                print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) < lambda(Forb(\cal F and B)) =", str(bound_tau)+"."
+            else:
+                print "\033[31m[FAIL] \033[m"+str(bound), "= lambda(Forb(\cal F)) while lambda(Forb(\cal F and B)) =", str(bound_tau)+"."
+
+        except ValueError:
+            print "Couldn't open file bound.txt or read the bound."
