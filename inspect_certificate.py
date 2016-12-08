@@ -732,8 +732,14 @@ if action == "verify stability":
         # make use of Sage functions        
         sageB = Graph(Bgraph.n)
         for e in Bgraph.edges:
+<<<<<<< HEAD:inspect_certificate.py
             sageB.add_edge(e)
         Baut_group_order = sageB.automorphism_group().order()
+=======
+            sageF.add_edge(e)
+        Baut_group_order = sageF.automorphism_group().order()
+        
+>>>>>>> 524ad7231070a4a8e5bbbbab63e4ae013eecc89f:inspect_certificate_stab.py
         strong_hom_count = 0
         for tpl in otuples:
             # for each map into B, check if it induces T
@@ -770,7 +776,11 @@ if action == "verify stability":
                     
                     
         if strong_hom_count == Baut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
+<<<<<<< HEAD:inspect_certificate.py
             claim5 = True
+=======
+            claim2a = True
+>>>>>>> 524ad7231070a4a8e5bbbbab63e4ae013eecc89f:inspect_certificate_stab.py
             print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
         else:
             print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
