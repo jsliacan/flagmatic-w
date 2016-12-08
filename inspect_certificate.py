@@ -192,6 +192,12 @@ else:
 
 oriented = "oriented" in certificate["description"]
 
+def make_number(ch):
+    try:
+        CH = ch.capitalize()
+        return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".index(CH)
+    except ValueError:
+        print "Failed to parse..."
 
 class Flag(object):
 
@@ -209,17 +215,35 @@ class Flag(object):
             return
 
         m = re.match(r'(\d+):(\d*)(?:\((\d+)\)|)', s)
-        if not m:
-            raise ValueError
-        n = int(m.group(1))
-        t = int(m.group(3)) if m.group(3) else 0
-        if not (0 <= n <= 9 and 0 <= t <= n):
-            raise ValueError
+        edges_str = ""
+        if m:
+            n = int(m.group(1))
+            t = int(m.group(3)) if m.group(3) else 0
+            if not (0 <= n <= 9 and 0 <= t <= n):
+                raise ValueError
 
+        elif s[1] == ':': # only get here if parsing above failed
+            n = int(make_number(s[0]))
+            t = 0
+            if s[-1] == ')':
+                t = int(make_number(s[-2]))
+                edges_str = s[2:-3]
+            else:
+                edges_str = s[2:]
+            
+        else:
+            raise ValueError("Wrong representation.")
+        
+
+            
         edges = []
-        for i in range(0, len(m.group(2)), self.edge_size):
-            edges.append(tuple(map(int, m.group(2)[i:i + self.edge_size])))
-
+        if m:
+            for i in range(0, len(m.group(2)), self.edge_size):
+                edges.append(tuple(map(int, m.group(2)[i:i + self.edge_size])))
+        else:
+            for i in range(0, len(edges_str), self.edge_size):
+                edges.append(tuple(map(make_number, edges_str[i:i+self.edge_size])))
+                
         self.n = n
         self.t = t
         self.edges = tuple(edges)
@@ -732,14 +756,8 @@ if action == "verify stability":
         # make use of Sage functions        
         sageB = Graph(Bgraph.n)
         for e in Bgraph.edges:
-<<<<<<< HEAD:inspect_certificate.py
             sageB.add_edge(e)
         Baut_group_order = sageB.automorphism_group().order()
-=======
-            sageF.add_edge(e)
-        Baut_group_order = sageF.automorphism_group().order()
-        
->>>>>>> 524ad7231070a4a8e5bbbbab63e4ae013eecc89f:inspect_certificate_stab.py
         strong_hom_count = 0
         for tpl in otuples:
             # for each map into B, check if it induces T
@@ -776,11 +794,7 @@ if action == "verify stability":
                     
                     
         if strong_hom_count == Baut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
-<<<<<<< HEAD:inspect_certificate.py
             claim5 = True
-=======
-            claim2a = True
->>>>>>> 524ad7231070a4a8e5bbbbab63e4ae013eecc89f:inspect_certificate_stab.py
             print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
         else:
             print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
