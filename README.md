@@ -27,7 +27,9 @@ If you are getting an error about a missing `gcc` command you are probably on a 
 * type
 
     $ sage -python inspect_certificate.py <certificateFA> --stability <bound> <tau> <B> <certificateTau>
+
 * where 
+  
   * `<certificateFA>` is the filename of the flag algebras certificate for the problem you want to verify stability for
   * `<bound>` is the lower bound for this problem (should match the FA upper bound)
   * `<tau>` is the type you chose, e.g. `"3:12"`
