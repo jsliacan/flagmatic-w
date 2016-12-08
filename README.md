@@ -23,11 +23,11 @@ If you are getting an error about a missing `gcc` command you are probably on a 
 
 ### Verifying stability ###
 
-* from a folder where your certificates are and where you have writing permissions, type:
+From a folder where your certificates are and where you have writing permissions, type:
 
     $ sage -python inspect_certificate.py 
 
-* where 
+The arguments are:
   
   * `<certificateFA>` is the filename of the flag algebras certificate for the problem you want to verify stability for, e.g. `cert_flag_alg.js`
   * `<bound>` is the lower bound for this problem (should match the FA upper bound), e.g. `24/625`
