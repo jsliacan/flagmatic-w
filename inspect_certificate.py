@@ -329,7 +329,8 @@ class Flag(object):
 
         self.n = self.n-1
         self.edges = tuple(newledges)
-        
+
+
                 
 admissible_graphs = [Flag(s) for s in certificate["admissible_graphs"]]
 types = [Flag(s) for s in certificate["types"]]
@@ -659,9 +660,9 @@ if action == "verify stability":
 
 
 
-    # Check that all sharp graphs have a strong hom into construction
+    # Check that all sharp graphs have a strong hom into the construction graph B
     # (strong hom = preserves edges & nonedges; no need injective)
-    # ---------------------------------------------------------------
+    # ---------------------------------------------------------------------------
     claim4 = False
     
     # sharp graphs
@@ -669,67 +670,60 @@ if action == "verify stability":
     for i, g in enumerate(admissible_graphs):
         if bounds[i] == bound:
             sharp_graphs.append(g)
-    
+
+    # convert sharp graphs to Sage form
+    sharp_graphs_sage = list()
+    for sg in sharp_graphs:
+        g_str = sg.__repr__()
+        g = Graph(sg.n)
+        for i in range(2,len(g_str),2):
+            g.add_edge((int(g_str[i])-1, int(g_str[i+1])-1))
+        sharp_graphs_sage.append(g)
+
     # IDEA: contract twins until no more twins; then check if subgraph of B
-    count = 0
-    failed_graph = None
-    for graph in sharp_graphs:
-        g = Flag(graph.__repr__())
-        gedges = g.edges # making copy
-        neighborhoods = [list() for x in range(1,g.n+1)]
-        for edge in gedges:
-            neighborhoods[edge[0]-1].append(edge[1])
-            neighborhoods[edge[1]-1].append(edge[0])
-        for neigh in neighborhoods:
-            neigh.sort()
+    if B == "g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde": # Clebsch graph
+        C = graphs.ClebschGraph()
+    else:
+        C = Graph(make_number(B[0]))
+        for i in range(2,len(B),2):
+            C.add_edge((make_number(B[i])-1, make_number(B[i+1])-1))
+            
+    # deal with same neighbourhoods
+    failed = list()
+    num_graphs_left = len(sharp_graphs_sage)
+    for sg in sharp_graphs_sage:
+        gedges = sg.edges(labels=None)
+        twins = None
+        twin_free = False
+        while not twin_free:
+            found_twins = false
+            twin = None
+            gvertices = sg.vertices()
+            for i in range(sg.num_verts()-1):
+                for j in range(i+1,sg.num_verts()):
+                    if sg.vertex_boundary({gvertices[i]}) == sg.vertex_boundary({gvertices[j]}):
+                        twin = gvertices[i]
+                        found_twins = True
+                        break
+                if found_twins:
+                    break
+            if found_twins:
+                sg.delete_vertex(twin)
+            else:
+                twin_free = True
 
-        twins = list()
-        for i in range(1,g.n):
-            for j in range(i+1,g.n+1):
-                if neighborhoods[i-1] == neighborhoods[j-1]:
-                    twin = [i,j]
-                    twin.sort()
-                    twins.append(twin)
-        todelete = [x for x,y in twins]
-        todelete = list(set(todelete))
-        for u in todelete:
-            g.delete_vertex(u)
+        # Check if this contracted sharp graph has induced+injective hom into B
+        h = C.subgraph_search(sg, induced=True)
+        if h == None:
+            failed.append(sg)
+            num_graphs_left -= 1
 
-        # update g.edges to reflect vertex deletion
-        newedges = list()
-        for u,v in g.edges:
-            for x in todelete[::-1]:
-                if u >  x:
-                    u -= 1
-                if v > x:
-                    v -= 1
-            newedges.append((u,v))
-        g.edges = tuple(newedges)
-        g = g.minimal_isomorph() # easier to compare
-
-        # Check if this contracted sharp graph has strong hom into B
-        Bgraph = Flag(B)
-        Bgraph = Bgraph.minimal_isomorph()
-        combs = Combinations(range(1,Bgraph.n+1),g.n)
-        inB = False
-
-        for c in combs:
-            subg = Bgraph.induced_subgraph(c)
-            if subg == g:
-                inB = True
-                break
-        if inB:
-            continue
-        else:
-            failed_graph = g
-            break # out of loop going through sharp graphs
-        
-    if not failed_graph:
+    if not failed:
         claim4 = True
         print "\033[32m[OK]   \033[mAll sharp graphs admit strong hom into B."
     else:
         print "\033[31m[FAIL] \033[mNOT all sharp graphs admit strong homomorphism into B."
-        print "       e.g. no strong hom from", failed_graph, "into B", "("+B+")."
+        print "       e.g. no strong hom from", failed[0].edges(labels=None), "into B", "("+B+")."
 
 
 
