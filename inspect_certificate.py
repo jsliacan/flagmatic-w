@@ -710,11 +710,7 @@ if action == "verify stability":
         sharp_graphs_sage.append(g)
 
     # IDEA: contract twins until no more twins; then check if subgraph of B
-    Bgraph = Flag(B)
-    Bgraph = Bgraph.minimal_isomorph()
-    Gclebsch = Flag("g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde") # Clebsch graph
-    Gclebsch = Gclebsch.minimal_isomorph()
-    if Bgraph == Gclebsch:
+    if B == "g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde": # comparing literally!!!
         C = graphs.ClebschGraph()
     else:
         C = Graph(make_number(B[0]))
@@ -726,7 +722,6 @@ if action == "verify stability":
     failed = list()
     num_graphs_left = len(sharp_graphs_sage)
     for sg in sharp_graphs_sage:
-        """
         twins = None
         twin_free = False
         while not twin_free:
@@ -745,8 +740,7 @@ if action == "verify stability":
                 sg.delete_vertex(twin)
             else:
                 twin_free = True
-        """
-        sg = kill_twins(sg)
+
         # Check if this contracted sharp graph has induced+injective hom into B
         h = C.subgraph_search(sg, induced=True)
         if h == None:
@@ -766,29 +760,23 @@ if action == "verify stability":
     # -------------------------------------------------------------------------------
     claim5 = False
     strong_hom = None # will store the unique strong hom if found
-    
+
     Tg = Flag(tau)
-    Bg = Flag(B)
-    Gclebsch = Flag("g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde") # Clebsch graph
-    Tg = Tgraph.minimal_isomorph()
+    Tg = Tg.minimal_isomorph()
     Tau = Flag("6:1223344551")
     Tau = Tau.minimal_isomorph()
-    Bg = Bg.minimal_isomorph()
-    Gclebsch = Gclebsch.minimal_isomorph()
-
-    if Bg == Gclebsch and Tg == Tau: # now we know that Tg does not contain twins.
+    if B == "g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde" and Tg == Tau: # comparing B literally!!!
         Bgraph = graphs.ClebschGraph()
-        Tgraph = Graph(Tg.n)
+        Tgraph = Graph(Tau.n)
         for e1,e2 in Tg.edges:
             Tgraph.add_edge((e1-1,e2-1))
             
         autB = Bgraph.automorphism_group()
         card_autB = autB.cardinality()
         count_T_in_B = Bgraph.subgraph_search_count(Tgraph, induced=True)
-        if count_T_in_B > 0:
-            Tcopy_in_B = Bgraph.subgraph_search(Tgraph)
-            strong_hom = Tcopy.vertices()
         if count_T_in_B == card_autB: # there's exactly 1 strong hom (up to automorph grp of tau)
+            Tcopy_in_B = Bgraph.subgraph_search(Tgraph)
+            strong_hom = Tcopy_in_B.vertices()
             claim5 = True
             print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
         else:

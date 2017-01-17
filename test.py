@@ -4,21 +4,30 @@ claim4 = False
 sharp_graphs = list()
 f = open("sg73N8.txt", 'r')
 for line in f:
-    grph = line.split(' ')[1].strip()
-    sharp_graphs.append(grph)
+    sharp_graphs.append(line.split(' ')[1])
     
 # convert sharp graphs to Sage form
 sharp_graphs_sage = list()
 for sg in sharp_graphs:
-    g_str = sg
-    #g_str = sg.__repr__()
+    g_str = sg.__repr__()
     g = Graph(8)
     for i in range(2,len(g_str),2):
         g.add_edge((int(g_str[i])-1, int(g_str[i+1])-1))
     sharp_graphs_sage.append(g)
 
 # IDEA: contract twins until no more twins; then check if subgraph of B
-C = graphs.ClebschGraph()
+Bgraph = Flag(B)
+Bgraph = Bgraph.minimal_isomorph()
+Gclebsch = Flag("g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde") # Clebsch graph
+Gclebsch = Gclebsch.minimal_isomorph()
+if Bgraph == Gclebsch:
+    C = graphs.ClebschGraph()
+    "was here"
+else:
+    C = Graph(make_number(B[0]))
+    for i in range(2,len(B),2):
+        C.add_edge((make_number(B[i])-1, make_number(B[i+1])-1))
+
 
 # deal with same neighbourhoods
 failed = list()
@@ -78,14 +87,14 @@ Tgraph.add_edge((0,1))
 Tgraph.add_edge((1,2))
 Tgraph.add_edge((2,3))
 Tgraph.add_edge((3,4))
-Tgraph.add_edge((4,0))
+Tgraph.add_edge((4.0))
 
 autB = Bgraph.automorphism_group()
 card_autB = autB.cardinality()
 count_T_in_B = Bgraph.subgraph_search_count(Tgraph, induced=True)
 if count_T_in_B == card_autB: # there's exactly 1 strong hom (up to automorph grp of tau)
     Tcopy_in_B = Bgraph.subgraph_search(Tgraph)
-    strong_hom = Tcopy_in_B.vertices()
+    strong_hom = Tcopy.vertices()
     claim5 = True
     print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
 else:
