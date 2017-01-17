@@ -199,6 +199,35 @@ def make_number(ch):
     except ValueError:
         print "Failed to parse..."
 
+
+def kill_twins(g):
+    """
+    Identifies all twins in g and returns the resulting graph.
+
+    INPUT:
+    g - graph to be de-twinned; in SAGE format
+    """
+    twins = None
+    twin_free = False
+    while not twin_free:
+        found_twins = False
+        twin = None
+        gvertices = g.vertices()
+        for i in range(g.num_verts()-1):
+            for j in range(i+1,g.num_verts()):
+                if g.vertex_boundary({gvertices[i]}) == g.vertex_boundary({gvertices[j]}):
+                    twin = vertices[i]
+                    found_twins = True
+                    break
+            if found_twins:
+                break
+        if found_twins:
+            g.delete_vertex(twin)
+        else:
+            twin_free = True
+    return g
+
+    
 class Flag(object):
 
     edge_size = edge_size
@@ -681,22 +710,27 @@ if action == "verify stability":
         sharp_graphs_sage.append(g)
 
     # IDEA: contract twins until no more twins; then check if subgraph of B
-    if B == "g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde": # Clebsch graph
+    Bgraph = Flag(B)
+    Bgraph = Bgraph.minimal_isomorph()
+    Gclebsch = Flag("g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde") # Clebsch graph
+    Gclebsch = Gclebsch.minimal_isomorph()
+    if Bgraph == Gclebsch:
         C = graphs.ClebschGraph()
     else:
         C = Graph(make_number(B[0]))
         for i in range(2,len(B),2):
             C.add_edge((make_number(B[i])-1, make_number(B[i+1])-1))
             
+            
     # deal with same neighbourhoods
     failed = list()
     num_graphs_left = len(sharp_graphs_sage)
     for sg in sharp_graphs_sage:
-        gedges = sg.edges(labels=None)
+        """
         twins = None
         twin_free = False
         while not twin_free:
-            found_twins = false
+            found_twins = False
             twin = None
             gvertices = sg.vertices()
             for i in range(sg.num_verts()-1):
@@ -711,7 +745,8 @@ if action == "verify stability":
                 sg.delete_vertex(twin)
             else:
                 twin_free = True
-
+        """
+        sg = kill_twins(sg)
         # Check if this contracted sharp graph has induced+injective hom into B
         h = C.subgraph_search(sg, induced=True)
         if h == None:
@@ -732,66 +767,90 @@ if action == "verify stability":
     claim5 = False
     strong_hom = None # will store the unique strong hom if found
     
-    Tgraph = Flag(tau)
-    Bgraph = Flag(B)
-    Tgraph = Tgraph.minimal_isomorph()
-    Bgraph = Bgraph.minimal_isomorph()
+    Tg = Flag(tau)
+    Bg = Flag(B)
+    Gclebsch = Flag("g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde") # Clebsch graph
+    Tg = Tgraph.minimal_isomorph()
+    Tau = Flag("6:1223344551")
+    Tau = Tau.minimal_isomorph()
+    Bg = Bg.minimal_isomorph()
+    Gclebsch = Gclebsch.minimal_isomorph()
 
-    # set-up
-    otuples = Tuples(range(1, Bgraph.n+1), Tgraph.n)
-    possible_edges_t = Combinations(range(1,Tgraph.n+1), 2) # edge size = 2, assume
-    coTgraph = Flag(Tgraph.__repr__()) # easiest way to make a copy
-    coTgraph.edges = tuple([tuple(x) for x in possible_edges_t if tuple(x) not in Tgraph.edges])
-    possible_edges_B = Combinations(range(1, Bgraph.n+1), 2)
-    coBgraph = Flag(Bgraph.__repr__())
-    coBgraph.edges = tuple([tuple(x) for x in possible_edges_B if tuple(x) not in Bgraph.edges])
-
-    if Bgraph.n > 0:
-        # make use of Sage functions        
-        sageB = Graph(Bgraph.n)
-        for e in Bgraph.edges:
-            sageB.add_edge(e)
-        Baut_group_order = sageB.automorphism_group().order()
-        strong_hom_count = 0
-        for tpl in otuples:
-            # for each map into B, check if it induces T
-            edge_missing = False
-            for edge in Tgraph.edges:
-                if edge_missing == True:
-                    break
-                imedge1 = (tpl[edge[0]-1],tpl[edge[1]-1])
-                imedge2 = (tpl[edge[1]-1],tpl[edge[0]-1])
-                if imedge1 in Bgraph.edges or imedge2 in Bgraph.edges:
-                    continue
-                else:
-                    edge_missing = True
-                    break
-            if edge_missing==True:
-                continue # go to next perm
-            coedge_missing = False
-            for coedge in coTgraph.edges:
-                if coedge_missing == True:
-                    break
-                imcoedge1 = (tpl[coedge[0]-1],tpl[coedge[1]-1])
-                imcoedge2 = (tpl[coedge[1]-1],tpl[coedge[0]-1])
-                if imcoedge1 in coBgraph.edges or imcoedge2 in coBgraph.edges:
-                    continue
-                else:
-                    coedge_missing = True
-                    break
-
-            if coedge_missing or edge_missing:
-                continue # this wasn't a strong hom embedding of tau into B
-            else:
-                strong_hom = tpl
-                strong_hom_count += 1
-                    
-                    
-        if strong_hom_count == Baut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
+    if Bg == Gclebsch and Tg == Tau: # now we know that Tg does not contain twins.
+        Bgraph = graphs.ClebschGraph()
+        Tgraph = Graph(Tg.n)
+        for e1,e2 in Tg.edges:
+            Tgraph.add_edge((e1-1,e2-1))
+            
+        autB = Bgraph.automorphism_group()
+        card_autB = autB.cardinality()
+        count_T_in_B = Bgraph.subgraph_search_count(Tgraph, induced=True)
+        if count_T_in_B > 0:
+            Tcopy_in_B = Bgraph.subgraph_search(Tgraph)
+            strong_hom = Tcopy.vertices()
+        if count_T_in_B == card_autB: # there's exactly 1 strong hom (up to automorph grp of tau)
             claim5 = True
             print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
         else:
             print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
+
+    else:
+        Bgraph = Bg.minimal_isomorph()
+        Tgraph = Tg.minimal_isomorph()
+        # set-up
+        otuples = Tuples(range(1, Bgraph.n+1), Tgraph.n)
+        possible_edges_t = Combinations(range(1,Tgraph.n+1), 2) # edge size = 2, assume
+        coTgraph = Flag(Tgraph.__repr__()) # easiest way to make a copy
+        coTgraph.edges = tuple([tuple(x) for x in possible_edges_t if tuple(x) not in Tgraph.edges])
+        possible_edges_B = Combinations(range(1, Bgraph.n+1), 2)
+        coBgraph = Flag(Bgraph.__repr__())
+        coBgraph.edges = tuple([tuple(x) for x in possible_edges_B if tuple(x) not in Bgraph.edges])
+
+        if Bgraph.n > 0:
+            # make use of Sage functions        
+            sageB = Graph(Bgraph.n)
+            for e in Bgraph.edges:
+                sageB.add_edge(e)
+            Baut_group_order = sageB.automorphism_group().order()
+            strong_hom_count = 0
+            for tpl in otuples:
+                # for each map into B, check if it induces T
+                edge_missing = False
+                for edge in Tgraph.edges:
+                    if edge_missing == True:
+                        break
+                    imedge1 = (tpl[edge[0]-1],tpl[edge[1]-1])
+                    imedge2 = (tpl[edge[1]-1],tpl[edge[0]-1])
+                    if imedge1 in Bgraph.edges or imedge2 in Bgraph.edges:
+                        continue
+                    else:
+                        edge_missing = True
+                        break
+                if edge_missing==True:
+                    continue # go to next perm
+                coedge_missing = False
+                for coedge in coTgraph.edges:
+                    if coedge_missing == True:
+                        break
+                    imcoedge1 = (tpl[coedge[0]-1],tpl[coedge[1]-1])
+                    imcoedge2 = (tpl[coedge[1]-1],tpl[coedge[0]-1])
+                    if imcoedge1 in coBgraph.edges or imcoedge2 in coBgraph.edges:
+                        continue
+                    else:
+                        coedge_missing = True
+                        break
+
+                if coedge_missing or edge_missing:
+                    continue # this wasn't a strong hom embedding of tau into B
+                else:
+                    strong_hom = tpl
+                    strong_hom_count += 1
+
+            if strong_hom_count == Baut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
+                claim5 = True
+                print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
+            else:
+                print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
 
 
 
@@ -807,6 +866,10 @@ if action == "verify stability":
         print "\033[31m[FAIL] \033[mThere is no strong homomorphism from tau into B. There should be exactly 1."
 
     else:
+        Bgraph = Flag(B)
+        Bgraph = Bgraph.minimal_isomorph()
+        Tgraph = Flag(tau)
+        Tgraph = Tgraph.minimal_isomorph()
         NB = Bgraph.n
         NT = Tgraph.n
         Bgraph_vertex_set = range(1,NB+1)
