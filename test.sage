@@ -84,10 +84,42 @@ autB = Bgraph.automorphism_group()
 card_autB = autB.cardinality()
 count_T_in_B = Bgraph.subgraph_search_count(Tgraph, induced=True)
 if count_T_in_B == card_autB: # there's exactly 1 strong hom (up to automorph grp of tau)
-    Tcopy_in_B = Bgraph.subgraph_search(Tgraph)
+    Tcopy_in_B = Bgraph.subgraph_search(Tgraph, induced=True)
     strong_hom = Tcopy_in_B.vertices()
     claim5 = True
     print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
 else:
     print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
 
+
+# Every vertex of B attaches differently to Tau
+# ---------------------------------------------
+claim6 = False
+
+Bgraph = graphs.ClebschGraph()
+Tgraph = Graph(6)
+Tgraph.add_edge((0,1))
+Tgraph.add_edge((1,2))
+Tgraph.add_edge((2,3))
+Tgraph.add_edge((3,4))
+Tgraph.add_edge((4,0))
+
+strong_hom = set(strong_hom)
+
+attachments_in_T = list()
+for v in Bgraph.vertices():
+    vneigh =  Bgraph.vertex_boundary({v})
+    attachments_in_T.append(strong_hom.intersection(vneigh))
+
+witness = list()
+for i in range(len(attachments_in_T)-1):
+    for j in range(i+1,len(attachments_in_T)):
+        if attachments_in_T[i] == attachments_in_T[j]:
+            witness.append((i,j))
+            witness.append(list(attachments_in_T[i]))
+            
+if not witness:
+    print "\033[32m[OK]   \033[mDistinct vertices of B attach differently to an embedding of T in B."
+else:
+    print "\033[31m[FAIL] \033[mThere are two vertices", str(witness[0][0])+",",witness[0][1],"that attach to Tau in the same way:", str(witness[1])+"."
+    

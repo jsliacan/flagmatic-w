@@ -710,8 +710,8 @@ if action == "verify stability":
         sharp_graphs_sage.append(g)
 
     # IDEA: contract twins until no more twins; then check if subgraph of B
-    if B == "g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde": # comparing literally!!!
-        C = graphs.ClebschGraph()
+    if B == "g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde": # comparing literally to save time!!!
+        C = graphs.ClebschGraph() # sage graph exists in Sage, they have tools
     else:
         C = Graph(make_number(B[0]))
         for i in range(2,len(B),2):
@@ -761,6 +761,8 @@ if action == "verify stability":
     claim5 = False
     strong_hom = None # will store the unique strong hom if found
 
+    # !!!
+    # treat CLEBSCH graph separately, too big and Sage has tools
     Tg = Flag(tau)
     Tg = Tg.minimal_isomorph()
     Tau = Flag("6:1223344551")
@@ -775,7 +777,7 @@ if action == "verify stability":
         card_autB = autB.cardinality()
         count_T_in_B = Bgraph.subgraph_search_count(Tgraph, induced=True)
         if count_T_in_B == card_autB: # there's exactly 1 strong hom (up to automorph grp of tau)
-            Tcopy_in_B = Bgraph.subgraph_search(Tgraph)
+            Tcopy_in_B = Bgraph.subgraph_search(Tgraph, induced=True)
             strong_hom = Tcopy_in_B.vertices()
             claim5 = True
             print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
@@ -783,6 +785,7 @@ if action == "verify stability":
             print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
 
     else:
+        Bg = Flag(B)
         Bgraph = Bg.minimal_isomorph()
         Tgraph = Tg.minimal_isomorph()
         # set-up
@@ -854,45 +857,40 @@ if action == "verify stability":
         print "\033[31m[FAIL] \033[mThere is no strong homomorphism from tau into B. There should be exactly 1."
 
     else:
-        Bgraph = Flag(B)
-        Bgraph = Bgraph.minimal_isomorph()
-        Tgraph = Flag(tau)
-        Tgraph = Tgraph.minimal_isomorph()
-        NB = Bgraph.n
-        NT = Tgraph.n
-        Bgraph_vertex_set = range(1,NB+1)
-        neighbourhoods_in_TinB = list()
-        TinB = Bgraph.induced_subgraph(strong_hom)
-        
-        if TinB != Tgraph: # verify again that strong hom induces a copy of tau in B
-            print "\033[31m[FAIL] \033[mThe provided strong homomorphism", strong_hom, "is wrong."
+        strong_hom = set(strong_hom)
+
+        # prepare B and Tau
+        Tg = Flag(tau)
+        Tg = Tg.minimal_isomorph()
+        Tau = Flag("6:1223344551")
+        Tau = Tau.minimal_isomorph()
+
+        # treat CLEBSCH case separately, Sage has tools
+        if B == "g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde" and Tg == Tau:
+            Bgraph = graphs.ClebschGraph()
         else:
-            # construct neighbourhoods in tau of verts outside of tau (in B)
-            tpl_c = copy(Bgraph_vertex_set)
-            for x in strong_hom:
-                tpl_c.remove(x)
+            Bgraph = Graph(make_number(B[0]))
+            for i in range(2,len(tau),2):
+                Bgraph.add_edge((make_number(tau[i])-1, make_number(tau[i+1])-1))
+            
+        # compute neighbourhoods for vertices in B intersected with embedding of Tau (by strong_hom)
+        attachments_in_T = list()
+        for v in Bgraph.vertices():
+            vneigh =  Bgraph.vertex_boundary({v})
+            attachments_in_T.append(strong_hom.intersection(vneigh))
 
-            for v in tpl_c:
-                v_neighbourhood_in_TinB = list()
-                for u in strong_hom:
-                    if (u,v) in Bgraph.edges or (v,u) in Bgraph.edges:
-                        v_neighbourhood_in_TinB.append(u)
-                neighbourhoods_in_TinB.append(v_neighbourhood_in_TinB)
+        witness = list()
+        for i in range(len(attachments_in_T)-1):
+            for j in range(i+1,len(attachments_in_T)):
+                if attachments_in_T[i] == attachments_in_T[j]:
+                    witness.append((i,j))
+                    witness.append(list(attachments_in_T[i]))
 
-        num_neighbourhoods_in_TinB = len(neighbourhoods_in_TinB)
-
-        combs = Combinations(num_neighbourhoods_in_TinB, 2)
-        for c in combs:
-            if neighbourhoods_in_TinB[c[0]] == neighbourhoods_in_TinB[c[1]]:
-                found_identical_neighbourhoods = True
-                witness_neighbourhood = neighbourhoods_in_TinB[c[0]]
-                break
-        if not found_identical_neighbourhoods:
+        if not witness:
             claim6 = True
             print "\033[32m[OK]   \033[mDifferent vertices of B attach differently to an embedding of tau in B."
         else:
-            print "\033[31m[FAIL] \033[mAt least two vertices of B have identical neighbourhoods in tau:", str(witness_neighbourhood)+"."
-
+            print "\033[31m[FAIL] \033[mThere are two vertices", str(witness[0][0])+",",witness[0][1],"that attach to Tau in the same way:", str(witness[1])+"."
 
 
     # Check if forbidding tau improves the bound
