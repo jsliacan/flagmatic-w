@@ -933,7 +933,9 @@ if action == "verify stability":
     # ---------------------------------------------------
     claimQ = False
 
-    itau = types.index(Flag(tau))
+    Tgraph = Flag(tau)
+    Tgraph = Tgraph.minimal_isomorph()
+    itau = types.index(Tgraph)
     dminus = numpy.array(Qs[itau]).shape[0]-1
     Q_tau = [[0 for x in range(dminus+1)] for y in range(dminus+1)]
     k = 0
