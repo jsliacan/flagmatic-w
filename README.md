@@ -44,3 +44,6 @@ Prove that if triangles are forbidden, C<sub>5</sub> density is at most 24/625. 
     $ sage -python inspect_certificate.py c5.js --stability 24/625 "3:12" "5:1223344551" c5_stab.js
 
 Check the output, it indicates if conditions of the Theorem 7.1 in *Strong forms of stability from flag algebra calculations* are met.
+
+WARNING:
+When verifying stability for Clebsch Graph, make sure you use the following string: "g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde". It's hardcoded for speed.
