@@ -798,7 +798,7 @@ if action == "verify stability":
         coBgraph.edges = tuple([tuple(x) for x in possible_edges_B if tuple(x) not in Bgraph.edges])
 
         if Bgraph.n > 0:
-            # make use of Sage functions        
+            # make use of Sage functions
             sageB = Graph(Bgraph.n)
             for e in Bgraph.edges:
                 sageB.add_edge(e)
@@ -839,6 +839,7 @@ if action == "verify stability":
 
             if strong_hom_count == Baut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
                 claim5 = True
+                strong_hom = [x-1 for x in strong_hom]
                 print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
             else:
                 print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
@@ -869,10 +870,13 @@ if action == "verify stability":
         if B == "g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde" and Tg == Tau:
             Bgraph = graphs.ClebschGraph()
         else:
-            Bgraph = Graph(make_number(B[0]))
-            for i in range(2,len(tau),2):
-                Bgraph.add_edge((make_number(tau[i])-1, make_number(tau[i+1])-1))
-            
+            Bg = Flag(B)
+            Bg = Bg.minimal_isomorph()
+            Bg = Bg.__repr__()
+            Bgraph = Graph(make_number(Bg[0]))
+            for i in range(2,len(B),2):
+                Bgraph.add_edge((make_number(Bg[i])-1, make_number(Bg[i+1])-1))
+
         # compute neighbourhoods for vertices in B intersected with embedding of Tau (by strong_hom)
         attachments_in_T = list()
         for v in Bgraph.vertices():
