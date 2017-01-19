@@ -43,4 +43,4 @@ Prove that if triangles are forbidden, C<sub>5</sub> density is at most 24/625. 
 
     $ sage -python inspect_certificate.py c5.js --stability 24/625 "3:12" "5:1223344551" c5_stab.js
 
-Check the output, it indicates if conditions of the Theorem 7.1 in `Strong forms of stability from flag algebra calculations` are met.
+Check the output, it indicates if conditions of the Theorem 7.1 in *Strong forms of stability from flag algebra calculations* are met.
