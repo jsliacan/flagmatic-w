@@ -3282,7 +3282,7 @@ class Problem(SageObject):
         # ------------------------------
         
 
-        c_subgraphs = self._sharp_graphs # these are subgraphs of construction
+        c_subgraphs = self._construction.subgraphs(self.n) # these are subgraphs of construction
         num_embeddable = 0
         num_sharp = 0
         for gi in range(len(self.graphs)):

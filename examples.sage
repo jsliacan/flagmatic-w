@@ -42,7 +42,7 @@ class Tee:
     def __init__(self, *args):
         self.files = list(args)
         self.start_time = time.time()
-        self.needs_stamp = True
+        self.needs_stamp = False
 
     def write(self, text):
         if self.needs_stamp:
@@ -51,7 +51,7 @@ class Tee:
                 f.write(ts)
         for f in self.files:
             f.write(text)
-        self.needs_stamp = len(text) == 0 or text[-1] == "\n"
+        #self.needs_stamp = len(text) == 0 or text[-1] == "\n"
 
     def flush(self):
         for f in self.files:

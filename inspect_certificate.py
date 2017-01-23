@@ -902,26 +902,27 @@ if action == "verify stability":
     claim7 = False
     
     print "Verifying that forbidding tau improves the bound..."
-    command = "sage -python inspect_certificate.py "+certificate_filename_tau+" --log"
-    try:
-        f = subprocess.call(command, shell=True)
-    except ValueError:
-        print "Ooops! Things went wrong! Bound probably not written into 'bound.txt'."
-    
-    try:
+
+    if tau == "1:":
+        bound_tau = 0
+    else:
+        command = "sage -python inspect_certificate.py "+certificate_filename_tau+" --log"
+        try:
+            f = subprocess.call(command, shell=True)
+        except ValueError:
+            print "Ooops! Things went wrong! Bound probably not written into 'bound.txt'."
+
         bfile = open("bound.txt", 'r')
         bound_tau = Rational(bfile.readlines()[0])
-        if minimize == False and bound_tau < bound:
-            claim7 = True
-            print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) > lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
-        elif minimize == True and bound_tau > bound:
-            claim7 = True
-            print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) < lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
-        else:
-            print "\033[31m[FAIL] \033[m"+str(bound), "= lambda(Forb(\cal F)) while lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
 
-    except ValueError:
-        print "Couldn't open file bound.txt and read the bound."
+    if minimize == False and bound_tau < bound:
+        claim7 = True
+        print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) > lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
+    elif minimize == True and bound_tau > bound:
+        claim7 = True
+        print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) < lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
+    else:
+        print "\033[31m[FAIL] \033[m"+str(bound), "= lambda(Forb(\cal F)) while lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
 
         
     # PERFECT STABILITY
@@ -957,6 +958,7 @@ if action == "verify stability":
         print "Perfect stability verified! Done."
     else:
         print "\033[31m[FAIL] \033[mMatrix Q_tau has rank", rk, "and dim", str(dminus+1)+"."
+
 
 
     if not claimQ:
