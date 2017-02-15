@@ -25,7 +25,7 @@ If you are getting an error about a missing `gcc` command you are probably on a 
 
 **Sage is needed.** Tested with Sage7.4 on Mac OSX Sierra and Ubuntu 16.04.
 
-Assuming your certificates and inspect_certificate.py are in the same directory and that you have writing permissions there, type:
+Assuming your certificates and inspect_certificate.py are in the same directory and that you have writing permissions there, from that directory type:
 
     $ sage -python inspect_certificate.py <cert1> --stability <bound> <tau> <B> [<cert2> [<cert3>]]
 
