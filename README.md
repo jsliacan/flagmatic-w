@@ -25,10 +25,11 @@ If you are getting an error about a missing `gcc` command you are probably on a 
 
 **Sage is needed.** Tested with Sage7.4 on Mac OSX Sierra and Ubuntu 16.04.
 
-From a folder where your certificates are and where you have writing permissions, type:
+Assuming your certificates and inspect_certificate.py are in the same directory and that you have writing permissions there, type:
 
     $ sage -python inspect_certificate.py <cert1> --stability <bound> <tau> <B> [<cert2> [<cert3>]]
 
+(otherwise use full paths for filenames).
 The arguments are:
   
   * `<cert1>` is the filename of the flag algebras certificate for the problem you want to verify stability for, e.g. `c5.js`
