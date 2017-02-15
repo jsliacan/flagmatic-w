@@ -3282,16 +3282,17 @@ class Problem(SageObject):
         # ------------------------------
         
 
-        c_subgraphs = self._sharp_graphs # these are subgraphs of construction
+        c_subgraphs = self._construction.subgraphs(self.n) # these are subgraphs of construction
         num_embeddable = 0
         num_sharp = 0
         for gi in range(len(self.graphs)):
             if self._bounds[gi] == self._bound:
                 num_sharp += 1
-                if gi in c_subgraphs:
+                if self.graphs[gi] in c_subgraphs:
                     num_embeddable += 1
                 else:
                     print "Not every sharp graph is embeddable in the blowup of", Fgraph, ". For example, ", self._graphs[gi], " isn't.\n"
+                    print "Claim 3 is FALSE."
                     break
         if num_embeddable == num_sharp:
             print "Every sharp graph is embeddable into a blowup of", Fgraph, ".\n"
@@ -3476,7 +3477,7 @@ class Problem(SageObject):
 
             else: 
                 if 1 > thebound:
-                    print "Forbidding", Tgraph, "yields a bound of", 0, "which is strictly more than", str(thebound)+"."
+                    print "Forbidding", Tgraph, "yields a bound of", 1, "which is strictly more than", str(thebound)+"."
                     claim1 = True
                 else:
                     print "Forbidding", Tgraph, "yields a bound of", 0, "which is at most", str(thebound)+"."
@@ -3620,12 +3621,13 @@ class Problem(SageObject):
                             twins_vx = (x,y)
                             break
 
-        if twins_exist:
-            print "CLAIM 1 NOT verified.\n(At least one of the forbidden graphs is not twin-free."
-            print "Example:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".)\n"
-        else:
-            print "CLAIM 1 verified. All forbidden graphs are twin-free.\n"
-            claim1 = True
+            if twins_exist:
+                print "CLAIM 1 NOT verified.\n(At least one of the forbidden graphs is not twin-free."
+                print "Example:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".)\n"
+            else:
+                print "CLAIM 1 verified. All forbidden graphs are twin-free.\n"
+                claim1 = True
+                
 
 
         # ----------- CLAIM 2 -----------

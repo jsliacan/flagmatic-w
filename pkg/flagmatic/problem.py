@@ -3288,7 +3288,7 @@ class Problem(SageObject):
         for gi in range(len(self.graphs)):
             if self._bounds[gi] == self._bound:
                 num_sharp += 1
-                if gi in c_subgraphs:
+                if self.graphs[gi] in c_subgraphs:
                     num_embeddable += 1
                 else:
                     print "Not every sharp graph is embeddable in the blowup of", Fgraph, ". For example, ", self._graphs[gi], " isn't.\n"
