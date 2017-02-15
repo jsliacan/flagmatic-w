@@ -39,7 +39,7 @@ The arguments are:
   * `<cert2>` is the filename of the FA certificate with, additionally, tau forbidden as induced subgraph, e.g. `cert_robust_stab.js`; not needed, if tau = `1:`.
   * `<cert3>` is the filename of the FA certificate with, additionally, B forbidden as induced subgraph, e.g. `cert_perfect_stab.js`; not needed if Q_tau has corank 1.
 
-EXAMPLE:
+**EXAMPLE:**
 Prove that if triangles are forbidden, C<sub>5</sub> density is at most 24/625. Prove that this problem is perfectly-C<sub>5</sub>-stable. Given are certificates `c5.js` and `c5_stab.js`. 
 
     $ sage -python inspect_certificate.py c5.js --stability 24/625 "3:12" "5:1223344551" c5_stab.js
