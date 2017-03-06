@@ -822,51 +822,103 @@ class Problem(SageObject):
         
         if self._flag_cls().r == 2:
 
-            try:
-                tg = GraphFlag(typegraph)
-                tg.make_minimal_isomorph()
-
-                cst = Rational(const)
-                eq = equality
-                indep = False
+            sys.stdout.write("blabhalkfjalsdkjfa ;sldfj:: %s\n\n" % self._flag_cls())
+            sys.stdout.flush()
+            
+            if self._flag_cls().oriented:
                 
-                lcomb = [[GraphFlag(g), Rational(c)] for g,c in lincomb]
-                for term in lcomb: term[0].make_minimal_isomorph()  # convert flag to the one Flagmatic knows
+                try:
+                    tg = OrientedGraphFlag(typegraph)
+                    tg.make_minimal_isomorph()
 
-                # if RHS nonzero, add a type to the LHS with -const coefficient (works with '0:' type as well)
-                if cst:
-                    n = max([term[0].n for term in lcomb])
-                    if (tg.n == 0) and (n == self._n): # then convert constant into a family H
-                        for H in self._graphs:
-                            is_in_lcomb = False
-                            for term in lcomb:
-                                if H == term[0]:
-                                    is_in_lcomb = True
-                                    term[1] += -cst
-                            if not is_in_lcomb:
-                                lcomb.append([H,-cst])
-                    else:
-                        fg = GraphFlag(tg._repr_() + "("+str(tg.n)+")")
-                        lcomb.append([fg, -cst])
+                    cst = Rational(const)
+                    eq = equality
+                    indep = False
 
-                cst = 0 # make RHS zero. (not necessary though, not used again)
+                    lcomb = [[OrientedGraphFlag(g), Rational(c)] for g,c in lincomb]
+                    for term in lcomb: term[0].make_minimal_isomorph()  # convert flag to the one Flagmatic knows
 
-                to_throw_out = [0 for term in lcomb]
-                for i in range(len(lcomb)):
-                    if lcomb[i][1] == 0:
-                        to_throw_out[i] = 1
+                    # if RHS nonzero, add a type to the LHS with -const coefficient (works with '0:' type as well)
+                    if cst:
+                        n = max([term[0].n for term in lcomb])
+                        if (tg.n == 0) and (n == self._n): # then convert constant into a family H
+                            for H in self._graphs:
+                                is_in_lcomb = False
+                                for term in lcomb:
+                                    if H == term[0]:
+                                        is_in_lcomb = True
+                                        term[1] += -cst
+                                if not is_in_lcomb:
+                                    lcomb.append([H,-cst])
+                        else:
+                            fg = OrientedGraphFlag(tg._repr_() + "("+str(tg.n)+")")
+                            lcomb.append([fg, -cst])
 
-                counter = 0
-                for i in range(len(to_throw_out)):
-                    if to_throw_out[i] == 1:
-                        lcomb.pop(i-counter) # remove terms with coeff=0
-                        counter += 1
-                        
-                lcomb = [tuple(x) for x in lcomb] # make [graph, coeff] into (graph, coeff)
-                
-            except ValueError:
-                print "You are trying to feed 'add_assumption()' unhealthy things!"
+                    cst = 0 # make RHS zero. (not necessary though, not used again)
 
+                    to_throw_out = [0 for term in lcomb]
+                    for i in range(len(lcomb)):
+                        if lcomb[i][1] == 0:
+                            to_throw_out[i] = 1
+
+                    counter = 0
+                    for i in range(len(to_throw_out)):
+                        if to_throw_out[i] == 1:
+                            lcomb.pop(i-counter) # remove terms with coeff=0
+                            counter += 1
+
+                    lcomb = [tuple(x) for x in lcomb] # make [graph, coeff] into (graph, coeff)
+
+                except ValueError:
+                    print "You are trying to feed 'add_assumption()' unhealthy things!"
+
+            else:
+
+                try:
+                    tg = GraphFlag(typegraph)
+                    tg.make_minimal_isomorph()
+
+                    cst = Rational(const)
+                    eq = equality
+                    indep = False
+
+                    lcomb = [[GraphFlag(g), Rational(c)] for g,c in lincomb]
+                    for term in lcomb: term[0].make_minimal_isomorph()  # convert flag to the one Flagmatic knows
+
+                    # if RHS nonzero, add a type to the LHS with -const coefficient (works with '0:' type as well)
+                    if cst:
+                        n = max([term[0].n for term in lcomb])
+                        if (tg.n == 0) and (n == self._n): # then convert constant into a family H
+                            for H in self._graphs:
+                                is_in_lcomb = False
+                                for term in lcomb:
+                                    if H == term[0]:
+                                        is_in_lcomb = True
+                                        term[1] += -cst
+                                if not is_in_lcomb:
+                                    lcomb.append([H,-cst])
+                        else:
+                            fg = GraphFlag(tg._repr_() + "("+str(tg.n)+")")
+                            lcomb.append([fg, -cst])
+
+                    cst = 0 # make RHS zero. (not necessary though, not used again)
+
+                    to_throw_out = [0 for term in lcomb]
+                    for i in range(len(lcomb)):
+                        if lcomb[i][1] == 0:
+                            to_throw_out[i] = 1
+
+                    counter = 0
+                    for i in range(len(to_throw_out)):
+                        if to_throw_out[i] == 1:
+                            lcomb.pop(i-counter) # remove terms with coeff=0
+                            counter += 1
+
+                    lcomb = [tuple(x) for x in lcomb] # make [graph, coeff] into (graph, coeff)
+
+                except ValueError:
+                    print "You are trying to feed 'add_assumption()' unhealthy things!"
+                    
                 
         elif self._flag_cls().r == 3:
 
@@ -916,7 +968,7 @@ class Problem(SageObject):
 
         # translate the assumption to the simple ones and add them one by one
 
-        if eq: # assumption is equality
+        if equality: # assumption is equality
 
             indep = True # in this case assumption does not to go the objective function
             minus_lcomb = [(g,-c) for g,c in lcomb]
@@ -957,9 +1009,7 @@ class Problem(SageObject):
         
         m = self.n - max([t[0].n for t in terms]) + tg.n
 
-        assumption_flags = self._flag_cls.generate_flags(m, tg, forbidden_edge_numbers=self._forbidden_edge_numbers,
-                                                    forbidden_graphs=self._forbidden_graphs,
-                                                    forbidden_induced_graphs=self._forbidden_induced_graphs)
+        assumption_flags = self._flag_cls.generate_flags(m, tg, forbidden_edge_numbers=self._forbidden_edge_numbers, forbidden_graphs=self._forbidden_graphs, forbidden_induced_graphs=self._forbidden_induced_graphs)
 
         num_densities = len(assumption_flags)
         sys.stdout.write("Added %d quantum graphs.\n" % num_densities)
