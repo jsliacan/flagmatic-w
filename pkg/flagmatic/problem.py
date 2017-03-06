@@ -822,9 +822,6 @@ class Problem(SageObject):
         
         if self._flag_cls().r == 2:
 
-            sys.stdout.write("blabhalkfjalsdkjfa ;sldfj:: %s\n\n" % self._flag_cls())
-            sys.stdout.flush()
-            
             if self._flag_cls().oriented:
                 
                 try:
