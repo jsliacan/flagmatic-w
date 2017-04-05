@@ -27,7 +27,7 @@ Finally, install Flagmatic with the command below.
 
 ### Running example scripts ###
 
-Make sure that the script begins with `from flagmatic.all import *` or that you have imported everything yourself. Assuming the script is called `test.sage`, navigate to the directory with the script and type
+Make sure that the script begins with `from flagmatic.all import *` or that you have imported everything yourself. Assuming the script is called `test.sage`, navigate to the directory with the script, start sage, and type
 
     $ runfile test.sage
 
