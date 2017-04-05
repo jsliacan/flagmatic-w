@@ -19,7 +19,19 @@ Finally, install Flagmatic with the command below.
 
     $ sage -python setup.py install
 
-If you are getting an error about a missing `gcc` command you are probably on a Mac and  you will need to install Command Line Tools by typing `xcode-select --install` in Terminal.
+**WARNING:**
+
+  * Check whether the installation finished without errors. If you're missing permissions, re-run the last command as a superuser. 
+  * Make sure you refresh/restart your Terminal after the install for changes to take effect. 
+  * If you are getting an error about a missing `gcc` command you are probably on a Mac and  you will need to install Command Line Tools by typing `xcode-select --install` in Terminal.
+
+### Running example scripts ###
+
+Make sure that the script begins with `from flagmatic.all import *` or that you have imported everything yourself. Assuming the script is called `test.sage`, navigate to the directory with the script and type
+
+    $ runfile test.sage
+
+Alternatively, you can type in the script line by line into the Sage interpreter. 
 
 ### Verifying stability ###
 
