@@ -19,7 +19,7 @@ Finally, install Flagmatic with the command below.
 
     $ sage -python setup.py install
 
-**WARNING:**
+**POSSIBLE ISSUES:**
 
   * Check whether the installation finished without errors. If you're missing permissions, re-run the last command as a superuser. 
   * Make sure you refresh/restart your Terminal after the install for changes to take effect. 
