@@ -1,5 +1,5 @@
 
-A version of [Flagmatic-dev](https://github.com/jsliacan/flagmatic-dev) that works with Sage-7.4.
+A version of Flagmatic with extra functionality such as assumptions and stability checks. It is known to work with Sage-7.4.
 
 
 flagmatic
@@ -31,7 +31,7 @@ Make sure that the script begins with `from flagmatic.all import *` or that you 
 
     $ runfile test.sage
 
-Alternatively, you can type in the script line by line into the Sage interpreter. 
+Alternatively, you can type in the script into the Sage interpreter one line at a time. 
 
 ### Verifying stability ###
 
