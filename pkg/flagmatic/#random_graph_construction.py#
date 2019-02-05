@@ -29,20 +29,26 @@ Further development of Flagmatic is supported by ERC.
 http://cordis.europa.eu/project/rcn/104324_en.html
 """
 
-# the following are already functions in Sage-8.6+
-
-#from sage.arith.all import binomial
-#from sage.combinat.all import Tuples, Combinations
-#from sage.rings.all import Integer, RationalField
+from sage.arith.all import binomial
+from sage.combinat.all import Tuples, Combinations
+from sage.rings.all import Integer, RationalField
 
 from construction import *
 from three_graph_flag import *
 
 
-class RandomTournamentConstruction(Construction):
+class RandomGraphConstruction(Construction):
+    r"""
+    Inherits from `Construction`_.
 
-    def __init__(self, variant=False):
-        self._variant = variant
+    Provides an object that represents the limit object of the following construction:
+    Take a random 2-graph `G` on `n` vertices, where each edge appears with probability
+    :math:`1/2` and use it to make a 3-graph `H` on the same vertex set, by placing a 3-edge in
+    H if and only if the three vertices induce an odd number of edges in G.	:math:`\pi`
+    """
+
+    def __init__(self):
+
         self._field = RationalField()
         self._flag_cls = ThreeGraphFlag
 
@@ -62,9 +68,7 @@ class RandomTournamentConstruction(Construction):
             c = 0
             for i in range(1, tg.n + 1):
                 for j in range(1, i):
-                    if p[c] == 0:
-                        edges.append((i, j))
-                    else:
+                    if p[c] == 1:
                         edges.append((j, i))
                     c += 1
             graphs = self._induced_flags(flags[0].n, tg, edges)
@@ -92,9 +96,7 @@ class RandomTournamentConstruction(Construction):
             c = 0
             for i in range(tg.n + 1, n + 1):
                 for j in range(1, i):
-                    if p[c] == 0:
-                        edges.append((i, j))
-                    else:
+                    if p[c] == 1:
                         edges.append((j, i))
                     c += 1
 
@@ -103,14 +105,9 @@ class RandomTournamentConstruction(Construction):
             ig.t = tg.n
 
             for s in Combinations(range(1, n + 1), 3):
-                if self._variant:
-                    if ((s[1], s[0]) in edges and (s[0], s[2]) in edges) or (
-                            (s[2], s[0]) in edges and (s[0], s[1]) in edges):
-                        ig.add_edge(s)
-                else:
-                    if ((s[0], s[1]) in edges and (s[1], s[2]) in edges and (s[2], s[0]) in edges) or (
-                            (s[0], s[2]) in edges and (s[2], s[1]) in edges and (s[1], s[0]) in edges):
-                        ig.add_edge(s)
+                ind_edges = [e for e in edges if e[0] in s and e[1] in s]
+                if len(ind_edges) == 1 or len(ind_edges) == 3:
+                    ig.add_edge(s)
 
             it = ig.induced_subgraph(range(1, tg.n + 1))
             if tg.is_labelled_isomorphic(it):

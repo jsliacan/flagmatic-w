@@ -29,6 +29,8 @@ Further development of Flagmatic is supported by ERC.
 http://cordis.europa.eu/project/rcn/104324_en.html
 """
 
+# the following are already functions in Sage-8.6+
+
 from sage.arith.all import binomial
 from sage.combinat.all import Tuples, Combinations
 from sage.rings.all import Integer, RationalField

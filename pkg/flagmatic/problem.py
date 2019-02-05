@@ -43,7 +43,7 @@ from sage.functions.other import floor
 from sage.matrix.all import matrix, identity_matrix, block_matrix, block_diagonal_matrix
 from sage.modules.misc import gram_schmidt
 from sage.misc.misc import SAGE_TMP
-from sage.combinat.all import Permutations, Combinations, Tuples
+#from sage.combinat.all import Permutations, Combinations, Tuples
 from sage.matrix.constructor import ones_matrix, vector
 from copy import copy
 
@@ -794,7 +794,7 @@ class Problem(SageObject):
 
         EXAMPLE:
          
-        problem = GraphAssumptionsProblem(4)
+        problem = GraphProblem(4, mode="optimization")
         problem.add_assumption("0:", [("2:12(0)", 1)], 1/2, equality=True)
         
         """
