@@ -1729,6 +1729,65 @@ class Problem(SageObject):
                                             (num_graphs + num_density_coeff_blocks + mi + 1, ti + 2, j + 1, k + 1, value.n(digits=64)))
                         f.write("%d %d %d %d -1.0\n" % (num_graphs + num_density_coeff_blocks + mi + 1, total_num_blocks + 4, mi + 1, mi + 1))
                         mi += 1
+        
+    def get_sdp(self):
+        # Some old code
+        num_graphs = len(self._graphs)
+        num_types = len(self._types)
+        num_active_densities = len(self._active_densities)
+        num_density_coeff_blocks = len(self._density_coeff_blocks)
+
+        if num_active_densities < 1:
+            raise NotImplementedError("there must be at least one active density.")
+
+        if num_density_coeff_blocks < 1:
+            raise NotImplementedError("there must be at least one density coefficient block.")
+
+        if self.state("set_block_matrix_structure") != "yes":
+            self._set_block_matrix_structure()
+        total_num_blocks = len(self._block_matrix_structure)
+
+        num_extra_matrices = 0   
+
+        self.state("write_sdp_input_file", "yes")
+        
+        # J is number of graphs
+        J = num_graphs
+
+        # I is number of types
+        I = len(self._active_types)
+
+        # M gives the matrix sizes, i.e., the number of flags per type
+        M = []
+        for ti in self._active_types:
+            num_blocks, block_sizes, block_offsets, block_indices = self._get_block_matrix_structure(ti)
+            assert num_blocks == len(block_sizes) == 1
+            M.append(block_sizes[0])
+
+        # c gives the target density
+        assert num_active_densities == 1
+        c = [self._densities[self._active_densities[0]][i] for i in range(num_graphs)]
+
+        # C gives the pair flag denisities
+        C = {i: {j: [] for j in range(J)} for i in range(I)}
+
+        for ti in self._active_types:
+            num_blocks, block_sizes, block_offsets, block_indices = self._get_block_matrix_structure(ti)
+
+            for row in self._product_densities_arrays[ti]:
+                gi = row[0]
+                j = row[1]
+                k = row[2]
+                bi = num_blocks - 1
+                if bi > 0:
+                    while block_offsets[bi] > j:
+                        bi -= 1
+                    j -= block_offsets[bi]
+                    k -= block_offsets[bi]
+                value = Integer(row[3]) / Integer(row[4])
+                C[ti][gi].append((j, k, Integer(row[3]) / Integer(row[4])))
+        
+        return I, J, M, C, c
 
     # TODO: handle no sharp graphs
 
