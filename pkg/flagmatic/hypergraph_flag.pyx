@@ -544,11 +544,7 @@ cdef class HypergraphFlag (Flag):
                 if multiplicity > 1:
                         possible_edges = sum(([e] * multiplicity for e in possible_edges), [])
         
-                from tqdm import tqdm
-
-                print("len(smaller_graphs) = %d" % (len(smaller_graphs)))
-
-                for sg in tqdm(smaller_graphs):
+                for sg in smaller_graphs:
                 
                         pe = sg.ne
                         ds = sg.degrees()
