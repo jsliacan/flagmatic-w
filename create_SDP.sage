@@ -57,4 +57,4 @@ if __name__=='__main__':
         sense = "max"
 
     I, J, M, C, c = p.get_sdp()
-    write_problem(I, J, M, C, c, sense, "%s_%d" % (problem, N))
+    write_problem(I, J, M, C, c, sense, "/home/sage/out/%s_%d" % (problem, N))
