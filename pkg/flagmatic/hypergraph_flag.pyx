@@ -546,6 +546,8 @@ cdef class HypergraphFlag (Flag):
         
                 from tqdm import tqdm
 
+                print("len(smaller_graphs) = %d" % (len(smaller_graphs)))
+
                 for sg in tqdm(smaller_graphs):
                 
                         pe = sg.ne
