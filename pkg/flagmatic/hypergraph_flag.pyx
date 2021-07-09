@@ -494,6 +494,8 @@ cdef class HypergraphFlag (Flag):
                 
                 
                 """
+
+                print("!!!!!!!!")
         
                 if not (r == 2 or r == 3):
                         raise NotImplementedError
