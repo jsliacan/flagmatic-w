@@ -41,7 +41,7 @@ include "cdefs.pxi"
 
 # This doesn't seem to be remembered from .pxd file
 # 35 + 42 + 7 = 84, 84 * 3 = 252
-DEF MAX_NUMBER_OF_EDGE_INTS = 256
+DEF MAX_NUMBER_OF_EDGE_INTS = 1024 #256
 DEF MAX_NUMBER_OF_VERTICES = 35
 
 

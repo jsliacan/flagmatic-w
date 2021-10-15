@@ -2158,7 +2158,7 @@ static PyObject *__pyx_int_3;
 static PyObject *__pyx_int_4;
 static PyObject *__pyx_int_5;
 static PyObject *__pyx_int_35;
-static PyObject *__pyx_int_256;
+static PyObject *__pyx_int_1024;
 static PyObject *__pyx_int_neg_1;
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
@@ -4345,18 +4345,18 @@ static PyObject *__pyx_pf_9flagmatic_15hypergraph_flag_14HypergraphFlag_2add_edg
     __pyx_t_4 = ((((__pyx_v_self->ne + 1) * 2) > 0x100) != 0);
     if (__pyx_t_4) {
 
-      /* "flagmatic/hypergraph_flag.pyx":256
+      /* "flagmatic/hypergraph_flag.pyx":1024
  * 
  *                         if (self.ne + 1) * 2 > MAX_NUMBER_OF_EDGE_INTS:
  *                                 raise NotImplementedError("Too many edges.")             # <<<<<<<<<<<<<<
  * 
  *                         x = <int?> edge[0]
  */
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_NotImplementedError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 256, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_NotImplementedError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1024, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 256, __pyx_L1_error)
+      __PYX_ERR(0, 1024, __pyx_L1_error)
 
       /* "flagmatic/hypergraph_flag.pyx":255
  *                 elif self._r == 2:
@@ -5753,7 +5753,7 @@ static PyObject *__pyx_pf_9flagmatic_15hypergraph_flag_14HypergraphFlag_10init_f
  *                         raise NotImplementedError("Too many edges.")
  * 
  */
-  __pyx_t_1 = PyObject_RichCompare(__pyx_v_nei, __pyx_int_256, Py_GT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 345, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_v_nei, __pyx_int_1024, Py_GT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 345, __pyx_L1_error)
   __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 345, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_2) {
@@ -19163,16 +19163,16 @@ static PyObject *__pyx_pf_9flagmatic_15hypergraph_flag_14HypergraphFlag_60has_fo
   for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
     __pyx_v_i = __pyx_t_4;
 
-    /* "flagmatic/hypergraph_flag.pyx":1256
+    /* "flagmatic/hypergraph_flag.pyx":11024
  *                 for i in range(len(graphs)):
  * 
  *                         h = <HypergraphFlag ?> graphs[i]             # <<<<<<<<<<<<<<
  * 
  *                         if h._n > self._n:
  */
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_graphs, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1256, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_graphs, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 11024, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (!(likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_9flagmatic_15hypergraph_flag_HypergraphFlag)))) __PYX_ERR(0, 1256, __pyx_L1_error)
+    if (!(likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_9flagmatic_15hypergraph_flag_HypergraphFlag)))) __PYX_ERR(0, 11024, __pyx_L1_error)
     __pyx_t_5 = __pyx_t_2;
     __Pyx_INCREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -30683,7 +30683,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = ((!(__pyx_v_hasfields != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "../../sage/local/lib/python2.7/site-packages/Cython/Includes/numpy/__init__.pxd":256
+    /* "../../sage/local/lib/python2.7/site-packages/Cython/Includes/numpy/__init__.pxd":1024
  * 
  *             if not hasfields:
  *                 t = descr.type_num             # <<<<<<<<<<<<<<
@@ -33948,14 +33948,14 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "flagmatic/hypergraph_flag.pyx":256
+  /* "flagmatic/hypergraph_flag.pyx":1024
  * 
  *                         if (self.ne + 1) * 2 > MAX_NUMBER_OF_EDGE_INTS:
  *                                 raise NotImplementedError("Too many edges.")             # <<<<<<<<<<<<<<
  * 
  *                         x = <int?> edge[0]
  */
-  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_s_Too_many_edges); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 256, __pyx_L1_error)
+  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_s_Too_many_edges); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 1024, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__9);
   __Pyx_GIVEREF(__pyx_tuple__9);
 
@@ -34456,7 +34456,7 @@ static int __Pyx_InitGlobals(void) {
   __pyx_int_4 = PyInt_FromLong(4); if (unlikely(!__pyx_int_4)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_5 = PyInt_FromLong(5); if (unlikely(!__pyx_int_5)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_35 = PyInt_FromLong(35); if (unlikely(!__pyx_int_35)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_int_256 = PyInt_FromLong(256); if (unlikely(!__pyx_int_256)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_int_1024 = PyInt_FromLong(1024); if (unlikely(!__pyx_int_1024)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_neg_1 = PyInt_FromLong(-1); if (unlikely(!__pyx_int_neg_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;

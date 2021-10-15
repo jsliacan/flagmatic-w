@@ -4,7 +4,7 @@ RUN sage -i csdp
 
 RUN sage --pip install tqdm
 
-# RUN git clone https://github.com/FordUniver/flagmatic.git && cd flagmatic/pkg && sage -python setup.py install
+RUN git clone https://github.com/FordUniver/flagmatic.git && cd flagmatic/pkg && sage -python setup.py install && cd ../.. && rm -rf flagmatic
 
 # WORKDIR /home/sage/flagmatic
 

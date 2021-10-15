@@ -48,12 +48,44 @@ if __name__=='__main__':
         p = ThreeGraphProblem(N, forbid=(4,4))
         sense = "min"
 
+    elif problem == 'Thomason_K2K3':
+        p = GraphProblem(N, density=[("2:",1),("3:121323", 1)], minimize=True)
+        sense = "max"
+        
+    elif problem == 'Thomason_K2K4':
+        p = GraphProblem(N, density=[("2:",1),("4:121314232434", 1)], minimize=True)
+        sense = "max"
+        
     elif problem == 'Thomason_K3K4':
         p = GraphProblem(N, density=[("3:",1),("4:121314232434", 1)], minimize=True)
         sense = "max"
 
+    elif problem == 'Thomason_K3K5':
+        p = GraphProblem(N, density=[("3:",1),("5:12131415232425343545", 1)], minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K3K6':
+        p = GraphProblem(N, density=[("3:",1),("6:121314151623242526343536454656", 1)], minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K3K7':
+        p = GraphProblem(N, density=[("3:",1),("7:121314151617232425262734353637454647565767", 1)], minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K4K5':
+        p = GraphProblem(N, density=[("4:",1),("5:12131415232425343545", 1)], minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K3K3':
+        p = GraphProblem(N, density=[("3:",1),("3:121323", 1)], minimize=True)
+        sense = "max"
+
     elif problem == 'Thomason_K4K4':
         p = GraphProblem(N, density=[("4:",1),("4:121314232434", 1)], minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K5K5':
+        p = GraphProblem(N, density=[("5:",1),("5:12131415232425343545", 1)], minimize=True)
         sense = "max"
 
     I, J, M, C, c = p.get_sdp()
