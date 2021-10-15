@@ -96,15 +96,15 @@ class BlowupConstruction(Construction):
 
     def subgraph_densities(self, n):
         
-        print("Determining subgraph densities of blowup construction with n=%d", n)
-
         if n < 0:
             raise ValueError
 
         if self._use_symmetry:
-            print("Using symmetry...")
+            sys.stdout.write("Determining subgraph densities of blowup construction with n=%d using symmetry" % n)
             return self.symm_subgraph_densities(n)
 
+        sys.stdout.write("Determining subgraph densities of blowup construction with n=%d without using symmetry" % n)
+        
         cn = self._graph.n
         total = Integer(0)
         sharp_graph_counts = {}
@@ -226,7 +226,9 @@ class BlowupConstruction(Construction):
         if k == 0:
             return 1, {() : 1}
 
+        print("!")
         gens = self._graph.automorphism_group_gens()
+        print("!!")
 
         # Pass generators to GAP to create a group for us.
 
