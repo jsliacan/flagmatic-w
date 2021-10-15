@@ -110,7 +110,7 @@ class BlowupConstruction(Construction):
         sharp_graph_counts = {}
         sharp_graphs = []
 
-        for P in tqdm(UnorderedTuples(range(1, cn + 1), n)):
+        for P in UnorderedTuples(range(1, cn + 1), n):
 
             factor = factorial(n)
             for i in range(1, cn + 1):
@@ -260,7 +260,7 @@ class BlowupConstruction(Construction):
 
         combs = [tuple(c) for c in Compositions(k - s)]
         factors = []
-        for c in tqdm(combs):
+        for c in combs:
             factor = factorial(k - s)
             for x in c:
                 factor /= factorial(x)
@@ -269,7 +269,7 @@ class BlowupConstruction(Construction):
         orb_reps = {}
         total = 0
 
-        for ot, length in tqdm(set_orb_reps.iteritems()):
+        for ot, length in set_orb_reps.iteritems():
 
             ne = len(ot)
             for ci in range(len(combs)):
@@ -329,7 +329,7 @@ class BlowupConstruction(Construction):
 
         sys.stdout.write("Found %d orbits.\n" % len(orb_reps))
 
-        for P, factor in tqdm(orb_reps.iteritems()):
+        for P, factor in orb_reps.iteritems():
 
             ig = self._graph.degenerate_induced_subgraph(P)
             ig.make_minimal_isomorph()
