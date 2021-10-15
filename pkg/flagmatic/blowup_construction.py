@@ -237,7 +237,7 @@ class BlowupConstruction(Construction):
 
         print "!!"
         S = []
-        for i in range(1, k - s + 1):
+        for i in tqdm(range(1, k - s + 1)):
             S.extend([tuple(sorted(list(x))) for x in Subsets(self._graph.n, i)])
 
         set_orb_reps = {}
@@ -247,6 +247,8 @@ class BlowupConstruction(Construction):
 
         while len(S) > 0:
 
+            print len(S)
+            
             rep = list(S[0])
 
             o = gap.new("Orbit(g, %s, OnSets);" % (rep,)).sage()
@@ -263,7 +265,7 @@ class BlowupConstruction(Construction):
         print "!!!!"
         combs = [tuple(c) for c in Compositions(k - s)]
         factors = []
-        for c in combs:
+        for c in tqdm(combs):
             factor = factorial(k - s)
             for x in c:
                 factor /= factorial(x)
@@ -273,7 +275,7 @@ class BlowupConstruction(Construction):
         total = 0
 
         print "!!!!!"
-        for ot, length in set_orb_reps.iteritems():
+        for ot, length in tqdm(set_orb_reps.iteritems()):
 
             ne = len(ot)
             for ci in range(len(combs)):
