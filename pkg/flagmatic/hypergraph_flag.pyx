@@ -232,7 +232,7 @@ cdef class HypergraphFlag (Flag):
                 if self._r == 3:
 
                         if (self.ne + 1) * 3 > MAX_NUMBER_OF_EDGE_INTS:
-                                raise NotImplementedError("Too many edges.")
+                                raise NotImplementedError(f"Too many edges: {(self.ne + 1) * 3} > {MAX_NUMBER_OF_EDGE_INTS} (235)")
                 
                         x = <int?> edge[0]
                         y = <int?> edge[1]
@@ -253,7 +253,7 @@ cdef class HypergraphFlag (Flag):
                 elif self._r == 2:
 
                         if (self.ne + 1) * 2 > MAX_NUMBER_OF_EDGE_INTS:
-                                raise NotImplementedError("Too many edges.")
+                                raise NotImplementedError(f"Too many edges: {(self.ne + 1) * 2} > {MAX_NUMBER_OF_EDGE_INTS} (256)")
                 
                         x = <int?> edge[0]
                         y = <int?> edge[1]
@@ -343,7 +343,7 @@ cdef class HypergraphFlag (Flag):
                 self._t = t
 
                 if nei > MAX_NUMBER_OF_EDGE_INTS:
-                        raise NotImplementedError("Too many edges.")
+                        raise NotImplementedError(f"Too many edges: {nei} > {MAX_NUMBER_OF_EDGE_INTS} (346)")
                 
                 if self._r == 3:
                 
