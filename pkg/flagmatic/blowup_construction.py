@@ -95,11 +95,14 @@ class BlowupConstruction(Construction):
         return self._field
 
     def subgraph_densities(self, n):
+        
+        print("Determining subgraph densities of blowup construction with n=%d", n)
 
         if n < 0:
             raise ValueError
 
         if self._use_symmetry:
+            print("Using symmetry...")
             return self.symm_subgraph_densities(n)
 
         cn = self._graph.n
@@ -326,7 +329,7 @@ class BlowupConstruction(Construction):
 
         sys.stdout.write("Found %d orbits.\n" % len(orb_reps))
 
-        for P, factor in orb_reps.iteritems():
+        for P, factor in tqdm(orb_reps.iteritems()):
 
             ig = self._graph.degenerate_induced_subgraph(P)
             ig.make_minimal_isomorph()
