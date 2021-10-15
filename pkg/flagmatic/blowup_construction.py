@@ -244,8 +244,6 @@ class BlowupConstruction(Construction):
         with tqdm(total=len(S)) as pb:
             while len(S) > 0:
 
-                print len(S)
-
                 rep = list(S[0])
 
                 o = gap.new("Orbit(g, %s, OnSets);" % (rep,)).sage()
