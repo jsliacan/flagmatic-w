@@ -100,10 +100,10 @@ class BlowupConstruction(Construction):
             raise ValueError
 
         if self._use_symmetry:
-            sys.stdout.write("Determining subgraph densities of blowup construction with n=%d using symmetry" % n)
+            sys.stdout.write("Determining subgraph densities of blowup construction with n=%d using symmetry\n" % n)
             return self.symm_subgraph_densities(n)
 
-        sys.stdout.write("Determining subgraph densities of blowup construction with n=%d without using symmetry" % n)
+        sys.stdout.write("Determining subgraph densities of blowup construction with n=%d without using symmetry\n" % n)
         
         cn = self._graph.n
         total = Integer(0)
@@ -226,23 +226,23 @@ class BlowupConstruction(Construction):
         if k == 0:
             return 1, {() : 1}
 
-        print("!")
         gens = self._graph.automorphism_group_gens()
-        print("!!")
 
         # Pass generators to GAP to create a group for us.
-
+        print "!"
         gen_str = ",".join("(" + "".join(str(cy) for cy in cys) + ")" for cys in gens)
         gap.eval("g := Group(%s);" % gen_str)
         if len(prefix) > 0:
             gap.eval("g := Stabilizer(g, %s, OnTuples);" % list(set(prefix)))
 
+        print "!!"
         S = []
         for i in range(1, k - s + 1):
             S.extend([tuple(sorted(list(x))) for x in Subsets(self._graph.n, i)])
 
         set_orb_reps = {}
 
+        print "!!!"
         #sys.stdout.write("Calculating orbits")
 
         while len(S) > 0:
@@ -260,6 +260,7 @@ class BlowupConstruction(Construction):
 
         #sys.stdout.write("\n")
 
+        print "!!!!"
         combs = [tuple(c) for c in Compositions(k - s)]
         factors = []
         for c in combs:
@@ -271,6 +272,7 @@ class BlowupConstruction(Construction):
         orb_reps = {}
         total = 0
 
+        print "!!!!!"
         for ot, length in set_orb_reps.iteritems():
 
             ne = len(ot)
@@ -284,6 +286,7 @@ class BlowupConstruction(Construction):
                     orb_reps[t] = weight
                     total += weight
 
+        print "!!!!!!"
         return total, orb_reps
 
     def symm_zero_eigenvectors(self, tg, flags, flag_basis=None):
