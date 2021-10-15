@@ -42,6 +42,8 @@ from graph_flag import *
 from oriented_graph_flag import *
 from construction import *
 
+from tqdm import tqdm
+
 
 class BlowupConstruction(Construction):
 
@@ -105,7 +107,7 @@ class BlowupConstruction(Construction):
         sharp_graph_counts = {}
         sharp_graphs = []
 
-        for P in UnorderedTuples(range(1, cn + 1), n):
+        for P in tqdm(UnorderedTuples(range(1, cn + 1), n)):
 
             factor = factorial(n)
             for i in range(1, cn + 1):
