@@ -1514,6 +1514,8 @@ cdef class HypergraphFlag (Flag):
                 pf2 = <int *> malloc (sizeof(int) * m2)
                 grb = <int *> malloc (flags1.len * flags2.len * sizeof(int))
         
+                print(gb.len)
+        
                 for gi in range(gb.len):
         
                         #sig_on()
