@@ -74,7 +74,7 @@ def process_products(args):
     flags_block = make_graph_block(flag, m)
     rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
 
-    return True #rarray
+    return rarray
 
 def block_structure(M):
     """
