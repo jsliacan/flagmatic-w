@@ -1471,15 +1471,6 @@ cdef class HypergraphFlag (Flag):
         
         @classmethod
         def flag_products (cls, graph_block gb, HypergraphFlag tg, graph_block flags1, graph_block flags2):
-        
-                print("\n")
-                print("in method flag_products")
-                print(gb)
-                print(dir(gb))
-                try: print(gb.len)
-                except: print("couldn't get len")
-                print(dir(gb))
-            
             
                 cdef int *p
                 cdef int np
