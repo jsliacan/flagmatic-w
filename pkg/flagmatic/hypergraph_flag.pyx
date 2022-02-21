@@ -1476,7 +1476,8 @@ cdef class HypergraphFlag (Flag):
                 print("in method flag_products")
                 print(gb)
                 print(dir(gb))
-                print(gb.len)
+                try: print(gb.len)
+                except: print("couldn't get len")
             
             
                 cdef int *p

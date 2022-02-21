@@ -1502,18 +1502,21 @@ class Problem(SageObject):
             
             graph_block = graph_block_orig #deepcopy(graph_block_orig)
             
-            
-            print("\n")
-            print("in loop")
-            print(graph_block)
-            print(dir(graph_block))
-            print(graph_block.len)
 
             tg = self._types[ti]
             s = tg.n
             m = (self._n + s) / 2
 
             flags_block = make_graph_block(self._flags[ti], m)
+            
+            print("\n")
+            print("in loop")
+            print(graph_block)
+            print(dir(graph_block))
+            try: print(graph_block.len)
+            except: print("couldn't get len")
+            
+            
             rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
             self._product_densities_arrays.append(rarray)
             # print(rarray)
