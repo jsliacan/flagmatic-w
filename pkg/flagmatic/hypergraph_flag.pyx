@@ -1643,6 +1643,166 @@ cdef class HypergraphFlag (Flag):
                 return rarray
 
 
+        @classmethod
+        def modified_flag_products (cls, gb_graphs, gb_n, HypergraphFlag tg, flags1_graphs, flags1_n):
+        
+                gb = make_graph_block(gb_graphs, gb_n)
+                flags1 = make_graph_block(flags1_graphs, flags1_n)
+            
+            
+                cdef int *p
+                cdef int np
+                cdef int *pp
+                cdef int *pf1
+                cdef int *pf2
+                cdef int *edges
+                cdef int *cur_edges
+                cdef int n, s, m1, m2, ne, i, j, k, gi
+                cdef int cnte, cnf1e, cnf2e
+                cdef int has_type, has_f1
+                cdef int f1index, f2index, equal_flags_mode, nzcount, row
+                cdef int *grb
+
+                cdef HypergraphFlag g, t, f1, f2
+                
+                rarray = numpy.zeros([0, 5], dtype=numpy.int)
+                row = 0
+                
+                #sig_on()
+                
+                n = gb.n
+                s = tg.n
+                m1 = flags1.n
+        
+        
+                equal_flags_mode = 1
+                m2 = flags1.n
+                flags2 = flags1
+                p = generate_equal_pair_combinations(n, s, m1, &np)
+        
+                cur_edges = <int *> malloc (sizeof(int) * MAX_NUMBER_OF_EDGE_INTS)
+                pf1 = <int *> malloc (sizeof(int) * m1)
+                pf2 = <int *> malloc (sizeof(int) * m2)
+                grb = <int *> malloc (flags1.len * flags2.len * sizeof(int))
+        
+        
+                for gi in range(gb.len):
+        
+                        #sig_on()
+                
+                        g = <HypergraphFlag> gb.graphs[gi]
+                
+                        memset(grb, 0, flags1.len * flags2.len * sizeof(int))
+                
+                        ne = g.ne
+                        edges = g._edges
+        
+                        has_type = 0
+                        has_f1 = 0
+        
+                        for i in range(np):
+                        
+                                pp = &p[(i * n)]
+                        
+                                if pp[0] != 0:
+                        
+                                        for j in range(s):
+                                                pf1[j] = pp[j]
+                                                pf2[j] = pp[j]
+                                                        
+                                        has_type = 0
+                                        t = g.c_induced_subgraph(pf1, s)
+                                        if tg.is_labelled_isomorphic(t):
+                                                has_type = 1
+                
+                                if has_type == 0:
+                                        continue
+                                
+                                if has_type and pp[s] != 0:
+                
+                                        has_f1 = 0
+                
+                                        for j in range(m1 - s):
+                                                pf1[s + j] = pp[s + j]
+                
+                                        f1 = g.c_induced_subgraph(pf1, m1)
+                                        f1.t = s
+                                        f1.make_minimal_isomorph()
+        
+                                        for j in range(flags1.len):
+                                                if f1.is_labelled_isomorphic(<HypergraphFlag> flags1.graphs[j]):
+                                                        has_f1 = 1
+                                                        f1index = j
+                                                        break
+                
+                                if has_f1 == 0:
+                                        continue
+                
+                                for j in range(m2 - s):
+                                        pf2[s + j] = pp[m1 + j]
+                
+                                f2 = g.c_induced_subgraph(pf2, m2)
+                                f2.t = s
+                                f2.make_minimal_isomorph()
+                                
+                                for j in range(flags2.len):
+                                        if f2.is_labelled_isomorphic(<HypergraphFlag> flags2.graphs[j]):
+                                                f2index = j
+                                                grb[(f1index * flags1.len) + f2index] += 1
+                                                break
+        
+                        if equal_flags_mode:
+                
+                                nzcount = 0
+                                for i in range(flags1.len):
+                                        for j in range(i, flags1.len):
+                                                k = grb[(i * flags1.len) + j] + grb[(j * flags1.len) + i]
+                                                if k != 0:
+                                                        nzcount += 1
+        
+                                rarray.resize([row + nzcount, 5], refcheck=False)
+                                
+                                for i in range(flags1.len):
+                                        for j in range(i, flags1.len):
+                                                k = grb[(i * flags1.len) + j] + grb[(j * flags1.len) + i]
+                                                if k != 0:
+                                                        rarray[row, 0] = gi
+                                                        rarray[row, 1] = i
+                                                        rarray[row, 2] = j
+                                                        rarray[row, 3] = k
+                                                        rarray[row, 4] = np * 2
+                                                        row += 1
+        
+                        else:
+                
+                                nzcount = 0
+                                for i in range(flags1.len):
+                                        for j in range(flags2.len):
+                                                k = grb[(i * flags1.len) + j]
+                                                if k != 0:
+                                                        nzcount += 1
+        
+                                rarray.resize([row + nzcount, 5], refcheck=False)
+                                
+                                for i in range(flags1.len):
+                                        for j in range(flags2.len):
+                                                k = grb[(i * flags1.len) + j]
+                                                if k != 0:
+                                                        rarray[row, 0] = gi
+                                                        rarray[row, 1] = i
+                                                        rarray[row, 2] = j
+                                                        rarray[row, 3] = k
+                                                        rarray[row, 4] = np
+                                                        row += 1
+        
+                free(cur_edges)
+                free(pf1)
+                free(pf2)
+                free(grb)
+        
+                #sig_off()
+                
+                return rarray
 #
 # end of HypergraphFlag class definition
 #

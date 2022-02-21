@@ -1473,8 +1473,8 @@ class Problem(SageObject):
         self.state("compute_products", "yes")
 
         num_types = len(self._types)
-        graph_block_orig = make_graph_block(self._graphs, self._n)
-        # print(dir(graph_block_orig))
+        print(type(self._graphs))
+        # graph_block_orig = make_graph_block(self._graphs, self._n)
         self._product_densities_arrays = []
 
         #sys.stdout.write("Computing products")
@@ -1500,24 +1500,12 @@ class Problem(SageObject):
         
         for ti in tqdm(range(num_types)):
             
-            graph_block = graph_block_orig #deepcopy(graph_block_orig)
-            
 
             tg = self._types[ti]
             s = tg.n
             m = (self._n + s) / 2
-
-            flags_block = make_graph_block(self._flags[ti], m)
             
-            print("\n")
-            print("in loop")
-            print(graph_block)
-            print(dir(graph_block))
-            try: print(graph_block.len)
-            except: print("couldn't get len")
-            
-            
-            rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
+            rarray = self._flag_cls.modified_flag_products(self._graphs, self._n, tg, self._flags[ti], m)
             self._product_densities_arrays.append(rarray)
             # print(rarray)
             
