@@ -66,7 +66,7 @@ sdpa_qd_cmd = "sdpa_qd"
 dsdp_cmd = "dsdp"
 
 def process_products(args):
-    # tg, flag, n, flag_cls = args
+    tg, flag, n, flag_cls = args
     # 
     # s = tg.n
     # m = (n + s) / 2
@@ -1486,7 +1486,7 @@ class Problem(SageObject):
         
         arguments = []
         for ti in range(num_types):
-            arguments.append( (True, ) )#(self._types[ti], self._flags[ti], self._n, self._flag_cls) )
+            arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls) )
         
         p = mp.Pool()
         for rarray in p.map(process_products, tqdm(arguments)):
