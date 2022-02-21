@@ -1500,7 +1500,7 @@ class Problem(SageObject):
         
         for ti in tqdm(range(num_types)):
             
-            graph_block = deepcopy(graph_block_orig)
+            graph_block = graph_block_orig #deepcopy(graph_block_orig)
             
             # print(graph_block.len)
 
