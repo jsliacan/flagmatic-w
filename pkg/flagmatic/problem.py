@@ -1493,7 +1493,6 @@ class Problem(SageObject):
         
         p = mp.Pool()
         for rarray in p.map(process_products, tqdm(arguments)):
-            print(rarray)
             self._product_densities_arrays.append(rarray)
         p.close()
         
