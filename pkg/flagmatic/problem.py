@@ -1485,9 +1485,10 @@ class Problem(SageObject):
         
         print("Applying pool to "+str(num_types)+" types in parallel")
         
-        with mp.Pool() as p:
-            for rarray in p.map(process_products, tqdm(range(num_types))):
-                self._product_densities_arrays.append(rarray)
+        p = mp.Pool():
+        for rarray in p.map(process_products, tqdm(range(num_types))):
+            self._product_densities_arrays.append(rarray)
+        p.close()
         
         """
         from tqdm import tqdm
