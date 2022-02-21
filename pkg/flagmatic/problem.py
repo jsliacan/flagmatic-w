@@ -1490,8 +1490,24 @@ class Problem(SageObject):
         
         p = mp.Pool()
         for rarray in p.map(process_products, tqdm(arguments)):
+            print(rarray)
             self._product_densities_arrays.append(rarray)
         p.close()
+        
+        print()
+        
+        for ti in tqdm(range(num_types)):
+
+            tg = self._types[ti]
+            s = tg.n
+            m = (self._n + s) / 2
+
+            flags_block = make_graph_block(self._flags[ti], m)
+            rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
+            print(rarray)
+            
+        print()
+        
         
         """
         from tqdm import tqdm
