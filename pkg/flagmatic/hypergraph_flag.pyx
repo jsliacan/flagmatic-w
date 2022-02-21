@@ -1656,6 +1656,7 @@ cdef class HypergraphFlag (Flag):
                 for i in range(flags1_len):
                     c_flags1_graphs[i] = <void *> flags1_graphs[i]
             
+                print("!!!")
             
                 cdef int *p
                 cdef int np
@@ -1671,6 +1672,8 @@ cdef class HypergraphFlag (Flag):
                 cdef int *grb
 
                 cdef HypergraphFlag g, t, f1, f2
+                
+                print("!!!")
                 
                 rarray = numpy.zeros([0, 5], dtype=numpy.int)
                 row = 0
