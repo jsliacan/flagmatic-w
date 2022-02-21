@@ -1498,12 +1498,12 @@ class Problem(SageObject):
         # print()
         
         for ti in tqdm(range(num_types)):
-
-            flags_block = make_graph_block(self._flags[ti], m)
             
             tg = self._types[ti]
             s = tg.n
             m = (self._n + s) / 2
+
+            flags_block = make_graph_block(self._flags[ti], m)
             
             rarray = self._flag_cls.mflag_products(graph_block, tg, flags_block, None)
             self._product_densities_arrays.append(rarray)
