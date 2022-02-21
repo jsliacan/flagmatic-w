@@ -68,7 +68,7 @@ dsdp_cmd = "dsdp"
 def process_products(args):
     tg, flag, n, flag_cls, graph_block = args
     
-    print(graph_block)
+    print(graph_block.len)
     
     s = tg.n
     m = (n + s) / 2
@@ -1476,6 +1476,7 @@ class Problem(SageObject):
 
         num_types = len(self._types)
         graph_block_orig = make_graph_block(self._graphs, self._n)
+        print(graph_block_orig.len)
         self._product_densities_arrays = []
 
         #sys.stdout.write("Computing products")
@@ -1503,7 +1504,7 @@ class Problem(SageObject):
             
             graph_block = deepcopy(graph_block_orig)
             
-            print(graph_block)
+            print(graph_block.len)
 
             tg = self._types[ti]
             s = tg.n
