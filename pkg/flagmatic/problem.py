@@ -1222,6 +1222,7 @@ class Problem(SageObject):
                 sys.stdout.write("Warning: non-admissible graph %s appears in construction!\n" % g)
 
         # set target_bound to equal the maximum - probably this will always be what is wanted...
+        print(target_densities)
         self._target_bound = max(target_densities)
 
         sys.stdout.write("Density of construction is %s.\n" % self._target_bound)
@@ -1470,6 +1471,26 @@ class Problem(SageObject):
         print("Computing products...")
 
         from tqdm import tqdm
+        import multiprocessing as mp
+        
+        def process_products(ti):
+            tg = self._types[ti]
+            s = tg.n
+            m = (self._n + s) / 2
+
+            flags_block = make_graph_block(self._flags[ti], m)
+            rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
+            
+            return rarray
+        
+        print("Applying pool to "+str(num_types)+" types in parallel")
+        
+        with mp.Pool() as p:
+            for rarray in p.map(process_products, tqdm(range(num_types))):
+                self._product_densities_arrays.append(rarray)
+        
+        """
+        from tqdm import tqdm
 
         for ti in tqdm(range(num_types)):
 
@@ -1485,6 +1506,7 @@ class Problem(SageObject):
             #sys.stdout.flush()
 
         #sys.stdout.write("\n")
+        """
 
     def _set_block_matrix_structure(self):
 
