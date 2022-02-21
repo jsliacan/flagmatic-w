@@ -1503,11 +1503,11 @@ class Problem(SageObject):
             graph_block = graph_block_orig #deepcopy(graph_block_orig)
             
             
-            print()
+            print("\n")
             print("in loop")
             print(graph_block)
             print(dir(graph_block))
-            # print(graph_block.len)
+            print(graph_block.len)
 
             tg = self._types[ti]
             s = tg.n
@@ -1515,6 +1515,7 @@ class Problem(SageObject):
 
             flags_block = make_graph_block(self._flags[ti], m)
             rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
+            self._product_densities_arrays.append(rarray)
             # print(rarray)
             
         # print()

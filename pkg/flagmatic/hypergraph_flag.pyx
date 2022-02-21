@@ -1472,7 +1472,7 @@ cdef class HypergraphFlag (Flag):
         @classmethod
         def flag_products (cls, graph_block gb, HypergraphFlag tg, graph_block flags1, graph_block flags2):
         
-                print()
+                print("\n")
                 print("in method flag_products")
                 print(gb)
                 print(dir(gb))
