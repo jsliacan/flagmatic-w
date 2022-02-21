@@ -67,12 +67,12 @@ dsdp_cmd = "dsdp"
 
 def process_products(args):
     tg, flag, n, flag_cls = args
-    # 
-    # s = tg.n
-    # m = (n + s) / 2
-    # 
-    # flags_block = make_graph_block(flag, m)
-    # rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
+    
+    s = tg.n
+    m = (n + s) / 2
+    
+    flags_block = make_graph_block(flag, m)
+    rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
 
     return True #rarray
 
