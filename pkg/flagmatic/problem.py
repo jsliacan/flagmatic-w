@@ -1456,7 +1456,7 @@ class Problem(SageObject):
                 self._inverse_flag_bases.append(MT)
 
     @staticmethod
-    def process_products(args):
+    def process_products(self, args):
         # tg, flag, n, flag_cls = args
         # 
         # s = tg.n
@@ -1491,7 +1491,7 @@ class Problem(SageObject):
             arguments.append( (True, ) )#(self._types[ti], self._flags[ti], self._n, self._flag_cls) )
         
         p = mp.Pool()
-        for rarray in p.map(process_products, tqdm(arguments)):
+        for rarray in p.map(self.process_products, tqdm(arguments)):
             self._product_densities_arrays.append(rarray)
         p.close()
         
