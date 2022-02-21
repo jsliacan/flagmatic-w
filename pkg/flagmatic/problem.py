@@ -1473,20 +1473,25 @@ class Problem(SageObject):
         from tqdm import tqdm
         import multiprocessing as mp
         
-        def process_products(ti):
-            tg = self._types[ti]
+        def process_products(args):
+            tg, flag, n, flag_cls = args
+            
             s = tg.n
-            m = (self._n + s) / 2
+            m = (n + s) / 2
 
-            flags_block = make_graph_block(self._flags[ti], m)
-            rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
+            flags_block = make_graph_block(flag, m)
+            rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
             
             return rarray
         
         print("Applying pool to "+str(num_types)+" types in parallel")
         
+        arguments = []
+        for ti in range(num_types):
+            arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls) )
+        
         p = mp.Pool()
-        for rarray in p.map(process_products, tqdm(range(num_types))):
+        for rarray in p.map(process_products, tqdm(arguments)):
             self._product_densities_arrays.append(rarray)
         p.close()
         
