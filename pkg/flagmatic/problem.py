@@ -1474,7 +1474,11 @@ class Problem(SageObject):
 
         num_types = len(self._types)
         print(type(self._graphs))
-        # graph_block_orig = make_graph_block(self._graphs, self._n)
+        graph_block = make_graph_block(self._graphs, self._n)
+        print(dir(graph_block))
+        try: print(graph_block.len)
+        except: print("couldn't print len")
+        print_graph_block(graph_block)
         self._product_densities_arrays = []
 
         #sys.stdout.write("Computing products")
