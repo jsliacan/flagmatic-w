@@ -66,7 +66,9 @@ sdpa_qd_cmd = "sdpa_qd"
 dsdp_cmd = "dsdp"
 
 def process_products(args):
-    tg, flag, n, flag_cls, graph_block = args
+    tg, flag, n, flag_cls, graphs = args
+    
+    graph_block = make_graph_block(graphs, n)
     
     s = tg.n
     m = (n + s) / 2
@@ -1483,19 +1485,19 @@ class Problem(SageObject):
         import multiprocessing as mp
         from copy import deepcopy
         
-        # print("Applying pool to "+str(num_types)+" types in parallel")
-        # 
-        # arguments = []
-        # for ti in range(num_types):
-        #     arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls, deepcopy(graph_block_orig)) )
-        # 
-        # p = mp.Pool()
-        # for rarray in p.map(process_products, tqdm(arguments)):
-        #     print(rarray)
-        #     self._product_densities_arrays.append(rarray)
-        # p.close()
-        # 
-        # print()
+        print("Applying pool to "+str(num_types)+" types in parallel")
+        
+        arguments = []
+        for ti in range(num_types):
+            arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls, self._graphs) )
+        
+        p = mp.Pool()
+        for rarray in p.map(process_products, tqdm(arguments)):
+            print(rarray)
+            self._product_densities_arrays.append(rarray)
+        p.close()
+        
+        print()
         
         for ti in tqdm(range(num_types)):
             
@@ -1505,7 +1507,7 @@ class Problem(SageObject):
 
             flags_block = make_graph_block(self._flags[ti], m)
             
-            rarray = self._flag_cls.mflag_products(graph_block, tg, flags_block, None)
+            rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
             self._product_densities_arrays.append(rarray)
             print(rarray)
             
