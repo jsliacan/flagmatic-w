@@ -1474,7 +1474,14 @@ class Problem(SageObject):
         import multiprocessing as mp
         
         def process_products(args):
+            
+            print("!!!!!!")
             tg, flag, n, flag_cls = args
+            
+            print(tg)
+            print(flag)
+            print(n)
+            print(flag_cls)
             
             s = tg.n
             m = (n + s) / 2
