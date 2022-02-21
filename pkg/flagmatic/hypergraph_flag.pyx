@@ -1472,6 +1472,13 @@ cdef class HypergraphFlag (Flag):
         @classmethod
         def flag_products (cls, graph_block gb, HypergraphFlag tg, graph_block flags1, graph_block flags2):
         
+                print()
+                print("in method flag_products")
+                print(gb)
+                print(dir(gb))
+                print(gb.len)
+            
+            
                 cdef int *p
                 cdef int np
                 cdef int *pp
@@ -1514,7 +1521,6 @@ cdef class HypergraphFlag (Flag):
                 pf2 = <int *> malloc (sizeof(int) * m2)
                 grb = <int *> malloc (flags1.len * flags2.len * sizeof(int))
         
-                print(gb.len)
         
                 for gi in range(gb.len):
         

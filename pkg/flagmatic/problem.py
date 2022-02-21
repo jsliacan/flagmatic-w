@@ -1474,7 +1474,7 @@ class Problem(SageObject):
 
         num_types = len(self._types)
         graph_block_orig = make_graph_block(self._graphs, self._n)
-        print(dir(graph_block_orig))
+        # print(dir(graph_block_orig))
         self._product_densities_arrays = []
 
         #sys.stdout.write("Computing products")
@@ -1484,24 +1484,29 @@ class Problem(SageObject):
         import multiprocessing as mp
         from copy import deepcopy
         
-        print("Applying pool to "+str(num_types)+" types in parallel")
-        
-        arguments = []
-        for ti in range(num_types):
-            arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls, deepcopy(graph_block_orig)) )
-        
-        p = mp.Pool()
-        for rarray in p.map(process_products, tqdm(arguments)):
-            print(rarray)
-            self._product_densities_arrays.append(rarray)
-        p.close()
-        
-        print()
+        # print("Applying pool to "+str(num_types)+" types in parallel")
+        # 
+        # arguments = []
+        # for ti in range(num_types):
+        #     arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls, deepcopy(graph_block_orig)) )
+        # 
+        # p = mp.Pool()
+        # for rarray in p.map(process_products, tqdm(arguments)):
+        #     print(rarray)
+        #     self._product_densities_arrays.append(rarray)
+        # p.close()
+        # 
+        # print()
         
         for ti in tqdm(range(num_types)):
             
             graph_block = graph_block_orig #deepcopy(graph_block_orig)
             
+            
+            print()
+            prin("in loop")
+            print(graph_block)
+            print(dir(graph_block))
             # print(graph_block.len)
 
             tg = self._types[ti]
@@ -1510,9 +1515,9 @@ class Problem(SageObject):
 
             flags_block = make_graph_block(self._flags[ti], m)
             rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
-            print(rarray)
+            # print(rarray)
             
-        print()
+        # print()
         
         
         """
