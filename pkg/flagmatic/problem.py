@@ -1455,6 +1455,17 @@ class Problem(SageObject):
                 MT.set_immutable()
                 self._inverse_flag_bases.append(MT)
 
+    @staticmethod
+    def process_products(args):
+        # tg, flag, n, flag_cls = args
+        # 
+        # s = tg.n
+        # m = (n + s) / 2
+        # 
+        # flags_block = make_graph_block(flag, m)
+        # rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
+
+        return True #rarray
 
     def compute_products(self):
         r"""
@@ -1472,17 +1483,6 @@ class Problem(SageObject):
 
         from tqdm import tqdm
         import multiprocessing as mp
-        
-        def process_products(args):
-            # tg, flag, n, flag_cls = args
-            # 
-            # s = tg.n
-            # m = (n + s) / 2
-            # 
-            # flags_block = make_graph_block(flag, m)
-            # rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
-            
-            return True #rarray
         
         print("Applying pool to "+str(num_types)+" types in parallel")
         
