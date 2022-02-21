@@ -1504,7 +1504,7 @@ class Problem(SageObject):
             
             
             print()
-            prin("in loop")
+            print("in loop")
             print(graph_block)
             print(dir(graph_block))
             # print(graph_block.len)
