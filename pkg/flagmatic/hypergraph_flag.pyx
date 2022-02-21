@@ -2172,7 +2172,7 @@ cdef class graph_block:
             
             self.n = n
             self.len = len(graphs)
-            slfe.graphs = <void **> malloc(self.len * sizeof(void *))
+            self.graphs = <void **> malloc(self.len * sizeof(void *))
             for i in range(self.len):
                     self.graphs[i] = <void *> graphs[i]
 
