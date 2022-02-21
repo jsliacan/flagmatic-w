@@ -65,6 +65,16 @@ sdpa_dd_cmd = "sdpa_dd"
 sdpa_qd_cmd = "sdpa_qd"
 dsdp_cmd = "dsdp"
 
+def process_products(args):
+    # tg, flag, n, flag_cls = args
+    # 
+    # s = tg.n
+    # m = (n + s) / 2
+    # 
+    # flags_block = make_graph_block(flag, m)
+    # rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
+
+    return True #rarray
 
 def block_structure(M):
     """
@@ -1455,18 +1465,6 @@ class Problem(SageObject):
                 MT.set_immutable()
                 self._inverse_flag_bases.append(MT)
 
-    @staticmethod
-    def process_products(self, args):
-        # tg, flag, n, flag_cls = args
-        # 
-        # s = tg.n
-        # m = (n + s) / 2
-        # 
-        # flags_block = make_graph_block(flag, m)
-        # rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
-
-        return True #rarray
-
     def compute_products(self):
         r"""
         Computes the products of the flags. This method is by default called from
@@ -1491,7 +1489,7 @@ class Problem(SageObject):
             arguments.append( (True, ) )#(self._types[ti], self._flags[ti], self._n, self._flag_cls) )
         
         p = mp.Pool()
-        for rarray in p.map(self.process_products, tqdm(arguments)):
+        for rarray in p.map(process_products, tqdm(arguments)):
             self._product_densities_arrays.append(rarray)
         p.close()
         
