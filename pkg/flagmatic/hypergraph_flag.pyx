@@ -2168,18 +2168,26 @@ def get_equal_pair_combinations (n, s, m):
 
 
 cdef class graph_block:
-        pass
-
+        def __init__(self, graphs, n):
+            
+            self.n = n
+            self.len = len(graphs)
+            slfe.graphs = <void **> malloc(self.len * sizeof(void *))
+            for i in range(self.len):
+                    self.graphs[i] = <void *> graphs[i]
 
 def make_graph_block(graphs, n):
-
-        gb = graph_block()
-        gb.n = n
-        gb.len = len(graphs)
-        gb.graphs = <void **> malloc(gb.len * sizeof(void *))
-        for i in range(gb.len):
-                gb.graphs[i] = <void *> graphs[i]
-        return gb
+        return graph_block(graphs, n)
+    
+# def make_graph_block(graphs, n):
+# 
+#         gb = graph_block()
+#         gb.n = n
+#         gb.len = len(graphs)
+#         gb.graphs = <void **> malloc(gb.len * sizeof(void *))
+#         for i in range(gb.len):
+#                 gb.graphs[i] = <void *> graphs[i]
+#         return gb
 
         
 def print_graph_block(graph_block gb):
