@@ -66,9 +66,9 @@ sdpa_qd_cmd = "sdpa_qd"
 dsdp_cmd = "dsdp"
 
 def process_products(args):
-    print(graph_block)
-    
     tg, flag, n, flag_cls, graph_block = args
+    
+    print(graph_block)
     
     s = tg.n
     m = (n + s) / 2
