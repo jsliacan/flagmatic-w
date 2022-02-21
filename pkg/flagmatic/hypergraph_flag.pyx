@@ -1646,8 +1646,15 @@ cdef class HypergraphFlag (Flag):
         @classmethod
         def modified_flag_products (cls, gb_graphs, gb_n, HypergraphFlag tg, flags1_graphs, flags1_n):
         
-                gb = make_graph_block(gb_graphs, gb_n)
-                flags1 = make_graph_block(flags1_graphs, flags1_n)
+                gb_len = len(gb_graphs)
+                c_gb_graphs = <void **> malloc(gb_len * sizeof(void *))
+                for i in range(gb_len):
+                    c_gb_graphs[i] = <void *> gb_graphs[i]
+                    
+                flags1_len = len(flags1_graphs)
+                c_flags1_graphs = <void **> malloc(flags1_len * sizeof(void *))
+                for i in range(flags1_len):
+                    c_flags1_graphs[i] = <void *> flags1_graphs[i]
             
             
                 cdef int *p
@@ -1670,29 +1677,29 @@ cdef class HypergraphFlag (Flag):
                 
                 #sig_on()
                 
-                n = gb.n
+                n = gb_n
                 s = tg.n
-                m1 = flags1.n
+                m1 = flags1_n
         
         
                 equal_flags_mode = 1
-                m2 = flags1.n
-                flags2 = flags1
+                m2 = flags1_n
+                # flags2 = flags1
                 p = generate_equal_pair_combinations(n, s, m1, &np)
         
                 cur_edges = <int *> malloc (sizeof(int) * MAX_NUMBER_OF_EDGE_INTS)
                 pf1 = <int *> malloc (sizeof(int) * m1)
                 pf2 = <int *> malloc (sizeof(int) * m2)
-                grb = <int *> malloc (flags1.len * flags2.len * sizeof(int))
+                grb = <int *> malloc (flags1_len * flags1_len * sizeof(int))
         
         
-                for gi in range(gb.len):
+                for gi in range(gb_len):
         
                         #sig_on()
                 
-                        g = <HypergraphFlag> gb.graphs[gi]
+                        g = <HypergraphFlag> c_gb_graphs[gi]
                 
-                        memset(grb, 0, flags1.len * flags2.len * sizeof(int))
+                        memset(grb, 0, flags1_len * flags1_len * sizeof(int))
                 
                         ne = g.ne
                         edges = g._edges
@@ -1729,8 +1736,8 @@ cdef class HypergraphFlag (Flag):
                                         f1.t = s
                                         f1.make_minimal_isomorph()
         
-                                        for j in range(flags1.len):
-                                                if f1.is_labelled_isomorphic(<HypergraphFlag> flags1.graphs[j]):
+                                        for j in range(flags1_len):
+                                                if f1.is_labelled_isomorphic(<HypergraphFlag> c_flags1_graphs[j]):
                                                         has_f1 = 1
                                                         f1index = j
                                                         break
@@ -1748,23 +1755,23 @@ cdef class HypergraphFlag (Flag):
                                 for j in range(flags2.len):
                                         if f2.is_labelled_isomorphic(<HypergraphFlag> flags2.graphs[j]):
                                                 f2index = j
-                                                grb[(f1index * flags1.len) + f2index] += 1
+                                                grb[(f1index * flags1_len) + f2index] += 1
                                                 break
         
                         if equal_flags_mode:
                 
                                 nzcount = 0
-                                for i in range(flags1.len):
-                                        for j in range(i, flags1.len):
-                                                k = grb[(i * flags1.len) + j] + grb[(j * flags1.len) + i]
+                                for i in range(flags1_len):
+                                        for j in range(i, flags1_len):
+                                                k = grb[(i * flags1_len) + j] + grb[(j * flags1_len) + i]
                                                 if k != 0:
                                                         nzcount += 1
         
                                 rarray.resize([row + nzcount, 5], refcheck=False)
                                 
-                                for i in range(flags1.len):
-                                        for j in range(i, flags1.len):
-                                                k = grb[(i * flags1.len) + j] + grb[(j * flags1.len) + i]
+                                for i in range(flags1_len):
+                                        for j in range(i, flags1_len):
+                                                k = grb[(i * flags1_len) + j] + grb[(j * flags1_len) + i]
                                                 if k != 0:
                                                         rarray[row, 0] = gi
                                                         rarray[row, 1] = i
@@ -1776,17 +1783,17 @@ cdef class HypergraphFlag (Flag):
                         else:
                 
                                 nzcount = 0
-                                for i in range(flags1.len):
-                                        for j in range(flags2.len):
-                                                k = grb[(i * flags1.len) + j]
+                                for i in range(flags1_len):
+                                        for j in range(flags1_len):
+                                                k = grb[(i * flags1_len) + j]
                                                 if k != 0:
                                                         nzcount += 1
         
                                 rarray.resize([row + nzcount, 5], refcheck=False)
                                 
-                                for i in range(flags1.len):
-                                        for j in range(flags2.len):
-                                                k = grb[(i * flags1.len) + j]
+                                for i in range(flags1_len):
+                                        for j in range(flags1_len):
+                                                k = grb[(i * flags1_len) + j]
                                                 if k != 0:
                                                         rarray[row, 0] = gi
                                                         rarray[row, 1] = i
