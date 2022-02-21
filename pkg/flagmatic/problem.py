@@ -66,6 +66,8 @@ sdpa_qd_cmd = "sdpa_qd"
 dsdp_cmd = "dsdp"
 
 def process_products(args):
+    print(graph_block)
+    
     tg, flag, n, flag_cls, graph_block = args
     
     s = tg.n
@@ -73,7 +75,7 @@ def process_products(args):
     
     flags_block = make_graph_block(flag, m)
     rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
-
+    
     return rarray
 
 def block_structure(M):
