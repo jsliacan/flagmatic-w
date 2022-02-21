@@ -1474,28 +1474,21 @@ class Problem(SageObject):
         import multiprocessing as mp
         
         def process_products(args):
+            # tg, flag, n, flag_cls = args
+            # 
+            # s = tg.n
+            # m = (n + s) / 2
+            # 
+            # flags_block = make_graph_block(flag, m)
+            # rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
             
-            print("!!!!!!")
-            tg, flag, n, flag_cls = args
-            
-            print(tg)
-            print(flag)
-            print(n)
-            print(flag_cls)
-            
-            s = tg.n
-            m = (n + s) / 2
-
-            flags_block = make_graph_block(flag, m)
-            rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
-            
-            return rarray
+            return True #rarray
         
         print("Applying pool to "+str(num_types)+" types in parallel")
         
         arguments = []
         for ti in range(num_types):
-            arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls) )
+            arguments.append( (True, ) )#(self._types[ti], self._flags[ti], self._n, self._flag_cls) )
         
         p = mp.Pool()
         for rarray in p.map(process_products, tqdm(arguments)):
