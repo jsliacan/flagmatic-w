@@ -1475,7 +1475,7 @@ class Problem(SageObject):
         self.state("compute_products", "yes")
 
         num_types = len(self._types)
-        graph_block = make_graph_block(self._graphs, self._n)
+        graph_block_orig = make_graph_block(self._graphs, self._n)
         self._product_densities_arrays = []
 
         #sys.stdout.write("Computing products")
@@ -1483,12 +1483,13 @@ class Problem(SageObject):
 
         from tqdm import tqdm
         import multiprocessing as mp
+        from copy import deepcopy
         
         print("Applying pool to "+str(num_types)+" types in parallel")
         
         arguments = []
         for ti in range(num_types):
-            arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls, graph_block) )
+            arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls, deepcopy(graph_block_orig)) )
         
         p = mp.Pool()
         for rarray in p.map(process_products, tqdm(arguments)):
@@ -1499,6 +1500,8 @@ class Problem(SageObject):
         print()
         
         for ti in tqdm(range(num_types)):
+            
+            graph_block = deepcopy(graph_block_orig)
             
             print(graph_block)
 
