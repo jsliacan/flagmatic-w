@@ -1497,6 +1497,8 @@ class Problem(SageObject):
         print()
         
         for ti in tqdm(range(num_types)):
+            
+            print(graph_block)
 
             tg = self._types[ti]
             s = tg.n
