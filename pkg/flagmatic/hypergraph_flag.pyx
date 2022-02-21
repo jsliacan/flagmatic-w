@@ -1478,6 +1478,7 @@ cdef class HypergraphFlag (Flag):
                 print(dir(gb))
                 try: print(gb.len)
                 except: print("couldn't get len")
+                print(dir(gb))
             
             
                 cdef int *p
