@@ -29,16 +29,16 @@ Further development of Flagmatic is supported by ERC.
 http://cordis.europa.eu/project/rcn/104324_en.html
 """
 
-from flag import *
-from hypergraph_flag import *
-from three_graph_flag import *
-from graph_flag import *
-from oriented_graph_flag import *
-from multigraph_flag import *
+from .flag import *
+from .hypergraph_flag import *
+from .three_graph_flag import *
+from .graph_flag import *
+from .oriented_graph_flag import *
+from .multigraph_flag import *
 
-from problem import *
+from .problem import *
 
-from construction import *
-from blowup_construction import *
-from random_graph_construction import *
-from random_tournament_construction import *
+from .construction import *
+from .blowup_construction import *
+from .random_graph_construction import *
+from .random_tournament_construction import *

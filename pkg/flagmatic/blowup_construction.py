@@ -37,10 +37,10 @@ from sage.rings.all import Integer, RationalField
 from sage.interfaces.gap import gap
 from copy import copy
 
-from three_graph_flag import *
-from graph_flag import *
-from oriented_graph_flag import *
-from construction import *
+from .three_graph_flag import *
+from .graph_flag import *
+from .oriented_graph_flag import *
+from .construction import *
 
 
 class BlowupConstruction(Construction):
@@ -105,7 +105,7 @@ class BlowupConstruction(Construction):
         sharp_graph_counts = {}
         sharp_graphs = []
 
-        for P in UnorderedTuples(range(1, cn + 1), n):
+        for P in UnorderedTuples(list(range(1, cn + 1)), n):
 
             factor = factorial(n)
             for i in range(1, cn + 1):
@@ -151,7 +151,7 @@ class BlowupConstruction(Construction):
 
         rows = []
 
-        for tv in Tuples(range(1, cn + 1), s):
+        for tv in Tuples(list(range(1, cn + 1)), s):
 
             it = self._graph.degenerate_induced_subgraph(tv)
 
@@ -172,7 +172,7 @@ class BlowupConstruction(Construction):
             total = Integer(0)
             row = [0] * len(flags)
 
-            for ov in UnorderedTuples(range(1, cn + 1), k - s):
+            for ov in UnorderedTuples(list(range(1, cn + 1)), k - s):
 
                 factor = factorial(k - s)
                 for i in range(1, cn + 1):
@@ -264,7 +264,7 @@ class BlowupConstruction(Construction):
         orb_reps = {}
         total = 0
 
-        for ot, length in set_orb_reps.iteritems():
+        for ot, length in set_orb_reps.items():
 
             ne = len(ot)
             for ci in range(len(combs)):
@@ -288,7 +288,7 @@ class BlowupConstruction(Construction):
 
         t_total, t_orb_reps = self.tuple_orbit_reps(s)
 
-        for t_rep, t_factor in t_orb_reps.iteritems():
+        for t_rep, t_factor in t_orb_reps.items():
 
             for tp in Permutations(t_rep):
 
@@ -300,7 +300,7 @@ class BlowupConstruction(Construction):
 
                 row = [0] * len(flags)
 
-                for P, factor in orb_reps.iteritems():
+                for P, factor in orb_reps.items():
 
                     ig = self._graph.degenerate_induced_subgraph(P)
                     ig.t = s
@@ -324,7 +324,7 @@ class BlowupConstruction(Construction):
 
         sys.stdout.write("Found %d orbits.\n" % len(orb_reps))
 
-        for P, factor in orb_reps.iteritems():
+        for P, factor in orb_reps.items():
 
             ig = self._graph.degenerate_induced_subgraph(P)
             ig.make_minimal_isomorph()
@@ -340,18 +340,18 @@ class BlowupConstruction(Construction):
 
 
 def GraphBlowupConstruction(graph, **kwargs):
-    if isinstance(graph, basestring):
+    if isinstance(graph, str):
         graph = GraphFlag(graph)
     return BlowupConstruction(graph, **kwargs)
 
 
 def ThreeGraphBlowupConstruction(graph, **kwargs):
-    if isinstance(graph, basestring):
+    if isinstance(graph, str):
         graph = ThreeGraphFlag(graph)
     return BlowupConstruction(graph, **kwargs)
 
 
 def OrientedGraphBlowupConstruction(graph, **kwargs):
-    if isinstance(graph, basestring):
+    if isinstance(graph, str):
         graph = OrientedGraphFlag(graph)
     return BlowupConstruction(graph, **kwargs)

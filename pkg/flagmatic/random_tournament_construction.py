@@ -35,8 +35,8 @@ from sage.arith.all import binomial
 from sage.combinat.all import Tuples, Combinations
 from sage.rings.all import Integer, RationalField
 
-from construction import *
-from three_graph_flag import *
+from .construction import *
+from .three_graph_flag import *
 
 
 class RandomTournamentConstruction(Construction):
@@ -102,7 +102,7 @@ class RandomTournamentConstruction(Construction):
             ig.n = n
             ig.t = tg.n
 
-            for s in Combinations(range(1, n + 1), 3):
+            for s in Combinations(list(range(1, n + 1)), 3):
                 if self._variant:
                     if ((s[1], s[0]) in edges and (s[0], s[2]) in edges) or (
                             (s[2], s[0]) in edges and (s[0], s[1]) in edges):
@@ -112,7 +112,7 @@ class RandomTournamentConstruction(Construction):
                             (s[0], s[2]) in edges and (s[2], s[1]) in edges and (s[1], s[0]) in edges):
                         ig.add_edge(s)
 
-            it = ig.induced_subgraph(range(1, tg.n + 1))
+            it = ig.induced_subgraph(list(range(1, tg.n + 1)))
             if tg.is_labelled_isomorphic(it):
                 ig.make_minimal_isomorph()
 
