@@ -37,7 +37,7 @@ http://cordis.europa.eu/project/rcn/104324_en.html
 
 #include "interrupt.pxi"
 #include "stdsage.pxi"
-include "cdefs.pxi"
+#include "cdefs.pxi"
 
 # This doesn't seem to be remembered from .pxd file
 # 35 + 42 + 7 = 84, 84 * 3 = 252
@@ -602,7 +602,7 @@ cdef class HypergraphFlag (Flag):
                 for fg in flags:
                         mfgs = str(fg)
                         for perm in Permutations(range(1, s + 1)):
-                                permplus = list(perm) + range(s + 1, fg.n + 1)
+                                permplus = list(perm) + list(range(s + 1, fg.n + 1))
                                 ntg = tg.__copy__()
                                 ntg.relabel(perm)
                                 nfg = fg.__copy__()
@@ -1487,7 +1487,7 @@ cdef class HypergraphFlag (Flag):
 
                 cdef HypergraphFlag g, t, f1, f2
                 
-                rarray = numpy.zeros([0, 5], dtype=numpy.int)
+                rarray = numpy.zeros([0, 5], dtype=int)
                 row = 0
                 
                 #sig_on()
@@ -1731,7 +1731,7 @@ cdef int *generate_permutations_fixing(int n, int s, int *number_of):
 
         # see if we've already generated it!
         key = (n, s)
-        if key in previous_permutations.iterkeys():
+        if key in previous_permutations.keys():
         
                 cib = <combinatorial_info_block>previous_permutations[key]
                 fac = cib.np
@@ -1781,7 +1781,7 @@ cdef int *generate_combinations(int n, int s, int *number_of):
 
         # see if we've already generated it!
         key = (n, s)
-        if key in previous_combinations.iterkeys():
+        if key in previous_combinations.keys():
         
                 cib = <combinatorial_info_block>previous_combinations[key]
                 fac = cib.np
@@ -1825,7 +1825,7 @@ cdef int *generate_combinations_plus(int n, int s, int *number_of):
 
         # see if we've already generated it!
         key = (n, s)
-        if key in previous_combinations_plus.iterkeys():
+        if key in previous_combinations_plus.keys():
         
                 cib = <combinatorial_info_block>previous_combinations_plus[key]
                 fac = cib.np
@@ -1869,7 +1869,7 @@ cdef int *generate_pair_combinations(int n, int s, int m1, int m2, int *number_o
 
         # see if we've already generated it!
         key = (n, s, m1, m2)
-        if key in previous_pair_combinations.iterkeys():
+        if key in previous_pair_combinations.keys():
         
                 cib = <combinatorial_info_block>previous_pair_combinations[key]
                 fac = cib.np
@@ -1937,7 +1937,7 @@ cdef int *generate_equal_pair_combinations(int n, int s, int m, int *number_of):
         
         # see if we've already generated it!
         key = (n, s, m)
-        if key in previous_equal_pair_combinations.iterkeys():
+        if key in previous_equal_pair_combinations.keys():
                 
                 cib = <combinatorial_info_block>previous_equal_pair_combinations[key]
                 fac = cib.np
