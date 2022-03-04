@@ -2855,7 +2855,7 @@ class Problem(SageObject):
         from fractions import Fraction
         
         def rationalize(f):
-            frac = Fraction.from_float(float(f)).limit_denominator(limit_denominator)
+            frac = Fraction.from_float(float(f)).limit_denominator(int(limit_denominator))
             return Integer(frac.numerator) / Integer(frac.denominator)
             #return Integer(round(f * denominator)) / denominator
 
