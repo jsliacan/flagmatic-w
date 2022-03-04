@@ -2967,7 +2967,7 @@ class Problem(SageObject):
                             R[si, triple_to_index[trip]] = value
 
                 sys.stdout.write(".")
-                sys.stdout.flush()F
+                sys.stdout.flush()
             sys.stdout.write("\n")
 
             density_cols_to_use = []
