@@ -100,6 +100,46 @@ if __name__=='__main__':
         p = GraphProblem(N, density=[("4:", 1),("4:121314232434", 1)], minimize=True)
         sense = "max"
 
+    elif problem == 'Thomason_K3K4_axis':
+        p = GraphProblem(N, density=[("4:", 1)], forbid="3:121323", minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K4K3_axis':
+        p = GraphProblem(N, density=[("3:", 1)], forbid="4:121314232434", minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K4K5_axis':
+        p = GraphProblem(N, density=[("5:", 1)], forbid="4:121314232434", minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K5K4_axis':
+        p = GraphProblem(N, density=[("4:", 1)], forbid="5:12131415232425343545", minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K6K4_axis':
+        p = GraphProblem(N, density=[("4:", 1)], forbid="6:121314151623242526343536454656", minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K7K4_axis':
+        p = GraphProblem(N, density=[("4:", 1)], forbid="7:121314151617232425262734353637454647565767", minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K6K5_axis':
+        p = GraphProblem(N, density=[("5:", 1)], forbid="6:121314151623242526343536454656", minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K6K6_axis':
+        p = GraphProblem(N, density=[("5:", 1)], forbid="6:121314151623242526343536454656", minimize=True)
+        sense = "max"
+
+    elif problem == 'Thomason_K7K5_axis':
+        p = GraphProblem(N, density=[("5:", 1)], forbid="7:121314151617232425262734353637454647565767", minimize=True)
+        sense = "max"
+        
+    elif problem == 'Thomason_K7K7_axis':
+        p = GraphProblem(N, density=[("7:", 1)], forbid="7:121314151617232425262734353637454647565767", minimize=True)
+        sense = "max"
+
     elif problem == 'Thomason_K4K4_axis':
         p = GraphProblem(N, density=[("4:", 1),("4:121314232434", 1)], forbid="4:121314232434", minimize=True)
         sense = "max"

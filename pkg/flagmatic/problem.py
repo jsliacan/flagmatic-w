@@ -2823,6 +2823,277 @@ class Problem(SageObject):
         if diagonalize:
             self.diagonalize()
 
+    def make_exact_plus(self, limit_denominator=100, meet_target_bound=True,
+                   protect=None, use_densities=True, use_blocks=True, rank=None, show_changes=False,
+                   check_exact_bound=True, diagonalize=True):
+
+        if meet_target_bound and self.state("set_construction") != "yes":
+            meet_target_bound = False
+            sys.stdout.write("No target bound to meet.\n")
+
+        if meet_target_bound:
+            self.change_solution_bases(use_blocks=use_blocks)
+            num_sharps = len(self._sharp_graphs)
+        else:
+            self._sdp_Qdash_matrices = self._sdp_Q_matrices
+            # if non-tight, we don't have a separate diagonalization step
+            self._exact_diagonal_matrices = []
+            self._exact_r_matrices = []
+            num_sharps = 0
+
+        self.state("make_exact", "yes")
+
+        num_types = len(self._types)
+        num_graphs = len(self._graphs)
+        num_densities = len(self._densities)
+
+        if protect is None:
+            protect = []
+
+        q_sizes = [self._sdp_Qdash_matrices[ti].nrows() for ti in range(num_types)]
+        
+        from fractions import Fraction
+        
+        def rationalize(f):
+            frac = Fraction.from_float(f).limit_denominator(limit_denominator)
+            return Integer(frac.numerator) / Integer(frac.denominator)
+            #return Integer(round(f * denominator)) / denominator
+
+        sys.stdout.write("Rounding matrices")
+
+        self._exact_Qdash_matrices = []
+
+        for ti in range(num_types):
+
+            if meet_target_bound:
+
+                M = matrix(QQ, q_sizes[ti], q_sizes[ti], sparse=True)
+                for j in range(q_sizes[ti]):
+                    for k in range(j, q_sizes[ti]):
+                        value = rationalize(self._sdp_Qdash_matrices[ti][j, k])
+                        if value != 0:
+                            M[j, k] = value
+                            M[k, j] = value
+
+            else:
+
+                try:
+                    LF = numpy.linalg.cholesky(self._sdp_Qdash_matrices[ti])
+                    # TODO: Consider using this:
+                    # LF = self._sdp_Qdash_matrices[ti].cholesky_decomposition()
+                except numpy.linalg.linalg.LinAlgError:
+                # except ValueError:
+                    sys.stdout.write("Could not compute Cholesky decomposition for type %d.\n" % ti)
+                    return
+                L = matrix(QQ, q_sizes[ti], q_sizes[ti], sparse=True)
+                for j in range(q_sizes[ti]):
+                    for k in range(j + 1):  # only lower triangle
+                        L[j, k] = rationalize(LF[j, k])
+                L.set_immutable()
+                M = L * L.T
+                if not meet_target_bound:
+                    D = identity_matrix(QQ, q_sizes[ti], sparse=True)
+                    D.set_immutable()
+                    self._exact_diagonal_matrices.append(D)
+                    self._exact_r_matrices.append(L)
+            
+            row_div = self._sdp_Qdash_matrices[ti].subdivisions()[0]
+            M.subdivide(row_div, row_div)
+            self._exact_Qdash_matrices.append(matrix(self._field, M))
+            sys.stdout.write(".")
+            sys.stdout.flush()
+
+        sys.stdout.write("\n")
+
+        self._exact_density_coeffs = [rationalize(self._sdp_density_coeffs[di]) for di in range(num_densities)]
+
+        # TODO: Make density coeffs in each block sum to 1. Ever necessary when >1 density?
+        for db in self._density_coeff_blocks:
+            if len(db) == 1:
+                self._exact_density_coeffs[db[0]] = Integer(1)
+
+        # Force all inactive densities to be 0 (they should be anyway).
+        for j in range(num_densities):
+            if not j in self._active_densities:
+                self._exact_density_coeffs[j] = Integer(0)
+
+        if meet_target_bound:
+
+            self.state("meet_target_bound", "yes")
+
+            triples = [(ti, j, k) for ti in self._active_types for j in range(q_sizes[ti])
+                       for k in range(j, q_sizes[ti])]
+
+            num_triples = len(triples)
+            triples.sort()
+            triple_to_index = dict((triples[i], i) for i in range(num_triples))
+
+            R = matrix(self._field, num_sharps, num_triples, sparse=True)
+
+            sys.stdout.write("Constructing R matrix")
+
+            # TODO: only use triples that correspond to middle blocks.
+
+            for ti in self._active_types:
+
+                Ds = [matrix(QQ, len(self._flags[ti]), len(self._flags[ti]))
+                      for si in range(num_sharps)]
+
+                for row in self._product_densities_arrays[ti]:
+                    gi = row[0]
+                    if not gi in self._sharp_graphs:
+                        continue
+                    si = self._sharp_graphs.index(gi)
+                    j = row[1]
+                    k = row[2]
+                    value = Integer(row[3]) / Integer(row[4])
+                    Ds[si][j, k] = value
+                    Ds[si][k, j] = value
+
+                if self.state("transform_solution") == "yes":
+                    B = self._inverse_flag_bases[ti]
+                    for si in range(num_sharps):
+                        Ds[si] = B.T * Ds[si] * B
+
+                for si in range(num_sharps):
+                    for j in range(q_sizes[ti]):
+                        for k in range(j, q_sizes[ti]):
+                            trip = (ti, j, k)
+                            value = Ds[si][j, k]
+                            if j != k:
+                                value *= 2
+                            if self._minimize:
+                                value *= -1
+                            R[si, triple_to_index[trip]] = value
+
+                sys.stdout.write(".")
+                sys.stdout.flush()
+            sys.stdout.write("\n")
+
+            density_cols_to_use = []
+            DR = matrix(self._field, num_sharps, 0)  # sparsity harms performance too much here
+            EDR = DR.T
+
+            sys.stdout.write("Constructing DR matrix")
+
+            # Only if there is more than one density
+            if num_densities > 1 and use_densities:
+
+                for j in self._active_densities:
+
+                    if not rank is None and DR.ncols() == rank:
+                        break
+
+                    new_col = matrix(QQ, [[self._densities[j][gi]] for gi in self._sharp_graphs])
+                    if new_col.is_zero():
+                        continue
+                    EDR = EDR.stack(new_col.T)
+                    EDR.echelonize()
+                    if EDR[-1, :].is_zero():
+                        EDR = EDR[:-1, :]
+                        sys.stdout.write("~")
+                        sys.stdout.flush()
+                        continue
+
+                    DR = DR.augment(new_col)
+                    density_cols_to_use.append(j)
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+
+                sys.stdout.write("\n")
+                sys.stdout.write("DR matrix (density part) has rank %d.\n" % DR.ncols())
+
+            col_norms = {}
+            for i in range(num_triples):
+                n = sum(x**2 for x in R.column(i))
+                if n != 0:
+                    col_norms[i] = n
+
+            # Use columns with greatest non-zero norm - change minus to plus to
+            # use smallest columns (not sure which is best, or maybe middle?)
+
+            cols_in_order = sorted(col_norms.keys(), key = lambda i : -col_norms[i])
+            cols_to_use = []
+
+            for i in cols_in_order:
+
+                if not rank is None and DR.ncols() == rank:
+                    break
+
+                ti, j, k = triples[i]
+                if ti in protect:  # don't use protected types
+                    continue
+                new_col = R[:, i: i + 1]
+                if new_col.is_zero():
+                    continue
+                EDR = EDR.stack(new_col.T)
+                EDR.echelonize()
+                if EDR[-1, :].is_zero():
+                    EDR = EDR[:-1, :]
+                    sys.stdout.write("~")
+                    sys.stdout.flush()
+                    continue
+
+                DR = DR.augment(new_col)
+                cols_to_use.append(i)
+                sys.stdout.write(".")
+                sys.stdout.flush()
+
+            sys.stdout.write("\n")
+            sys.stdout.write("DR matrix has rank %d.\n" % DR.ncols())
+
+            T = matrix(self._field, num_sharps, 1)
+
+            for si in range(num_sharps):
+
+                gi = self._sharp_graphs[si]
+                T[si, 0] = self._target_bound
+
+                for j in range(num_densities):
+                    if not j in density_cols_to_use:
+                        T[si, 0] -= self._exact_density_coeffs[j] * self._densities[j][gi]
+
+                for i in range(num_triples):
+                    if not i in cols_to_use:
+                        ti, j, k = triples[i]
+                        T[si, 0] -= self._exact_Qdash_matrices[ti][j, k] * R[si, i]
+
+            FDR = matrix(self._field, DR)
+            try:
+                X = FDR.solve_right(T)
+            except ValueError:
+                if rank is None:
+                    raise ValueError("could not meet bound.")
+                else:
+                    raise ValueError("could not meet bound (try increasing the value of ``rank``).")
+
+            RX = matrix(self._approximate_field, X.nrows(), 1)
+
+            for i in range(len(density_cols_to_use)):
+                di = density_cols_to_use[i]
+                RX[i, 0] = self._exact_density_coeffs[di]
+                self._exact_density_coeffs[di] = X[i, 0]
+
+            for i in range(len(density_cols_to_use), X.nrows()):
+                ti, j, k = triples[cols_to_use[i - len(density_cols_to_use)]]
+                RX[i, 0] = self._sdp_Qdash_matrices[ti][j, k]
+                self._exact_Qdash_matrices[ti][j, k] = X[i, 0]
+                self._exact_Qdash_matrices[ti][k, j] = X[i, 0]
+
+            if show_changes:
+                for i in range(X.nrows()):
+                    sys.stdout.write("%.11s -> %.11s " % (RX[i,0], RDF(X[i,0])))
+                    if i < len(density_cols_to_use):
+                        sys.stdout.write("(density %d)\n" % density_cols_to_use[i])
+                    else:
+                        sys.stdout.write("(matrix %d, entry [%d, %d])\n" % triples[cols_to_use[i - len(density_cols_to_use)]])
+
+        for ti in range(num_types):
+            self._exact_Qdash_matrices[ti].set_immutable()
+
+        if check_exact_bound:
+            self.check_exact_bound()
+            
     def diagonalize(self):
         r"""
         For each matrix Q, produces a matrix R and a diagonal matrix M such that
