@@ -2855,7 +2855,7 @@ class Problem(SageObject):
         from fractions import Fraction
         
         def rationalize(f):
-            frac = Fraction.from_float(f).limit_denominator(limit_denominator)
+            frac = Fraction.from_float(float(f)).limit_denominator(limit_denominator)
             return Integer(frac.numerator) / Integer(frac.denominator)
             #return Integer(round(f * denominator)) / denominator
 
@@ -2967,7 +2967,7 @@ class Problem(SageObject):
                             R[si, triple_to_index[trip]] = value
 
                 sys.stdout.write(".")
-                sys.stdout.flush()
+                sys.stdout.flush()F
             sys.stdout.write("\n")
 
             density_cols_to_use = []
