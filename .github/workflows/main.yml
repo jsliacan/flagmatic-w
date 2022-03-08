@@ -41,9 +41,30 @@ jobs:
           echo "Clean up"
           rm -rf sage-9.4-Ubuntu_20.04-x86_64.tar.bz2
       
+      # CSDP solver
+      - name: Install CSDP
+        run: sage -i csdp
+
+      # Flagmatic
+      - name: Install Flagmatic
+        run: | 
+          cd $GITHUB_WORKSPACE/pkg
+          sage -python setup.py install    
+
       # Flagmatic
       - name: Install Flagmatic
         run: | 
           cd $GITHUB_WORKSPACE/pkg
           sage -python setup.py install
+
+
+      - name: Example 1 (Mantel)
+        run: |
+          cd $GITHUB_WORKSPACE/tests/gha
+          sage mantel.sage
           
+      # need hypergraph, oriented graph and multigraph examples instead of this?
+      - name: Example 2 (Andrzej)
+        run: |
+          cd $GITHUB_WORKSPACE/tests/gha
+          sage andrzej.sage
