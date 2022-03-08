@@ -1,3 +1,6 @@
+# Folders
+pkg/build/
+
 # General
 *~
 *.backup
