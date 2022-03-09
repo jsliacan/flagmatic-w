@@ -1,62 +1,54 @@
-# This is a basic workflow to help you get started with Actions
+name: Flagmatic build and tests
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
+  # Triggers
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# Jobs can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  
+  linux:
+
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Check-out the repository under $GITHUB_WORKSPACE
       - name: Checkout Flagmatic repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      # SageMath
-      - name: Set up SageMath
+      - name: Install SageMath
         run: |
           cd $HOME
+          
           echo "Download SageMath"
           wget http://www.mirrorservice.org/sites/www.sagemath.org/linux/64bit/sage-9.4-Ubuntu_20.04-x86_64.tar.bz2
+          
           echo "Uncompress SageMath"
           tar -xjf sage-9.4-Ubuntu_20.04-x86_64.tar.bz2
+          
           echo "Create symlink to sage binary in /usr/local/bin"
           sudo ln -s $HOME/SageMath/sage /usr/local/bin/sage
+          
           echo "Add exec permissions to the symlink"
           sudo chmod +x /usr/local/bin/sage
+          
           echo "Clean up"
           rm -rf sage-9.4-Ubuntu_20.04-x86_64.tar.bz2
+          
       
-      # CSDP solver
       - name: Install CSDP
         run: sage -i csdp
 
-      # Flagmatic
       - name: Install Flagmatic
         run: | 
           cd $GITHUB_WORKSPACE/pkg
           sage -python setup.py install    
-
-      # Flagmatic
-      - name: Install Flagmatic
-        run: | 
-          cd $GITHUB_WORKSPACE/pkg
-          sage -python setup.py install
-
 
       - name: Example 1 (Mantel)
         run: |
@@ -64,6 +56,52 @@ jobs:
           sage mantel.sage
           
       # need hypergraph, oriented graph and multigraph examples instead of this?
+      - name: Example 2 (Andrzej)
+        run: |
+          cd $GITHUB_WORKSPACE/tests/gha
+          sage andrzej.sage
+
+  macos:
+
+    runs-on: macos-latest
+
+    steps:
+
+      - name: Checkout Flagmatic repo
+        uses: actions/checkout@v3
+
+      - name: Set up SageMath
+        run: |
+          cd $HOME
+          
+          echo "Download SageMath"
+          wget http://www.mirrorservice.org/sites/www.sagemath.org/osx/intel/sage-9.4-OSX_11.2.3-x86_64.tar.bz2
+          
+          echo "Uncompress SageMath"
+          tar -xjf sage-9.4-OSX_11.2.3-x86_64.tar.bz2
+          
+          echo "Create symlink to sage binary in /usr/local/bin"
+          sudo ln -s $HOME/SageMath/sage /usr/local/bin/sage
+          
+          echo "Add exec permissions to the symlink"
+          sudo chmod +x /usr/local/bin/sage
+          
+          echo "Clean up"
+          rm -rf sage-9.4-OSX_11.2.3-x86_64.tar.bz2
+
+      - name: Install CSDP
+        run: sage -i csdp   
+
+      - name: Install Flagmatic
+        run: | 
+          cd $GITHUB_WORKSPACE/pkg
+          sage -python setup.py install
+
+      - name: Example 1 (Mantel)
+        run: |
+          cd $GITHUB_WORKSPACE/tests/gha
+          sage mantel.sage
+          
       - name: Example 2 (Andrzej)
         run: |
           cd $GITHUB_WORKSPACE/tests/gha
