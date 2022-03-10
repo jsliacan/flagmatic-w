@@ -42,8 +42,6 @@ from graph_flag import *
 from oriented_graph_flag import *
 from construction import *
 
-from tqdm import tqdm
-
 
 class BlowupConstruction(Construction):
 
@@ -95,16 +93,13 @@ class BlowupConstruction(Construction):
         return self._field
 
     def subgraph_densities(self, n):
-        
+
         if n < 0:
             raise ValueError
 
         if self._use_symmetry:
-            sys.stdout.write("Determining subgraph densities of blowup construction with n=%d using symmetry\n" % n)
             return self.symm_subgraph_densities(n)
 
-        sys.stdout.write("Determining subgraph densities of blowup construction with n=%d without using symmetry\n" % n)
-        
         cn = self._graph.n
         total = Integer(0)
         sharp_graph_counts = {}
@@ -229,32 +224,32 @@ class BlowupConstruction(Construction):
         gens = self._graph.automorphism_group_gens()
 
         # Pass generators to GAP to create a group for us.
+
         gen_str = ",".join("(" + "".join(str(cy) for cy in cys) + ")" for cys in gens)
         gap.eval("g := Group(%s);" % gen_str)
         if len(prefix) > 0:
             gap.eval("g := Stabilizer(g, %s, OnTuples);" % list(set(prefix)))
 
         S = []
-        for i in tqdm(range(1, k - s + 1)):
+        for i in range(1, k - s + 1):
             S.extend([tuple(sorted(list(x))) for x in Subsets(self._graph.n, i)])
 
         set_orb_reps = {}
 
         #sys.stdout.write("Calculating orbits")
-        with tqdm(total=len(S)) as pb:
-            while len(S) > 0:
 
-                rep = list(S[0])
+        while len(S) > 0:
 
-                o = gap.new("Orbit(g, %s, OnSets);" % (rep,)).sage()
-                o = list(set([tuple(sorted(t)) for t in o]))
-                ot = o[0]
-                set_orb_reps[ot] = len(o)
-                for t in o:
-                    pb.update()
-                    S.remove(t)
-                #sys.stdout.write(".")
-                #sys.stdout.flush()
+            rep = list(S[0])
+
+            o = gap.new("Orbit(g, %s, OnSets);" % (rep,)).sage()
+            o = list(set([tuple(sorted(t)) for t in o]))
+            ot = o[0]
+            set_orb_reps[ot] = len(o)
+            for t in o:
+                S.remove(t)
+            #sys.stdout.write(".")
+            #sys.stdout.flush()
 
         #sys.stdout.write("\n")
 
