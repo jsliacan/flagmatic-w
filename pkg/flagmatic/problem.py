@@ -2021,6 +2021,8 @@ class Problem(SageObject):
         previous_directory = os.getcwd()
         os.chdir(unicode(SAGE_TMP))
 
+        print("Now in directory "+str( os.getcwd() ))
+        
         if solver == "csdp":
             cmd = "%s %s sdp.out" % (cdsp_cmd, self._sdp_input_filename)
 
