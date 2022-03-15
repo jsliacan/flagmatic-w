@@ -1492,9 +1492,9 @@ class Problem(SageObject):
         for ti in range(num_types):
             arguments.append( (self._types[ti], self._flags[ti], self._n, self._flag_cls, self._graphs) )
         
-        print("Using "+str(min(48, int(math.floor(mp.cpu_count()*2/3))))+" out of "+str(mp.cpu_count())+" cores")
+        print("Using "+str(mp.cpu_count())"+" cores")
         
-        p = mp.Pool(max(1, min(48, int(math.floor(mp.cpu_count()*2/3)))))
+        p = mp.Pool()
         for rarray in p.map(process_products, tqdm(arguments)):
             self._product_densities_arrays.append(rarray)
         p.close()

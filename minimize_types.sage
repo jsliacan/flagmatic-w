@@ -35,7 +35,7 @@ elif sys.argv[1] == 'c_5':
     reduce_types = False
 
 elif sys.argv[1] == 'c_4,5':
-    N = 7
+    N = 8
     density = [("4:", 1), ("5:12131415232425343545", 1)]
     forbid = None
     C = None
@@ -58,68 +58,68 @@ elif sys.argv[1] == 'c_3,5':
     certificate = "c_35.js"
     reduce_types = True
 
-elif sys.argv[1] == 'bc_4,5':
+elif sys.argv[1] == 'g_4,5':
     N = 7
     density = "4:"
     forbid = "5:12131415232425343545"
     C = GraphBlowupConstruction(GraphFlag(Graph(r"LJ]lmZRnn]]\v[")), no_symmetry=True)
-    certificate = "bc_45.js"
+    certificate = "g_45.js"
     reduce_types = True
 
-elif sys.argv[1] == 'bc_6,3':
+elif sys.argv[1] == 'g_6,3':
     N = 7
     density = ("6:", 1)
     forbid = "3:121323"
     C = GraphBlowupConstruction("g:12131415162728292a373b3c3d484b4e4f595c5e5g6a6d6f6g7e7f7g8c8d8g9b9d9fabacaebgcfde")
-    certificate = "bc_63.js"
+    certificate = "g_63.js"
     reduce_types = True
     
-elif sys.argv[1] == 'bc_4,6':
+elif sys.argv[1] == 'g_4,6':
     N = 8
     density = "4:"
     forbid = "6:121314151623242526343536454656"
     C = None
-    certificate = "bc_46.js"
+    certificate = "g_46.js"
     reduce_types = False
     
-elif sys.argv[1] == 'bc_4,7':
+elif sys.argv[1] == 'g_4,7':
     N = 8
     density = "4:"
     forbid = "7:121314151617232425262734353637454647565767"
     C = None
-    certificate = "bc_47.js"
+    certificate = "g_47.js"
     reduce_types = False
 
-elif sys.argv[1] == 'bc_5,4':
+elif sys.argv[1] == 'g_5,4':
     N = 8
     density = "5:"
     forbid = "4:121314232434"
     C = None
-    certificate = "bc_55.js"
+    certificate = "g_55.js"
     reduce_types = False
 
-elif sys.argv[1] == 'bc_5,5':
+elif sys.argv[1] == 'g_5,5':
     N = 8
     density = "5:"
     forbid = "5:12131415232425343545"
     C = None
-    certificate = "bc_55.js"
+    certificate = "g_55.js"
     reduce_types = False
     
-elif sys.argv[1] == 'bc_5,6':
+elif sys.argv[1] == 'g_5,6':
     N = 8
     density = "5:"
     forbid = "6:121314151623242526343536454656"
     C = None
-    certificate = "bc_56.js"
+    certificate = "g_56.js"
     reduce_types = False
     
-elif sys.argv[1] == 'bc_5,7':
+elif sys.argv[1] == 'g_5,7':
     N = 8
     density = "5:"
     forbid = "6:121314151617232425262734353637454647565767"
     C = None
-    certificate = "bc_57.js"
+    certificate = "g_57.js"
     reduce_types = False
 
 
@@ -169,7 +169,7 @@ if reduce_types:
     with suppress_stdout():
         P = GraphProblem(N, density=density, forbid_induced=forbid, types=current_types, minimize=True)
         if C is not None: P.set_extremal_construction(C)
-        P.solve_sdp(solver="sdpa_dd")
+        P.solve_sdp(solver="sdpa_qd")
         reduced_bound = eval(P._sdp_solver_output.split('\n')[-10].split(' = ')[1])
         # reduced_bound = eval(P._sdp_solver_output.split("\n")[-8].split(" ")[-1])
 
@@ -183,6 +183,6 @@ if reduce_types:
 else:
     P = GraphProblem(N, density=density, forbid_induced=forbid, minimize=True)
     if C is not None: P.set_extremal_construction(C)
-    P.solve_sdp(solver="sdpa_dd")
+    P.solve_sdp(solver="csdp")
     P.make_exact(2^30)
     P.write_certificate(certificate)
