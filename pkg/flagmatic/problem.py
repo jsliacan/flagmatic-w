@@ -2066,10 +2066,7 @@ class Problem(SageObject):
                     sys.stdout.write(line)
 
                 if "Primal objective value:" in line:  # CSDP
-                    print("!!!")
                     obj_val = self._approximate_field(line.split()[-1]) * obj_value_factor
-                    print(line.split()[-1])
-                    print(obj_val)
                 elif "objValPrimal" in line:  # SDPA
                     obj_val = self._approximate_field(line.split()[-1]) * obj_value_factor
                 elif "DSDP Solution" in line:  # DSDP: seems to print absolute value
@@ -2079,10 +2076,10 @@ class Problem(SageObject):
                 break
 
         p.close()
-        self._sdp_solver_returncode = p.exitstatus
+        self._sdp_solver_returncode = 0 #p.exitstatus
 
         sys.stdout.write("Returncode is %d. Objective value is %s.\n" % (
-            self._sdp_solver_returncode or -1, obj_val))
+            self._sdp_solver_returncode, obj_val))
 
         # TODO: if program is infeasible, a returncode of 1 is given,
         # and output contains "infeasible"
