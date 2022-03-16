@@ -1,4 +1,4 @@
-FROM sagemath/sagemath-jupyter:7.4
+FROM sagemath/sagemath:7.4
 # ubuntu:latest
 # ENV DEBIAN_FRONTEND=noninteractive
 # ENV TZ=Europe/Berlin
