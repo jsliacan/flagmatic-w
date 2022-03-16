@@ -2050,7 +2050,7 @@ class Problem(SageObject):
         # must be negated.
         obj_value_factor = 1.0 if self._minimize else -1.0
 
-        p = pexpect.spawn(cmd, timeout=60 * 60 * 24 * 7)
+        p = pexpect.spawn(cmd, timeout=2**40)
         obj_val = None
         self._sdp_solver_output = ""
         sys.stdout.write("Reading output file...\n")
@@ -2066,7 +2066,10 @@ class Problem(SageObject):
                     sys.stdout.write(line)
 
                 if "Primal objective value:" in line:  # CSDP
+                    print("!!!")
                     obj_val = self._approximate_field(line.split()[-1]) * obj_value_factor
+                    print(line.split()[-1])
+                    print(obj_val)
                 elif "objValPrimal" in line:  # SDPA
                     obj_val = self._approximate_field(line.split()[-1]) * obj_value_factor
                 elif "DSDP Solution" in line:  # DSDP: seems to print absolute value
