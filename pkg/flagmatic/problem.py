@@ -2054,10 +2054,11 @@ class Problem(SageObject):
         obj_val = None
         self._sdp_solver_output = ""
         sys.stdout.write("Reading output file...\n")
-        import time
-        while True:
-            # time.sleep(1)
 
+        import time
+        time.sleep(1)
+
+        while True:
             if child.eof():
                 break
             try:
@@ -2069,6 +2070,7 @@ class Problem(SageObject):
                     sys.stdout.write(line)
 
                 if "Primal objective value:" in line:  # CSDP
+                    print(f"Updating objective value to {line.split()[-1]}")
                     obj_val = self._approximate_field(line.split()[-1]) * obj_value_factor
                 elif "objValPrimal" in line:  # SDPA
                     obj_val = self._approximate_field(line.split()[-1]) * obj_value_factor
