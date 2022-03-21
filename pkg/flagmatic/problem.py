@@ -2055,8 +2055,8 @@ class Problem(SageObject):
         self._sdp_solver_output = ""
         sys.stdout.write("Reading output file...\n")
 
-        import time
-        time.sleep(1)
+        # import time
+        # time.sleep(1)
 
         while True:
             if child.eof():
@@ -2077,10 +2077,13 @@ class Problem(SageObject):
                 elif "DSDP Solution" in line:  # DSDP: seems to print absolute value
                     obj_val = self._approximate_field(line.split()[-1])
 
+            except OverflowError:
+                continue
+
             except pexpect.EOF:
                 break
 
-        print(p.read())
+        print(child.read())
 
         child.close()
         self._sdp_solver_returncode = child.exitstatus
