@@ -37,7 +37,7 @@ http://cordis.europa.eu/project/rcn/104324_en.html
 
 #include "interrupt.pxi"
 #include "stdsage.pxi"
-include "cdefs.pxi"
+#include "cdefs.pxi"
 
 # This doesn't seem to be remembered from .pxd file
 # 35 + 42 + 7 = 84, 84 * 3 = 252
