@@ -58,7 +58,7 @@ from sage.rings.all import Integer, QQ, ZZ
 from sage.matrix.all import matrix, block_matrix
 from sage.modules.misc import gram_schmidt
                 
-def process_small_graphs(sg, n, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs):
+def process_small_graphs(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs):
     pe = sg.ne
     ds = sg.degrees()
     maxd = max(ds[s:] + (0,))
@@ -588,7 +588,7 @@ cdef class HypergraphFlag (Flag):
                 
                 print("Using "+str(mp.cpu_count())+" cores")
 
-                arguments = [(sg, n, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs) for sg in smaller_graphs]
+                arguments = [(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs) for sg in smaller_graphs]
 
                 p = mp.Pool()
                 for graph_list, hash_list in p.map(process_small_graphs, tqdm(arguments)):
