@@ -2044,7 +2044,7 @@ class Problem(SageObject):
         else:
             raise ValueError("unknown solver.")
 
-        sys.stdout.write("Running SDP solver with command '{cmd}'...\n")
+        sys.stdout.write(f"Running SDP solver with command '{cmd}'...\n")
 
         # For maximization problems, the objective value returned by the SDP solver
         # must be negated.
@@ -2054,8 +2054,9 @@ class Problem(SageObject):
         obj_val = None
         self._sdp_solver_output = ""
         sys.stdout.write("Reading output file...\n")
+        import time
         while True:
-            sleep(1)
+            time.sleep(1)
 
             if child.eof():
                 break
