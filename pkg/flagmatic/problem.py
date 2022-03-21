@@ -2044,22 +2044,24 @@ class Problem(SageObject):
         else:
             raise ValueError("unknown solver.")
 
-        sys.stdout.write("Running SDP solver...\n")
+        sys.stdout.write("Running SDP solver with command '{cmd}'...\n")
 
         # For maximization problems, the objective value returned by the SDP solver
         # must be negated.
         obj_value_factor = 1.0 if self._minimize else -1.0
 
-        p = pexpect.spawn(cmd, timeout=2**40)
+        child = pexpect.spawn(cmd, timeout=2**40)
         obj_val = None
         self._sdp_solver_output = ""
         sys.stdout.write("Reading output file...\n")
         while True:
-            if p.eof():
+            sleep(1)
+
+            if child.eof():
                 break
             try:
-                p.expect("\r\n")
-                line = p.before.strip() + "\n"
+                child.expect("\r\n")
+                line = child.before.strip() + "\n"
                 self._sdp_solver_output += line
 
                 if show_output:
@@ -2075,8 +2077,8 @@ class Problem(SageObject):
             except pexpect.EOF:
                 break
 
-        p.close()
-        self._sdp_solver_returncode = 0 #p.exitstatus
+        child.close()
+        self._sdp_solver_returncode = child.exitstatus
 
         sys.stdout.write("Returncode is %d. Objective value is %s.\n" % (
             self._sdp_solver_returncode, obj_val))
