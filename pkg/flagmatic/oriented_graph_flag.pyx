@@ -98,7 +98,7 @@ cdef class OrientedGraphFlag (HypergraphFlag):
                 # Sage gives the graph new labels! Get a translation dictionary, and
                 # relabel the generators back to how they should be.
 
-                rd = dict((v,k) for (k,v) in d.iteritems())
+                rd = dict((v,k) for (k,v) in d.items())
                 trans_gens = [gen.cycle_tuples() for gen in G.gens()]
                 gens = sorted([tuple(sorted(tuple(sorted(map(lambda x : rd[x], cy))) for cy in gen))
                         for gen in trans_gens])

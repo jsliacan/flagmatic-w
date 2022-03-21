@@ -36,7 +36,7 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
 if not 'SAGE_ROOT' in os.environ:
-	print "	   ERROR: The environment variable SAGE_ROOT must be defined."
+	print("	   ERROR: The environment variable SAGE_ROOT must be defined.")
 	sys.exit(1)
 else:
 	SAGE_ROOT  = os.environ['SAGE_ROOT']

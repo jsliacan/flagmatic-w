@@ -885,7 +885,7 @@ class Problem(SageObject):
                     lcomb = [tuple(x) for x in lcomb] # make [graph, coeff] into (graph, coeff)
 
                 except ValueError:
-                    print "You are trying to feed 'add_assumption()' unhealthy things!"
+                    print("You are trying to feed 'add_assumption()' unhealthy things!")
 
             else:
 
@@ -932,7 +932,7 @@ class Problem(SageObject):
                     lcomb = [tuple(x) for x in lcomb] # make [graph, coeff] into (graph, coeff)
 
                 except ValueError:
-                    print "You are trying to feed 'add_assumption()' unhealthy things!"
+                    print("You are trying to feed 'add_assumption()' unhealthy things!")
                     
                 
         elif self._flag_cls().r == 3:
@@ -978,7 +978,7 @@ class Problem(SageObject):
                 lcomb = [tuple(x) for x in lcomb] # make [graph, coeff] into (graph, coeff)
                 
             except ValueError:
-                print "You are trying to feed 'add_assumption()' unhealthy things!"
+                print("You are trying to feed 'add_assumption()' unhealthy things!")
             
 
         # translate the assumption to the simple ones and add them one by one
@@ -2370,7 +2370,7 @@ class Problem(SageObject):
             try:
                 f = gzip.open(directory + "/" + flags.out_filename + ".gz", "rb")
             except IOError:
-                print "Could not open %s or %s.gz" % (flags.out_filename, flags.out_filename)
+                print("Could not open %s or %s.gz" % (flags.out_filename, flags.out_filename))
                 return
 
         for line in f:
@@ -3435,7 +3435,7 @@ class Problem(SageObject):
         # check if density met
 
         if self._stable:
-            print "The problem is already stable! Nothing to verify.\n"
+            print("The problem is already stable! Nothing to verify.\n")
             return
         
 
@@ -3454,13 +3454,13 @@ class Problem(SageObject):
         self.write_certificate("cert1.js")
         
         thebound = self._bound
-        print "The problem is exact with a sharp bound of", str(thebound)+".\n"
+        print("The problem is exact with a sharp bound of", str(thebound)+".\n")
 
         Tgraph = None
         try:
             Tgraph = GraphFlag(tgraph)
             tindex = (self.types).index(Tgraph) # CAREFULL! Tgraph may NOT be in self.types!!
-            print "You selected the following type:", tgraph, "\n"
+            print("You selected the following type:", tgraph, "\n")
         except:
             raise ValueError
 
@@ -3468,7 +3468,7 @@ class Problem(SageObject):
         # check the rank/dim of Q
         theQ = self._exact_Q_matrices[tindex]
         if theQ.dimensions()[0] - theQ.rank() == 1:
-            print "dim(Q)-rank(Q) = 1"
+            print("dim(Q)-rank(Q) = 1")
             claim2 = True
 
 
@@ -3491,7 +3491,7 @@ class Problem(SageObject):
                     num_embeddable += 1
         sys.stdout.write("num_embeddable = %d" %num_embeddable)
         if num_embeddable == num_sharps:
-            print "slfkjdsfoakjpsdfoajskdf Every sharp graph is embeddable into a blowup of", fgraph+".\n"
+            print("slfkjdsfoakjpsdfoajskdf Every sharp graph is embeddable into a blowup of", fgraph+".\n")
             claim4 = True
 
         # ---------- CLAIM 4 -----------
@@ -3572,29 +3572,29 @@ class Problem(SageObject):
 
         if not self._minimize:
             if self._bound < thebound:
-                print "Forbidding", Tgraph, "yields a bound of", self._bound, "which is strictly less than", str(thebound)+"."
+                print("Forbidding", Tgraph, "yields a bound of", self._bound, "which is strictly less than", str(thebound)+".")
                 claim1 = True
 
         if self._minimize:
             if self._bound > thebound:
-                print "Forbidding", Tgraph, "yields a bound of", self._bound, "which is strictly more than", str(thebound)+"."
+                print("Forbidding", Tgraph, "yields a bound of", self._bound, "which is strictly more than", str(thebound)+".")
                 claim1 = True
             
 
-        if claim1: print "Claim 1: verified."
-        else: print "Claim 1: NOT verified."
-        if claim2: print "Claim 2: verified."
-        else: print "Claim 2: NOT verified."
-        if claim3: print "Claim 3: verified."
-        else: print "Claim 3: NOT verified."
-        if claim4: print "Claim 4: verified."
-        else: print "Claim 4: NOT verified."
+        if claim1: print("Claim 1: verified.")
+        else: print("Claim 1: NOT verified.")
+        if claim2: print("Claim 2: verified.")
+        else: print("Claim 2: NOT verified.")
+        if claim3: print("Claim 3: verified.")
+        else: print("Claim 3: NOT verified.")
+        if claim4: print("Claim 4: verified.")
+        else: print("Claim 4: NOT verified.")
                     
         if claim1 and claim2 and claim3 and claim4:
             self._stable = True
-            print "\nOooh la la - early Christmas! The problem is stable!\n"
+            print("\nOooh la la - early Christmas! The problem is stable!\n")
             self.write_certificate("cert2.js")
-            print "Certificates written into 'cert1.js' and 'cert2.js'."
+            print("Certificates written into 'cert1.js' and 'cert2.js'.")
         return
         
 
@@ -3624,12 +3624,12 @@ class Problem(SageObject):
         Fgraph, or F, is denoted by B in the paper.
         """
 
-        print "Verifying robust stability..."
+        print("Verifying robust stability...")
 
         
         # check if work needed
         if self._robustly_stable:
-            print "The problem is already robustly stable! Nothing to verify.\n"
+            print("The problem is already robustly stable! Nothing to verify.\n")
             return
         
         # start off modestly
@@ -3655,16 +3655,16 @@ class Problem(SageObject):
                 self.tgraph = Tgraph
                 if not (fgraph is None):
                     Fgraph = GraphFlag(fgraph)
-                    print "You selected the following type:", tgraph, "and the following F graph:", fgraph, "\n"
+                    print("You selected the following type:", tgraph, "and the following F graph:", fgraph, "\n")
                 else:
-                    print "You selected the following type:", tgraph, "and F graph was taken from extremal construction:", Fgraph, "\n"
+                    print("You selected the following type:", tgraph, "and F graph was taken from extremal construction:", Fgraph, "\n")
             elif self._flag_cls().r == 3:
                 Tgraph = ThreeGraphFlag(tgraph)
                 if not (fgraph is None):
                     Fgraph = ThreeGraphFlag(fgraph)
-                    print "You selected the following type:", tgraph, "and the following F graph:", fgraph, "\n"
+                    print("You selected the following type:", tgraph, "and the following F graph:", fgraph, "\n")
                 else:
-                    print "You selected the following type:", tgraph, "and F graph was taken from extremal construction:", Fgraph, "\n"
+                    print("You selected the following type:", tgraph, "and F graph was taken from extremal construction:", Fgraph, "\n")
         except:
             raise ValueError
 
@@ -3699,12 +3699,12 @@ class Problem(SageObject):
         claim0a = True
         
         thebound = self._bound
-        print "The problem is exact with a sharp bound of", str(thebound)+".\n"
+        print("The problem is exact with a sharp bound of", str(thebound)+".\n")
         
         # check if the construction is a blowup (then we implicitly have the part ratios)
         # claim0b
         if not isinstance(self._construction, BlowupConstruction):
-            print "The construction is not a blow-up construction."
+            print("The construction is not a blow-up construction.")
         else:
             claim0b = True
 
@@ -3726,11 +3726,11 @@ class Problem(SageObject):
                 if self.graphs[gi] in c_subgraphs:
                     num_embeddable += 1
                 else:
-                    print "Not every sharp graph is embeddable in the blowup of", Fgraph, ". For example, ", self._graphs[gi], " isn't.\n"
-                    print "Claim 3 is FALSE."
+                    print("Not every sharp graph is embeddable in the blowup of", Fgraph, ". For example, ", self._graphs[gi], " isn't.\n")
+                    print("Claim 3 is FALSE.")
                     break
         if num_embeddable == num_sharp:
-            print "Every sharp graph is embeddable into a blowup of", Fgraph, ".\n"
+            print("Every sharp graph is embeddable into a blowup of", Fgraph, ".\n")
             claim3 = True
 
 
@@ -3856,9 +3856,9 @@ class Problem(SageObject):
                 print Tgraph, "is uniquely embeddable into", Fgraph, "and different vertices of", Fgraph, "attach differently to", str(Tgraph)+".\n"
             else:
                 if not claim2a:
-                    print "Claim 2a is False.\n"
+                    print("Claim 2a is False.\n")
                 if not claim2b:
-                    print "Claim 2b is False.\n"
+                    print("Claim 2b is False.\n")
 
         else: # if Fgraph is too large
             
@@ -3890,32 +3890,32 @@ class Problem(SageObject):
 
             if not self._minimize:
                 if newproblem._bound < thebound:
-                    print "Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is strictly less than", str(thebound)+"."
+                    print("Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is strictly less than", str(thebound)+".")
                     claim1 = True
                 else:
-                    print "Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is at least", str(thebound)+"."
+                    print("Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is at least", str(thebound)+".")
 
             else:
                 if newproblem._bound > thebound:
-                    print "Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is strictly more than", str(thebound)+"."
+                    print("Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is strictly more than", str(thebound)+".")
                     claim1 = True
                 else:
-                    print "Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is at most", str(thebound)+"."
+                    print("Forbidding", Tgraph, "yields a bound of", newproblem._bound, "which is at most", str(thebound)+".")
 
         else: #case: Tgraph.n <= 1
             if not self._minimize:
                 if 0 < thebound:
-                    print "Forbidding", Tgraph, "yields a bound of", 0, "which is strictly less than", str(thebound)+"."
+                    print("Forbidding", Tgraph, "yields a bound of", 0, "which is strictly less than", str(thebound)+".")
                     claim1 = True
                 else:
-                    print "Forbidding", Tgraph, "yields a bound of", 0, "which is at least", str(thebound)+"."
+                    print("Forbidding", Tgraph, "yields a bound of", 0, "which is at least", str(thebound)+".")
 
             else: 
                 if 1 > thebound:
-                    print "Forbidding", Tgraph, "yields a bound of", 1, "which is strictly more than", str(thebound)+"."
+                    print("Forbidding", Tgraph, "yields a bound of", 1, "which is strictly more than", str(thebound)+".")
                     claim1 = True
                 else:
-                    print "Forbidding", Tgraph, "yields a bound of", 0, "which is at most", str(thebound)+"."
+                    print("Forbidding", Tgraph, "yields a bound of", 0, "which is at most", str(thebound)+".")
                     
 
 
@@ -3925,43 +3925,43 @@ class Problem(SageObject):
 
         # ASSUMPTION 1.2
         if assumption12:
-            print "Assumption 1.2 verified."
+            print("Assumption 1.2 verified.")
         else:
-            print "Assumption 1.2 NOT verified."
+            print("Assumption 1.2 NOT verified.")
 
         # CONDITION 1, THM 4.1
         if claim0:
-            print "Condition 1 of Thm 4.1 verified."
+            print("Condition 1 of Thm 4.1 verified.")
         else:
-            print "Condition 1 of Thm 4.1 NOT verified."
+            print("Condition 1 of Thm 4.1 NOT verified.")
 
         # CONDITION 2, THM 4.1
         if claim1 and claim2:
-            print "Condition 2 of Thm 4.1 verified."
+            print("Condition 2 of Thm 4.1 verified.")
         elif claim1 and not claim2:
-            print "Condition 2 of Thm 4.1 NOT verified."
-            print "Forbidding your type graph", Tgraph, "does yield a strictly worse bound, but the rest of Condition 2 in Thm 4.1 does NOT hold."
+            print("Condition 2 of Thm 4.1 NOT verified.")
+            print("Forbidding your type graph", Tgraph, "does yield a strictly worse bound, but the rest of Condition 2 in Thm 4.1 does NOT hold.")
         elif claim2 and not claim1:
-            print "Condition 2 of Thm 4.1 NOT verified."
-            print "Forbidding your type graph", Tgraph, "does NOT yield a strictly worse bound, but the rest of Condition 2 in Thm 4.1 holds."
+            print("Condition 2 of Thm 4.1 NOT verified.")
+            print("Forbidding your type graph", Tgraph, "does NOT yield a strictly worse bound, but the rest of Condition 2 in Thm 4.1 holds.")
         else:
-            print "Condition 2 of Thm 4.1 NOT verified."
-            print "Forbidding your type graph", Tgraph, "does NOT yield a strictly worse bound, and the rest of Condition 2 in Thm 4.1 does NOT hold either."
+            print("Condition 2 of Thm 4.1 NOT verified.")
+            print("Forbidding your type graph", Tgraph, "does NOT yield a strictly worse bound, and the rest of Condition 2 in Thm 4.1 does NOT hold either.")
 
         # CONDITION 3, THM 4.1
         if claim3:
-            print "Condition 3 of Thm 4.1 verified."
+            print("Condition 3 of Thm 4.1 verified.")
         else:
-            print "Condition 3 of Thm 4.1 NOT verified."
+            print("Condition 3 of Thm 4.1 NOT verified.")
                     
         if assumption12 and claim0 and claim1 and claim2 and claim3:
             self._robustly_stable = True
             if newproblem:
                 newproblem.write_certificate("cert_robust_stab.js") # only writes certificate of the FA problem with forbidden Tgraph
             else: # newproblem is None
-                print "Certificate is trivial, since everything is forbidden in a graph that avoids a 1-vertex subgraph.\n"
+                print("Certificate is trivial, since everything is forbidden in a graph that avoids a 1-vertex subgraph.\n")
             self.write_certificate("cert_flag_alg.js")
-            print "\n[OK] ROBUST STABILITY\n"
+            print("\n[OK] ROBUST STABILITY\n")
         return
     
 
@@ -3993,17 +3993,17 @@ class Problem(SageObject):
         If it is not provided as an argument, it will be taken from the construction.
         """
         
-        print "Verifying perfect stability..."
+        print("Verifying perfect stability...")
 
 
         # nothing to do
         if self._perfectly_stable:
-            print "The problem is already perfectly stable! Nothing to verify.\n"
+            print("The problem is already perfectly stable! Nothing to verify.\n")
             return
 
         # missing prerequisite
         if not self._robustly_stable:
-            print "Please verify robust stability first (call verify_robust_stability() method).\n"
+            print("Please verify robust stability first (call verify_robust_stability() method).\n")
             return
 
         # start modestly
@@ -4057,10 +4057,10 @@ class Problem(SageObject):
                             break
 
             if twins_exist:
-                print "CLAIM 1 NOT verified.\n(At least one of the forbidden graphs is not twin-free."
-                print "Example:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".)\n"
+                print("CLAIM 1 NOT verified.\n(At least one of the forbidden graphs is not twin-free.")
+                print("Example:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".)\n")
             else:
-                print "CLAIM 1 verified. All forbidden graphs are twin-free.\n"
+                print("CLAIM 1 verified. All forbidden graphs are twin-free.\n")
                 claim1 = True
                 
 
@@ -4078,12 +4078,12 @@ class Problem(SageObject):
             Q_tau_rk = Q_tau.rank()
             if Q_tau.dimensions()[0]-1 == Q_tau_rk:
                 claim2 = True
-                print "CLAIM 2 verified. Q_tau has dimensions", Q_tau.dimensions(), "and rank", str(Q_tau_rk)+".\n"
+                print("CLAIM 2 verified. Q_tau has dimensions", Q_tau.dimensions(), "and rank", str(Q_tau_rk)+".\n")
             else:
-                print "CLAIM 2 NOT verified. Matrix Q_tau of dimensions", Q_tau.dimensions(), "has rank", str(Q_tau_rk)+".\n"
+                print("CLAIM 2 NOT verified. Matrix Q_tau of dimensions", Q_tau.dimensions(), "has rank", str(Q_tau_rk)+".\n")
                 
         except Exception:
-            print "Most probably, tgraph is not among the Flagmatic's types. Will attempt to verify Claim 3 now...\n"
+            print("Most probably, tgraph is not among the Flagmatic's types. Will attempt to verify Claim 3 now...\n")
             
 
 
@@ -4103,7 +4103,7 @@ class Problem(SageObject):
                 try:
                     Fgraph = GraphFlag(fgraph)
                 except ValueError:
-                    print "Ooops! F graph could not be initialized. Try providing a nicer one. More pink!"
+                    print("Ooops! F graph could not be initialized. Try providing a nicer one. More pink!")
                     
                     
             original_bound = self._bound
@@ -4126,28 +4126,28 @@ class Problem(SageObject):
             
             if self._minimize == False:
                 if new_bound < original_bound:
-                    print "The bound of", new_bound, "is strictly less than the original bound of", original_bound, ", OK."
+                    print("The bound of", new_bound, "is strictly less than the original bound of", original_bound, ", OK.")
                     claim3 = True
                 else:
-                    print "The bound of", new_bound, "is NOT strictly less than the original bound of", original_bound, "."
+                    print("The bound of", new_bound, "is NOT strictly less than the original bound of", original_bound, ".")
             else:
                 if new_bound > original_bound:
-                    print "The bound of", new_bound, "is strictly more than the original bound of", original_bound, ", OK."
+                    print("The bound of", new_bound, "is strictly more than the original bound of", original_bound, ", OK.")
                     claim3 = True
                 else:
-                    print "The bound of", new_bound, "is NOT strictly more than the original bound of", original_bound,"."
+                    print("The bound of", new_bound, "is NOT strictly more than the original bound of", original_bound,".")
                     
             if claim3 == True:
-                print "CLAIM 3 verified: fgraph is \lambda-minimal.\n"
+                print("CLAIM 3 verified: fgraph is \lambda-minimal.\n")
             else:
-                print "CLAIM 3 NOT verified.\n(With "+str(Fgraph)+" forbidden, the bound is  not strictly smaller than the current bound."
+                print("CLAIM 3 NOT verified.\n(With "+str(Fgraph)+" forbidden, the bound is  not strictly smaller than the current bound.")
  
 
         if claim1 and (claim2 or claim3):
             self._perfectly_stable = True
             if not claim2:
                 perfstabproblem.write_certificate("cert_perf_stab.js")
-            print "[OK] PERFECT STABILITY"
+            print("[OK] PERFECT STABILITY")
          
                         
         """
@@ -4226,7 +4226,7 @@ class Problem(SageObject):
                             continue
                         else:
                             if f_tuple == (4,3,1):
-                                print "true C", pairF, pairB, w, Fj, B
+                                print("true C", pairF, pairB, w, Fj, B)
                             edges_match_so_far = False
 
                     if edges_match_so_far:
@@ -4337,7 +4337,7 @@ def fpd(tp, flg1, flg2, grph):
 
     except ValueError:
 
-        print "You are feeding unhealthy things to the function!"
+        print("You are feeding unhealthy things to the function!")
     
 
     #not a 100% way to avoid name collision, but good enough...    
@@ -4353,7 +4353,7 @@ def fpd(tp, flg1, flg2, grph):
 
     except ValueError:
 
-        print "Something went wrong when multiplying flags. Make sure your flag is on the right type etc."
+        print("Something went wrong when multiplying flags. Make sure your flag is on the right type etc.")
         sys.exit(1)
 
     num_val = Rational((prod[0][3], prod[0][4]))
@@ -4395,7 +4395,7 @@ def fpds(tp, flg1, flg2, nn):
         f2.make_minimal_isomorph()
 
     except ValueError:
-        print "You are feeding unhealthy things to the function!"
+        print("You are feeding unhealthy things to the function!")
 
 
     # check for correct value input...
@@ -4415,7 +4415,7 @@ def fpds(tp, flg1, flg2, nn):
     try:
         prod = the_most_ridiculous_name._flag_cls.flag_products(gblock, t, fblock1, fblock2)
     except ValueError:
-        print "You are feeding unhealthy things to the function!"
+        print("You are feeding unhealthy things to the function!")
         sys.exit(1)
     
 
@@ -4456,7 +4456,7 @@ def dens(graph, family_dimension):
         grphs = the_most_ridiculous_name2._flag_cls.generate_graphs(n_gr)
         
     except ValueError:
-        print "You are feeding unhealthy things to the function!"
+        print("You are feeding unhealthy things to the function!")
         sys.exit(1)
 
     quantum_graph = list()

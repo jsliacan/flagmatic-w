@@ -112,7 +112,7 @@ certificate_filename_tau = ""
 
 if action == "verify stability":
     if using_sage == False:
-        print "This step needs Sage. Please run 'sage -python inspect_certificate.py ...'."
+        print("This step needs Sage. Please run 'sage -python inspect_certificate.py ...'.")
         sys.exit()
         
     if len(args) < 4:
@@ -121,20 +121,20 @@ if action == "verify stability":
     # target bound
     lb = map(int, args[1].split("/"))
     lower_bound = Integer(lb[0])/lb[1] #fractions.Fraction(lb[0],lb[1])
-    print "Lower bound:", lower_bound
+    print("Lower bound:", lower_bound)
     # tau graph
     tau = str(args[2])
-    print "Type tau:", tau
+    print("Type tau:", tau)
     # B graph
     B = str(args[3])
-    print "Graph B:", B
+    print("Graph B:", B)
 
     if tau != "1:" and len(args) < 5:
         raise ValueError("With '--stability' option and tau is not '1:', second certificate is needed.\n")
     # cert_tau
     if tau != "1:":
         certificate_filename_tau = str(args[4])
-        print "Certificate when tau is forbidden:", certificate_filename_tau
+        print("Certificate when tau is forbidden:", certificate_filename_tau)
 
     
 try:
@@ -153,8 +153,8 @@ print
 
 certificate = json.load(certf)
 
-print 'Problem is "{}".'.format(certificate["description"])
-print 'Claimed bound is {}.'.format(certificate["bound"])
+print('Problem is "{}".'.format(certificate["description"]))
+print('Claimed bound is {}.'.format(certificate["bound"]))
 
 minimize = "minimize" in certificate["description"]
 
@@ -167,10 +167,10 @@ if "field" in certificate.keys():
 
     if certificate["field"] != "RationalField()":
 
-        print 'Field used is "{}".'.format(certificate["field"])
+        print('Field used is "{}".'.format(certificate["field"]))
 
         if not using_sage:
-            print "This script must be run using Sage's python, as it does not use the rational field."
+            print("This script must be run using Sage's python, as it does not use the rational field.")
             sys.exit(1)
 
         try:
@@ -187,7 +187,7 @@ if "3-graph" in certificate["description"]:
 elif "2-graph" in certificate["description"]:
     edge_size = 2
 else:
-    print "Unsupported graph kind."
+    print("Unsupported graph kind.")
     sys.exit(1)
 
 oriented = "oriented" in certificate["description"]
@@ -197,7 +197,7 @@ def make_number(ch):
         CH = ch.capitalize()
         return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".index(CH)
     except ValueError:
-        print "Failed to parse..."
+        print("Failed to parse...")
 
 
 def kill_twins(g):
@@ -367,17 +367,17 @@ flags = [[Flag(s) for s in f] for f in certificate["flags"]]
 
 if action == "print admissible graphs":
 
-    print "There are {} admissible graphs:".format(len(admissible_graphs))
+    print("There are {} admissible graphs:".format(len(admissible_graphs)))
     for i, g in enumerate(admissible_graphs):
-        print "{}. {}".format(i + 1, g)
+        print("{}. {}".format(i + 1, g))
     sys.exit(0)
 
 if action == "print flags":
     for ti, _type in enumerate(types):
         nf = len(flags[ti])
-        print "Type {} ({}) has {} flags:".format(ti + 1, _type, nf)
+        print("Type {} ({}) has {} flags:".format(ti + 1, _type, nf))
         for i in range(nf):
-            print "   {}. {}".format(i + 1, flags[ti][i])
+            print("   {}. {}".format(i + 1, flags[ti][i]))
     sys.exit(0)
 
 
@@ -397,19 +397,19 @@ def stringify(a):
 if action == "print r_matrices":
 
     for ti, _type in enumerate(types):
-        print "R matrix for type {} ({}):".format(ti + 1, _type)
-        print "{}".format(stringify(certificate["r_matrices"][ti]))
+        print("R matrix for type {} ({}):".format(ti + 1, _type))
+        print("{}".format(stringify(certificate["r_matrices"][ti])))
     sys.exit(0)
 
 if action == "print qdash_matrices":
 
     for ti, _type in enumerate(types):
-        print "Q' matrix for type {} ({}):".format(ti + 1, _type)
-        print "{}".format(stringify(certificate["qdash_matrices"][ti]))
+        print("Q' matrix for type {} ({}):".format(ti + 1, _type))
+        print("{}".format(stringify(certificate["qdash_matrices"][ti])))
     sys.exit(0)
 
 
-print "Computing Q matrices..."
+print("Computing Q matrices...")
 
 Qs = []
 
@@ -452,11 +452,11 @@ for ti, _type in enumerate(types):
 if action == "print q_matrices":
 
     for ti, _type in enumerate(types):
-        print "Q matrix for type {} ({}):".format(ti + 1, _type)
-        print "{}".format(stringify(Qs[ti]))
+        print("Q matrix for type {} ({}):".format(ti + 1, _type))
+        print("{}".format(stringify(Qs[ti])))
     sys.exit(0)
 
-print "Computing pair densities..."
+print("Computing pair densities...")
 
 pair_densities = {}
 n = certificate["order_of_admissible_graphs"]
@@ -513,18 +513,18 @@ for ti, _type in enumerate(types):
 if action == "print pair densities":
 
     for i, g in enumerate(admissible_graphs):
-        print "Pair densities for admissible graph {} ({}):".format(i + 1, g)
+        print("Pair densities for admissible graph {} ({}):".format(i + 1, g))
 
         for ti, _type in enumerate(types):
-            print "   Non-zero densities for type {} ({}):".format(ti + 1, _type)
+            print("   Non-zero densities for type {} ({}):".format(ti + 1, _type))
 
             for key, d in pair_densities.items():
                 if key[:2] == (ti, i):
-                    print "      Flags {} and {} ({} and {}): {}".format(key[2] + 1, key[3] + 1,
+                    print("      Flags {} and {} ({} and {}): {}".format(key[2] + 1, key[3] + 1,)
                                                                          flags[ti][key[2]], flags[ti][key[3]], d)
     sys.exit(0)
 
-print "Computing bound..."
+print("Computing bound...")
 
 if certificate["admissible_graph_densities"] and isinstance(certificate["admissible_graph_densities"][0], list):
     graph_densities = certificate["admissible_graph_densities"]
@@ -560,21 +560,21 @@ for key in pair_densities.keys():
 
 bound = min(bounds) if minimize else max(bounds)
 
-print "Bound is {}.".format(bound)
+print("Bound is {}.".format(bound))
 
 if action == "print sharp graphs":
 
-    print "Sharp graphs are:"
+    print("Sharp graphs are:")
     for i, g in enumerate(admissible_graphs):
         if bounds[i] == bound:
-            print "{}. {}".format(i + 1, g)
+            print("{}. {}".format(i + 1, g))
     sys.exit(0)
 
 if action == "print flag algebra coefficients":
 
-    print "There are {} admissible graphs:".format(len(admissible_graphs))
+    print("There are {} admissible graphs:".format(len(admissible_graphs)))
     for i, g in enumerate(admissible_graphs):
-        print "{}. ({}) : {}".format(i + 1, g, bounds[i])
+        print("{}. ({}) : {}".format(i + 1, g, bounds[i]))
     sys.exit(0)
 
 
@@ -584,17 +584,17 @@ if action == "log":
     try:
         f = open("bound.txt", 'w')
         f.write(str(bound))
-        print "Bound logged to 'bound.txt'."
+        print("Bound logged to 'bound.txt'.")
         f.close()
     except IOError:
-        print "Couldn't open 'bound.txt' file for writing."
+        print("Couldn't open 'bound.txt' file for writing.")
         sys.exit()
         
 
 
 if action == "verify stability":
 
-    print "\nChecking conditions for robust stability:"
+    print("\nChecking conditions for robust stability:")
     
     # Check that each forbidden graph is twin-free
     # --------------------------------------------
@@ -660,11 +660,11 @@ if action == "verify stability":
 
         
     if twins_exist:
-        print "\033[31m[FAIL] \033[mAt least one of the forbidden graphs is NOT twin-free."
-        print "       Witness:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".\n"
+        print("\033[31m[FAIL] \033[mAt least one of the forbidden graphs is NOT twin-free.")
+        print("       Witness:", str(twins_graph)+". Consider vertices", twins_vx[0], "and", str(twins_vx[1])+ ".\n")
     else:
         claim1 = True
-        print "\033[32m[OK]   \033[mAll forbidden graphs are twin-free."
+        print("\033[32m[OK]   \033[mAll forbidden graphs are twin-free.")
 
 
     # Check that the upper bound is tight
@@ -672,9 +672,9 @@ if action == "verify stability":
     claim2 = False
     if bound == lower_bound:
         claim2 = True
-        print "\033[32m[OK]   \033[mLower bound and upper bound match", str(bound)+"."
+        print("\033[32m[OK]   \033[mLower bound and upper bound match", str(bound)+".")
     else:
-        print "\033[31m[FAIL] \033[mLower bound is", lower_bound, "and upper bound is", str(bound)+"."
+        print("\033[31m[FAIL] \033[mLower bound is", lower_bound, "and upper bound is", str(bound)+".")
 
     
     # Check that |tau| <= N-2
@@ -683,9 +683,9 @@ if action == "verify stability":
     claim3 = (tgraph.n <= admissible_graphs[0].n)
 
     if claim3:
-        print "\033[32m[OK]   \033[mTau is on", tgraph.n, "vertices, which is at most", admissible_graphs[0].n-2,"=",admissible_graphs[0].n,"- 2."
+        print("\033[32m[OK]   \033[mTau is on", tgraph.n, "vertices, which is at most", admissible_graphs[0].n-2,"=",admissible_graphs[0].n,"- 2.")
     else:
-        print "\033[31m[FAIL] \033[mThe order of tau is wrong:", str(tgraph.n)+". It must be at most", str(admissible_graphs[0].n)+"."
+        print("\033[31m[FAIL] \033[mThe order of tau is wrong:", str(tgraph.n)+". It must be at most", str(admissible_graphs[0].n)+".")
 
 
 
@@ -749,10 +749,10 @@ if action == "verify stability":
 
     if not failed:
         claim4 = True
-        print "\033[32m[OK]   \033[mAll sharp graphs admit strong hom into B."
+        print("\033[32m[OK]   \033[mAll sharp graphs admit strong hom into B.")
     else:
-        print "\033[31m[FAIL] \033[mNOT all sharp graphs admit strong homomorphism into B."
-        print "       e.g. no strong hom from", failed[0].edges(labels=None), "into B", "("+B+")."
+        print("\033[31m[FAIL] \033[mNOT all sharp graphs admit strong homomorphism into B.")
+        print("       e.g. no strong hom from", failed[0].edges(labels=None), "into B", "("+B+").")
 
 
 
@@ -780,9 +780,9 @@ if action == "verify stability":
             Tcopy_in_B = Bgraph.subgraph_search(Tgraph, induced=True)
             strong_hom = Tcopy_in_B.vertices()
             claim5 = True
-            print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
+            print("\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B.")
         else:
-            print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
+            print("\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong.")
 
     else:
         Bg = Flag(B)
@@ -840,9 +840,9 @@ if action == "verify stability":
             if strong_hom_count == Baut_group_order: # there's exactly 1 strong hom (up to automorph grp of tau)
                 claim5 = True
                 strong_hom = [x-1 for x in strong_hom]
-                print "\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B."
+                print("\033[32m[OK]   \033[mThere is exactly 1 strong homomorphism from tau into B.")
             else:
-                print "\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong."
+                print("\033[31m[FAIL] \033[mThe number of strong homomorphisms from tau to B is wrong.")
 
 
 
@@ -855,7 +855,7 @@ if action == "verify stability":
     
     # take strong_hom from previous search
     if strong_hom == None:
-        print "\033[31m[FAIL] \033[mThere is no strong homomorphism from tau into B. There should be exactly 1."
+        print("\033[31m[FAIL] \033[mThere is no strong homomorphism from tau into B. There should be exactly 1.")
 
     else:
         strong_hom = set(strong_hom)
@@ -892,16 +892,16 @@ if action == "verify stability":
 
         if not witness:
             claim6 = True
-            print "\033[32m[OK]   \033[mDifferent vertices of B attach differently to an embedding of tau in B."
+            print("\033[32m[OK]   \033[mDifferent vertices of B attach differently to an embedding of tau in B.")
         else:
-            print "\033[31m[FAIL] \033[mThere are two vertices", str(witness[0][0])+",",witness[0][1],"that attach to Tau in the same way:", str(witness[1])+"."
+            print("\033[31m[FAIL] \033[mThere are two vertices", str(witness[0][0])+",",witness[0][1],"that attach to Tau in the same way:", str(witness[1])+".")
 
 
     # Check if forbidding tau improves the bound
     # ------------------------------------------
     claim7 = False
     
-    print "Verifying that forbidding tau improves the bound..."
+    print("Verifying that forbidding tau improves the bound...")
 
     if tau == "1:":
         bound_tau = 0
@@ -910,19 +910,19 @@ if action == "verify stability":
         try:
             f = subprocess.call(command, shell=True)
         except ValueError:
-            print "Ooops! Things went wrong! Bound probably not written into 'bound.txt'."
+            print("Ooops! Things went wrong! Bound probably not written into 'bound.txt'.")
 
         bfile = open("bound.txt", 'r')
         bound_tau = Rational(bfile.readlines()[0])
 
     if minimize == False and bound_tau < bound:
         claim7 = True
-        print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) > lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
+        print("\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) > lambda(Forb(\cal F and tau)) =", str(bound_tau)+".")
     elif minimize == True and bound_tau > bound:
         claim7 = True
-        print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) < lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
+        print("\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) < lambda(Forb(\cal F and tau)) =", str(bound_tau)+".")
     else:
-        print "\033[31m[FAIL] \033[m"+str(bound), "= lambda(Forb(\cal F)) while lambda(Forb(\cal F and tau)) =", str(bound_tau)+"."
+        print("\033[31m[FAIL] \033[m"+str(bound), "= lambda(Forb(\cal F)) while lambda(Forb(\cal F and tau)) =", str(bound_tau)+".")
 
         
     # PERFECT STABILITY
@@ -932,7 +932,7 @@ if action == "verify stability":
         raise ValueError("Robust stability has not been verified. Please do that first.")
         sys.exit()
 
-    print "Robust stability verified!"
+    print("Robust stability verified!")
     
     # Verifying CLAIM 3: rk(Q_tau) = dim(Q_tau)-1
     # ---------------------------------------------------
@@ -954,10 +954,10 @@ if action == "verify stability":
 
     if rk == dminus:
         claimQ = True
-        print "\033[32m[OK]   \033[mMatrix Q_tau has rk(Q_tau) = dim(Q_tau)-1 =", str(rk)+"."
-        print "Perfect stability verified! Done."
+        print("\033[32m[OK]   \033[mMatrix Q_tau has rk(Q_tau) = dim(Q_tau)-1 =", str(rk)+".")
+        print("Perfect stability verified! Done.")
     else:
-        print "\033[31m[FAIL] \033[mMatrix Q_tau has rank", rk, "and dim", str(dminus+1)+"."
+        print("\033[31m[FAIL] \033[mMatrix Q_tau has rank", rk, "and dim", str(dminus+1)+".")
 
 
 
@@ -968,26 +968,26 @@ if action == "verify stability":
         try:
             certB_filename = args[5].strip()
         except IOError:
-            print "You did not provide a certificate file to verify perfect stability. Giving up..."
+            print("You did not provide a certificate file to verify perfect stability. Giving up...")
             sys.exit()
 
         command = "sage -python inspect_certificate.py "+certB_filename+" --log"
         try:
             f = subprocess.call(command, shell=True)
         except ValueError:
-            print "Ooops! Things went wrong! Bound probably not written into 'bound.txt'."
+            print("Ooops! Things went wrong! Bound probably not written into 'bound.txt'.")
 
         try:
             bfile = open("bound.txt", 'r')
             bound_tau = Rational(bfile.readlines()[0])
             if minimize == False and bound_tau < bound:
                 claimB = True
-                print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) > lambda(Forb(\cal F and B)) =", str(bound_tau)+"."
+                print("\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) > lambda(Forb(\cal F and B)) =", str(bound_tau)+".")
             elif minimize == True and bound_tau > bound:
                 claimB = True
-                print "\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) < lambda(Forb(\cal F and B)) =", str(bound_tau)+"."
+                print("\033[32m[OK]   \033[m"+str(bound), "= lambda(Forb(\cal F)) < lambda(Forb(\cal F and B)) =", str(bound_tau)+".")
             else:
-                print "\033[31m[FAIL] \033[m"+str(bound), "= lambda(Forb(\cal F)) while lambda(Forb(\cal F and B)) =", str(bound_tau)+"."
+                print("\033[31m[FAIL] \033[m"+str(bound), "= lambda(Forb(\cal F)) while lambda(Forb(\cal F and B)) =", str(bound_tau)+".")
 
         except ValueError:
-            print "Couldn't open file bound.txt or read the bound."
+            print("Couldn't open file bound.txt or read the bound.")

@@ -264,7 +264,7 @@ class BlowupConstruction(Construction):
         orb_reps = {}
         total = 0
 
-        for ot, length in set_orb_reps.iteritems():
+        for ot, length in set_orb_reps.items():
 
             ne = len(ot)
             for ci in range(len(combs)):
@@ -288,7 +288,7 @@ class BlowupConstruction(Construction):
 
         t_total, t_orb_reps = self.tuple_orbit_reps(s)
 
-        for t_rep, t_factor in t_orb_reps.iteritems():
+        for t_rep, t_factor in t_orb_reps.items():
 
             for tp in Permutations(t_rep):
 
@@ -300,7 +300,7 @@ class BlowupConstruction(Construction):
 
                 row = [0] * len(flags)
 
-                for P, factor in orb_reps.iteritems():
+                for P, factor in orb_reps.items():
 
                     ig = self._graph.degenerate_induced_subgraph(P)
                     ig.t = s
@@ -324,7 +324,7 @@ class BlowupConstruction(Construction):
 
         sys.stdout.write("Found %d orbits.\n" % len(orb_reps))
 
-        for P, factor in orb_reps.iteritems():
+        for P, factor in orb_reps.items():
 
             ig = self._graph.degenerate_induced_subgraph(P)
             ig.make_minimal_isomorph()
