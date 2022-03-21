@@ -2083,8 +2083,6 @@ class Problem(SageObject):
             except pexpect.EOF:
                 break
 
-        print(child.read())
-
         child.close()
         self._sdp_solver_returncode = child.exitstatus
 

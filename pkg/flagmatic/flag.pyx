@@ -29,7 +29,7 @@ cdef class Flag (SageObject):
                         sage: G
                         2:12
                         sage: G.set_immutable()
-                        sage: G.delete_edge((1, 2))
+                        sage: G.delete_edge((1, 2))generate_graphs
                         Traceback (most recent call last):
                         ...
                         ValueError: object is immutable; please change a copy instead.
