@@ -2056,7 +2056,7 @@ class Problem(SageObject):
         sys.stdout.write("Reading output file...\n")
         import time
         while True:
-            time.sleep(1)
+            # time.sleep(1)
 
             if child.eof():
                 break
@@ -2077,6 +2077,8 @@ class Problem(SageObject):
 
             except pexpect.EOF:
                 break
+
+        print(p.read())
 
         child.close()
         self._sdp_solver_returncode = child.exitstatus
