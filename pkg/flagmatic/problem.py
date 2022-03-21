@@ -2062,7 +2062,7 @@ class Problem(SageObject):
                 break
             try:
                 child.expect("\r\n")
-                line = child.before.strip() + "\n"
+                line = child.before.decode("utf-8").strip()  + "\n"
                 self._sdp_solver_output += line
 
                 if show_output:
