@@ -58,7 +58,9 @@ from sage.rings.all import Integer, QQ, ZZ
 from sage.matrix.all import matrix, block_matrix
 from sage.modules.misc import gram_schmidt
                 
-def process_small_graphs(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs):
+def process_small_graphs(args):
+    sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs = args
+    
     pe = sg.ne
     ds = sg.degrees()
     maxd = max(ds[s:] + (0,))
