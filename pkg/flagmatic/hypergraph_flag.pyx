@@ -585,15 +585,15 @@ cdef class HypergraphFlag (Flag):
                         possible_edges = sum(([e] * multiplicity for e in possible_edges), [])
                 
                 
-                from tqdm import tqdm
+                # from tqdm import tqdm
                 import multiprocessing as mp
                 
-                print("Using "+str(mp.cpu_count())+" cores")
+                # print("Using "+str(mp.cpu_count())+" cores")
 
                 arguments = [(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs) for sg in smaller_graphs]
 
                 p = mp.Pool()
-                for graph_list, hash_list in p.map(process_small_graphs, tqdm(arguments)):
+                for graph_list, hash_list in p.map(process_small_graphs, arguments):
                     for ng, ng_hash in zip(graph_list, hash_list):
                         if not ng_hash in hashes:
                             new_graphs.append(ng)

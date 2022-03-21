@@ -18,6 +18,7 @@ USER sage
 
 RUN sage --pip install tqdm
 
+ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 # RUN git clone https://github.com/jsliacan/flagmatic && cd flagmatic/pkg && sage -python setup.py install && cd ../.. && rm -rf flagmatic
 RUN git clone https://github.com/FordUniver/flagmatic.git && cd flagmatic && git checkout python3 && cd pkg && sage -python setup.py install && cd ../.. && rm -rf flagmatic
 
