@@ -544,6 +544,7 @@ cdef class HypergraphFlag (Flag):
                 if multiplicity > 1:
                         possible_edges = sum(([e] * multiplicity for e in possible_edges), [])
         
+                # TODO: can we parallelize this loop?
                 for sg in smaller_graphs:
                 
                         pe = sg.ne
