@@ -27,8 +27,6 @@ for tg in tgs:
     if len(vertices) > 1:
         partitions.extend(list(SetPartitions(vertices, 2)))
 
-    #print partitions
-
     for partition in partitions:
         red_vertices = list(partition[0])
         blue_vertices = list(partition[1])
@@ -46,8 +44,6 @@ for tg in tgs:
                 if ((len(rn1) > 0 and len(rn2) > 0) or (len(bn1) > 0 and len(bn2) > 0) or
                     (len(rn1) == len(bn1) == len(rn2) == len(bn2) == 0)):
                     use_flags.append(fg)
-
-            #print tg, list(red_vertices), blue_vertices, use_flags
         
             sys.stdout.write("Axiom: ")
             for fg in use_flags:
@@ -67,8 +63,6 @@ for tg in tgs:
                     (v, s + 2) in fg.edges for v in blue_vertices)) or (
                     not any((v, s + 1) in fg.edges or (v, s + 2) in fg.edges for v in vertices)):
                     use_flags.append(fg)
-
-            #print tg, list(red_vertices), blue_vertices, use_flags
         
             sys.stdout.write("Axiom: ")
             for fg in use_flags:

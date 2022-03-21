@@ -3555,7 +3555,7 @@ class Problem(SageObject):
 
         claim3 = claim3a and claim3b
         if claim3:
-            print tgraph, "is uniquely embeddable into", fgraph, "and different vertices of", fgraph, "attach differently to", tgraph+".\n"
+            print(tgraph, "is uniquely embeddable into", fgraph, "and different vertices of", fgraph, "attach differently to", tgraph+".\n")
 
         # --------- CLAIM 1 ----------
         self.forbid(tgraph)
@@ -3853,7 +3853,7 @@ class Problem(SageObject):
         
             claim2 = claim2a and claim2b
             if claim2:
-                print Tgraph, "is uniquely embeddable into", Fgraph, "and different vertices of", Fgraph, "attach differently to", str(Tgraph)+".\n"
+                print(Tgraph, "is uniquely embeddable into", Fgraph, "and different vertices of", Fgraph, "attach differently to", str(Tgraph)+".\n")
             else:
                 if not claim2a:
                     print("Claim 2a is False.\n")
@@ -3921,7 +3921,7 @@ class Problem(SageObject):
 
         
 
-        print # newline
+        print() # newline
 
         # ASSUMPTION 1.2
         if assumption12:
@@ -4242,7 +4242,7 @@ class Problem(SageObject):
         b[0] = 1
         b = vector(b)
         a = D.solve_right(b)
-        print a
+        print(a)
         """
                                 
                         

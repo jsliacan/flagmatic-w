@@ -2185,4 +2185,4 @@ def print_graph_block(graph_block gb):
 
         for i in range(gb.len):
                 g = <HypergraphFlag ?> gb.graphs[i]
-                print str(g)
+                print(g)
