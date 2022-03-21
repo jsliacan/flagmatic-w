@@ -47,7 +47,7 @@ from sage.misc.misc import SAGE_TMP
 from sage.matrix.constructor import ones_matrix, vector
 from copy import copy
 
-from hypergraph_flag import make_graph_block, print_graph_block
+from .hypergraph_flag import make_graph_block, print_graph_block
 from .flag import *
 from .three_graph_flag import *
 from .graph_flag import *
