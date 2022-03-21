@@ -48,13 +48,13 @@ from sage.matrix.constructor import ones_matrix, vector
 from copy import copy
 
 from hypergraph_flag import make_graph_block, print_graph_block
-from flag import *
-from three_graph_flag import *
-from graph_flag import *
-from oriented_graph_flag import *
-from multigraph_flag import *
-from construction import *
-from blowup_construction import *
+from .flag import *
+from .three_graph_flag import *
+from .graph_flag import *
+from .oriented_graph_flag import *
+from .multigraph_flag import *
+from .construction import *
+from .blowup_construction import *
 
 # pexpect in Sage 4.8 has a bug, which prevents it using commands with full paths.
 # So for now, CSDP has to be in a directory in $PATH.

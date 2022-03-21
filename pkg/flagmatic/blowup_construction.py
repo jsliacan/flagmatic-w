@@ -37,10 +37,10 @@ from sage.rings.all import Integer, RationalField
 from sage.interfaces.gap import gap
 from copy import copy
 
-from three_graph_flag import *
-from graph_flag import *
-from oriented_graph_flag import *
-from construction import *
+from .three_graph_flag import *
+from .graph_flag import *
+from .oriented_graph_flag import *
+from .construction import *
 
 
 class BlowupConstruction(Construction):

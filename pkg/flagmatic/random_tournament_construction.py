@@ -35,8 +35,8 @@ from sage.arith.all import binomial
 from sage.combinat.all import Tuples, Combinations
 from sage.rings.all import Integer, RationalField
 
-from construction import *
-from three_graph_flag import *
+from .construction import *
+from .three_graph_flag import *
 
 
 class RandomTournamentConstruction(Construction):
