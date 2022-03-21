@@ -1688,7 +1688,7 @@ class Problem(SageObject):
 
         self.state("write_sdp_input_file", "yes")
 
-        self._sdp_input_filename = os.path.join(unicode(SAGE_TMP), "sdp.dat-s")
+        self._sdp_input_filename = os.path.join(str(SAGE_TMP, 'utf-8'), "sdp.dat-s")
 
         sys.stdout.write("Writing SDP input file...\n")
 
@@ -1866,7 +1866,7 @@ class Problem(SageObject):
         num_types = len(self._types)
         num_active_densities = len(self._active_densities)
 
-        self._sdp_initial_point_filename = os.path.join(unicode(SAGE_TMP), "sdp.ini-s")
+        self._sdp_initial_point_filename = os.path.join(str(SAGE_TMP, 'utf-8'), "sdp.ini-s")
 
         if self.state("set_block_matrix_structure") != "yes":
             self._set_block_matrix_structure()
@@ -2019,7 +2019,7 @@ class Problem(SageObject):
         self.state("run_sdp_solver", "yes")
 
         previous_directory = os.getcwd()
-        os.chdir(unicode(SAGE_TMP))
+        os.chdir(str(SAGE_TMP, 'utf-8'))
 
         print("Now in directory "+str( os.getcwd() ))
         
@@ -2130,7 +2130,7 @@ class Problem(SageObject):
                         if col > 1:  # at least one number found...
                             row += 1
 
-        self._sdp_output_filename = os.path.join(unicode(SAGE_TMP), "sdp.out")
+        self._sdp_output_filename = os.path.join(str(SAGE_TMP, 'utf-8'), "sdp.out")
         os.chdir(previous_directory)
 
     # TODO: read in dual solution
