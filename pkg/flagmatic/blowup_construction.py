@@ -340,18 +340,18 @@ class BlowupConstruction(Construction):
 
 
 def GraphBlowupConstruction(graph, **kwargs):
-    if isinstance(graph, basestring):
+    if isinstance(graph, str):
         graph = GraphFlag(graph)
     return BlowupConstruction(graph, **kwargs)
 
 
 def ThreeGraphBlowupConstruction(graph, **kwargs):
-    if isinstance(graph, basestring):
+    if isinstance(graph, str):
         graph = ThreeGraphFlag(graph)
     return BlowupConstruction(graph, **kwargs)
 
 
 def OrientedGraphBlowupConstruction(graph, **kwargs):
-    if isinstance(graph, basestring):
+    if isinstance(graph, str):
         graph = OrientedGraphFlag(graph)
     return BlowupConstruction(graph, **kwargs)

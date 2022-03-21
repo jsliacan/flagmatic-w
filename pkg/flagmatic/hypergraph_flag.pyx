@@ -84,7 +84,7 @@ cdef class HypergraphFlag (Flag):
                         self.ne = 0
                         self._t = 0
 
-                elif isinstance(representation, basestring):
+                elif isinstance(representation, str):
                         self.init_from_string(representation)
 
                 elif representation in ZZ:

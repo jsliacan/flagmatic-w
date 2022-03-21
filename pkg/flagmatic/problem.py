@@ -479,7 +479,7 @@ class Problem(SageObject):
         allowed_types = []
         if types:
             for h in types:
-                if isinstance(h, basestring):
+                if isinstance(h, str):
                     h = self._flag_cls(h)
                 if not isinstance(h, self._flag_cls):
                     raise ValueError
@@ -635,7 +635,7 @@ class Problem(SageObject):
 
         for arg in flattened_args:
 
-            if isinstance(arg, basestring) and "." in arg:
+            if isinstance(arg, str) and "." in arg:
                 arg = tuple(map(int, arg.split(".")))
 
             if isinstance(arg, tuple):
@@ -667,7 +667,7 @@ class Problem(SageObject):
             else:
                 h, coeff = arg, Integer(1)
 
-            if isinstance(h, basestring):
+            if isinstance(h, str):
                 h = self._flag_cls(h)
 
             if not isinstance(h, self._flag_cls):
@@ -692,7 +692,7 @@ class Problem(SageObject):
 
         self.state("specify", "yes")
 
-        if isinstance(h, basestring) and "." in h:
+        if isinstance(h, str) and "." in h:
             h = tuple(map(int, h.split(".")))
 
         if isinstance(h, tuple):
@@ -711,7 +711,7 @@ class Problem(SageObject):
                 sys.stdout.write("Forbidding %d-sets from spanning at least %d edges.\n" % (k, ne))
             return
 
-        if isinstance(h, basestring):
+        if isinstance(h, str):
             h = self._flag_cls(h)
 
         if not isinstance(h, self._flag_cls):
