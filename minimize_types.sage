@@ -150,7 +150,7 @@ if reduce_types:
 
         with suppress_stdout():
             P = GraphProblem(N, density=density, forbid_induced=forbid, types=next_types, minimize=True)
-            P.solve_sdp(solver="sdpa_dd")
+            P.solve_sdp(solver="sdpa_ddx")
             sol = eval(P._sdp_solver_output.split('\n')[-10].split(' = ')[1])
             # sol = eval(P._sdp_solver_output.split("\n")[-8].split(" ")[-1])
 

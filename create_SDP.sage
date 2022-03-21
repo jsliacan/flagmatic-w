@@ -1,4 +1,4 @@
-from flagmatic.all import *
+cfrom flagmatic.all import *
 
 def tuple_to_string(data):
     return ','.join([str(x) for x in data])
