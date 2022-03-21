@@ -30,10 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from hypergraph_flag cimport HypergraphFlag
 
 cdef class MultigraphFlag (HypergraphFlag):
-	pass
+    pass
 
 cdef class TwoMultigraphFlag (MultigraphFlag):
-	pass
-	
+    pass
+    
 cdef class ThreeMultigraphFlag (MultigraphFlag):
-	pass
+    pass

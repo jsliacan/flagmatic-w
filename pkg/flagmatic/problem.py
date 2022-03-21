@@ -520,7 +520,7 @@ class Problem(SageObject):
 
         self._active_types = range(num_types)
 
-        for ti in range(num_types):			  # Make everything immutable!
+        for ti in range(num_types):              # Make everything immutable!
             self._types[ti].set_immutable()
             for g in self._flags[ti]:
                 g.set_immutable()
@@ -788,7 +788,7 @@ class Problem(SageObject):
 
     def add_assumption(self, typegraph, lincomb, const=0, equality=False):
     
-    	"""
+        """
         Convert assumption from the general form:
         [linear combination of flags on one type] >= c   OR
         [linear combination of flags on one type] == c 
@@ -816,7 +816,7 @@ class Problem(SageObject):
         problem.add_assumption("0:", [("2:12(0)", 1)], 1/2, equality=True)
         
         """
-        
+
 
         if self._mode == "plain":
             sys.stdout.write("\nCannot add assumptions in 'plain' mode.\n")

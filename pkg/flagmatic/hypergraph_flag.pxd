@@ -35,22 +35,22 @@ DEF MAX_NUMBER_OF_VERTICES = 35
 
 cdef class HypergraphFlag (Flag):
 
-	cdef int _n
-	cdef int _r
-	cdef bint _oriented
-	cdef int _multiplicity
-	cdef int _t
-	cdef readonly bint is_degenerate
-	cdef readonly bint _certified_minimal_isomorph
-	cdef readonly int ne
-	cdef int _edges[MAX_NUMBER_OF_EDGE_INTS]
-	cpdef is_labelled_isomorphic(self, HypergraphFlag other)
-	cdef HypergraphFlag c_induced_subgraph(self, int *verts, int num_verts)
-	cdef int c_has_subgraph (self, HypergraphFlag h)
+    cdef int _n
+    cdef int _r
+    cdef bint _oriented
+    cdef int _multiplicity
+    cdef int _t
+    cdef readonly bint is_degenerate
+    cdef readonly bint _certified_minimal_isomorph
+    cdef readonly int ne
+    cdef int _edges[MAX_NUMBER_OF_EDGE_INTS]
+    cpdef is_labelled_isomorphic(self, HypergraphFlag other)
+    cdef HypergraphFlag c_induced_subgraph(self, int *verts, int num_verts)
+    cdef int c_has_subgraph (self, HypergraphFlag h)
 
 cdef class combinatorial_info_block:
-	cdef int np
-	cdef int *p
+    cdef int np
+    cdef int *p
 
 cdef int *generate_permutations_fixing(int n, int s, int *number_of)
 cdef int *generate_combinations(int n, int s, int *number_of)
@@ -59,5 +59,5 @@ cdef int *generate_pair_combinations(int n, int s, int m1, int m2, int *number_o
 cdef int *generate_equal_pair_combinations(int n, int s, int m, int *number_of)
 
 cdef class graph_block:
-	cdef int n, len
-	cdef void **graphs
+    cdef int n, len
+    cdef void **graphs
