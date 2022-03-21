@@ -58,7 +58,45 @@ from sage.rings.all import Integer, QQ, ZZ
 from sage.matrix.all import matrix, block_matrix
 from sage.modules.misc import gram_schmidt
                 
+def process_small_graphs(sg, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs):
+    pe = sg.ne
+    ds = sg.degrees()
+    maxd = max(ds[s:] + (0,))
+    
+    graph_list, hash_list = [], []
 
+    for ne in range(maxd, max_ne + 1):
+
+            for nb in Combinations(possible_edges, ne):
+
+                    # For oriented graphs, can't have bidirected edges.
+                    # TODO: exclude these in a more efficient way!
+                    if oriented:
+                            if any(e in nb and (e[1], e[0]) in nb for e in possible_edges):
+                                    continue
+
+                    ng = sg.__copy__()
+                    ng.n = n
+                    for e in nb:
+                            ng.add_edge(e)
+
+                    if not forbidden_edge_numbers is None and ng.has_forbidden_edge_numbers(forbidden_edge_numbers, must_have_highest=True):
+                            continue
+
+                    if not forbidden_graphs is None and ng.has_forbidden_graphs(forbidden_graphs, must_have_highest=True):
+                            continue
+
+                    if not forbidden_induced_graphs is None and ng.has_forbidden_graphs(forbidden_induced_graphs, must_have_highest=True, induced=True):
+                            continue
+
+                    ng.make_minimal_isomorph()
+                    ng_hash = hash(ng)
+                    if ng_hash not in hash_list:
+                        graph_list.append(ng)
+                        hash_list.append(ng_hash)
+                        
+    return graph_list, hash_list
+    
 
 cdef class HypergraphFlag (Flag):
 
@@ -543,43 +581,58 @@ cdef class HypergraphFlag (Flag):
         
                 if multiplicity > 1:
                         possible_edges = sum(([e] * multiplicity for e in possible_edges), [])
-        
-                # TODO: can we parallelize this loop?
-                for sg in smaller_graphs:
                 
-                        pe = sg.ne
-                        ds = sg.degrees()
-                        maxd = max(ds[s:] + (0,))
-                                
-                        for ne in range(maxd, max_ne + 1):
-                        
-                                for nb in Combinations(possible_edges, ne):
-        
-                                        # For oriented graphs, can't have bidirected edges.
-                                        # TODO: exclude these in a more efficient way!
-                                        if oriented:
-                                                if any(e in nb and (e[1], e[0]) in nb for e in possible_edges):
-                                                        continue
-                                                        
-                                        ng = sg.__copy__()
-                                        ng.n = n
-                                        for e in nb:
-                                                ng.add_edge(e)
-        
-                                        if not forbidden_edge_numbers is None and ng.has_forbidden_edge_numbers(forbidden_edge_numbers, must_have_highest=True):
-                                                continue
-        
-                                        if not forbidden_graphs is None and ng.has_forbidden_graphs(forbidden_graphs, must_have_highest=True):
-                                                continue
-        
-                                        if not forbidden_induced_graphs is None and ng.has_forbidden_graphs(forbidden_induced_graphs, must_have_highest=True, induced=True):
-                                                continue
-        
-                                        ng.make_minimal_isomorph()
-                                        ng_hash = hash(ng)
-                                        if not ng_hash in hashes:
-                                                new_graphs.append(ng)
-                                                hashes.add(ng_hash)
+                
+                from tqdm import tqdm
+                import multiprocessing as mp
+                
+                print("Using "+str(mp.cpu_count())+" cores")
+
+                arguments = [(sg, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs) for sg in smaller_graphs]
+
+                p = mp.Pool()
+                for graph_list, hash_list in p.map(process_small_graphs, tqdm(arguments)):
+                    for ng, ng_hash in zip(graph_list, hash_list):
+                        if not ng_hash in hashes:
+                            new_graphs.append(ng)
+                            hashes.add(ng_hash)
+                p.close()
+                
+                # for sg in smaller_graphs:
+                # 
+                #         pe = sg.ne
+                #         ds = sg.degrees()
+                #         maxd = max(ds[s:] + (0,))
+                #                 
+                #         for ne in range(maxd, max_ne + 1):
+                #         
+                #                 for nb in Combinations(possible_edges, ne):
+                # 
+                #                         # For oriented graphs, can't have bidirected edges.
+                #                         # TODO: exclude these in a more efficient way!
+                #                         if oriented:
+                #                                 if any(e in nb and (e[1], e[0]) in nb for e in possible_edges):
+                #                                         continue
+                #                                         
+                #                         ng = sg.__copy__()
+                #                         ng.n = n
+                #                         for e in nb:
+                #                                 ng.add_edge(e)
+                # 
+                #                         if not forbidden_edge_numbers is None and ng.has_forbidden_edge_numbers(forbidden_edge_numbers, must_have_highest=True):
+                #                                 continue
+                # 
+                #                         if not forbidden_graphs is None and ng.has_forbidden_graphs(forbidden_graphs, must_have_highest=True):
+                #                                 continue
+                # 
+                #                         if not forbidden_induced_graphs is None and ng.has_forbidden_graphs(forbidden_induced_graphs, must_have_highest=True, induced=True):
+                #                                 continue
+                # 
+                #                         ng.make_minimal_isomorph()
+                #                         ng_hash = hash(ng)
+                #                         if not ng_hash in hashes:
+                #                                 new_graphs.append(ng)
+                #                                 hashes.add(ng_hash)
         
                 return new_graphs
 
