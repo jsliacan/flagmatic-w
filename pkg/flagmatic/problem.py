@@ -467,7 +467,8 @@ class Problem(SageObject):
 
         sys.stdout.write("Generating graphs...\n")
         self._graphs = self._flag_cls.generate_graphs(n, forbidden_edge_numbers=self._forbidden_edge_numbers,
-                                                      forbidden_graphs=self._forbidden_graphs, forbidden_induced_graphs=self._forbidden_induced_graphs, use_mp=True)
+                                                      forbidden_graphs=self._forbidden_graphs, forbidden_induced_graphs=self._forbidden_induced_graphs,
+                                                      use_mp=True, show_progress=True)
         sys.stdout.write("Generated %d graphs.\n" % len(self._graphs))
 
         for g in self._graphs:    # Make all the graphs immutable
