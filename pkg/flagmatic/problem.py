@@ -85,7 +85,7 @@ def zero_eigenvectors_mp(construction, types, flags):
 def compute_densities_mp(g, dg):
     dv = 0
     for h, coeff in dg:
-        if h.n == g.n:å
+        if h.n == g.n:
             if g == h:
                 dv += coeff
         else:
