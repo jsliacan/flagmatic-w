@@ -1224,13 +1224,20 @@ class Problem(SageObject):
 
         sys.stdout.write("Determining which graphs appear in construction...\n")
 
+        import time
+        t = time.perf_counter()
+        
+        # TODO: mp subgraph densities
         sharp_graphs = construction.subgraph_densities(self._n)
         target_densities = [0 for j in range(num_densities)]
         self._sharp_graphs = []
         self._sharp_graph_densities = []
 
+        print(f"done with subgraph densities in {time.perf_counter()-t:.2f}s, got {len(sharp_graphs)} sharp graphs")
+        
         for pair in sharp_graphs:
             g, den = pair
+            # TODO: possibly mp this loop
             for gi in range(num_graphs):
                 if g.is_labelled_isomorphic(self._graphs[gi]):
                     self._sharp_graphs.append(gi)
@@ -1249,6 +1256,7 @@ class Problem(SageObject):
 
         self._zero_eigenvectors = []
 
+        # TODO: probably also mp this
         for ti in range(len(self._types)):
 
             self._zero_eigenvectors.append(construction.zero_eigenvectors(self._types[ti], self._flags[ti]))
