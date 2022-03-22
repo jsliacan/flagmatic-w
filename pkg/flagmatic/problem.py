@@ -1226,9 +1226,6 @@ class Problem(SageObject):
         self._field = construction.field
 
         sys.stdout.write("Determining which graphs appear in construction...\n")
-
-        import time
-        t = time.perf_counter()
         
         # TODO: mp subgraph densities
         sharp_graphs = construction.subgraph_densities(self._n)
@@ -1236,8 +1233,6 @@ class Problem(SageObject):
         self._sharp_graphs = []
         self._sharp_graph_densities = []
 
-        print(f"done with subgraph densities in {time.perf_counter()-t:.2f}s, got {len(sharp_graphs)} sharp graphs")
-        
         for pair in sharp_graphs:
             g, den = pair
             # TODO: possibly mp this loop
@@ -1257,7 +1252,8 @@ class Problem(SageObject):
 
         sys.stdout.write("Density of construction is %s.\n" % self._target_bound)
 
-        
+        from tqdm import tqdm
+        import multiprocessing as mp
         arguments = [(construction, self._types[ti], self._flags[ti]) for ti in range(len(self._types))]
         p = mp.Pool()
         self._zero_eigenvectors = p.starmap(zero_eigenvectors_mp, tqdm(arguments))
