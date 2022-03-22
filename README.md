@@ -1,5 +1,5 @@
 
-A version of Flagmatic with extra functionality such as assumptions and stability checks. It is known to work with Sage-7.4.
+A version of Flagmatic with extra functionality such as assumptions and stability checks. This version was updated to run on SageMath 9.X and several of the core computations have been parallelized using Python's multiprocessing.
 
 
 flagmatic
