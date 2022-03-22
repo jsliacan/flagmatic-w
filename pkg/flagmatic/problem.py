@@ -501,7 +501,7 @@ class Problem(SageObject):
                 these_flags.append(self._flag_cls.generate_flags(m, tg, forbidden_edge_numbers=self._forbidden_edge_numbers,
                                                                  forbidden_graphs=self._forbidden_graphs,
                                                                  forbidden_induced_graphs=self._forbidden_induced_graphs))
-            sys.stdout.write("with %s flags of order %d.\n" % ([len(L) for L in these_flags], m))
+            sys.stdout.write("with %s flags of order %d.\n" % (sum([len(L) for L in these_flags]), m))
 
             self._types.extend(these_types)
             self._flags.extend(these_flags)
@@ -1577,7 +1577,7 @@ class Problem(SageObject):
     def solve_sdp(self, show_output=False, solver="csdp",
         force_sharp_graphs=False, force_zero_eigenvectors=False,
         check_solution=True, tolerance=1e-5, show_sorted=False, show_all=False,
-        use_initial_point=False, import_solution_file=None):
+        use_initial_point=False, import_solution_file=None, csdp_settings=None):
         r"""
         Solves a semi-definite program to get a bound on the problem.
 
@@ -1634,6 +1634,9 @@ class Problem(SageObject):
 
         if import_solution_file is None:
 
+            if solver=='csdp':
+                self.write_csdp_settings_file(csdp_settings)
+            
             if self.state("write_sdp_input_file") != "yes":
                 self.write_sdp_input_file(force_sharp_graphs=force_sharp_graphs,
                                           force_zero_eigenvectors=force_zero_eigenvectors)
@@ -1653,6 +1656,46 @@ class Problem(SageObject):
         if check_solution:
             self.check_solution(tolerance=tolerance, show_sorted=show_sorted, show_all=show_all)
 
+            
+    def write_csdp_settings_file(self, settings):
+        
+        if settings is None:
+            settings = {
+                'axtol': 1.0e-8,
+                'atytol': 1.0e-8,
+                'objtol': 1.0e-8,
+                'pinftol': 1.0e8,
+                'dinftol': 1.0e8,
+                'maxiter': 10000,
+                'minstepfrac': 0.90,
+                'maxstepfrac': 0.97,
+                'minstepp': 1.0e-8,
+                'minstepd': 1.0e-8,
+                'usexzgap': 1,
+                'tweakgap': 0,
+                'affine': 0,
+                'printlevel': 1,
+                'perturbobj': 1,
+                'fastmode': 0
+            }
+            
+        self._csdp_settings_filename = os.path.join(str(SAGE_TMP), "param.csdp")
+        
+        if os.path.exists(self._csdp_settings_filename):
+            sys.stdout.write("Deleting existing CSDP settings file...\n")
+            os.remove(self._csdp_settings_filename)
+        
+        sys.stdout.write("Writing CSDP settings file...\n")
+        
+        with open(self._csdp_settings_filename, "w") as f:
+            for k,v in settings.items():
+                assert k in [
+                    'axtol', 'atytol', 'objtol', 'pinftol', 'dinftol', 'maxiter', 'minstepfrac',
+                    'maxstepfrac', 'minstepp', 'minstepd', 'usexzgap',  'tweakgap',  'affine',    
+                    'printlevel', 'perturbobj', 'fastmode', 
+                ]
+                f.write(f"{k}={v}\n")
+            
     # TODO: add option for forcing sharps
 
     def write_sdp_input_file(self, force_sharp_graphs=False, force_zero_eigenvectors=False):
