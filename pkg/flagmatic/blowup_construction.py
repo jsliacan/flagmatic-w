@@ -47,7 +47,7 @@ def subgraph_densities_mp(P, n, cn, weights, graph, phantom_edge):
     factor = factorial(n)
     for i in range(1, cn + 1):
         factor /= factorial(P.count(i))
-    if self._weights:
+    if weights:
         for v in P:
             factor *= weights[v - 1]
     ig = graph.degenerate_induced_subgraph(P)
@@ -130,7 +130,8 @@ class BlowupConstruction(Construction):
         
         import multiprocessing as mp
         p = mp.Pool()
-        for ghash, ig, gchash, igc, factor, contains_phantom_edge in p.starmap(subgraph_densities_mp, [(P, n, cn, self._weights, self._graph, self._phantom_edge if hasattr(self, "_phantom_edge") else None) for P in UnorderedTuples(range(1, cn + 1), n)]):
+        arguments = [(P, n, cn, self._weights, self._graph, self._phantom_edge if hasattr(self, "_phantom_edge") else None) for P in UnorderedTuples(range(1, cn + 1), n)]
+        for ghash, ig, gchash, igc, factor, contains_phantom_edge in p.starmap(subgraph_densities_mp, arguments):
             if ghash in sharp_graph_counts:
                 sharp_graph_counts[ghash] += factor
             else:
