@@ -82,6 +82,16 @@ def generate_flags_mp(flag_cls, m, tg, forbidden_edge_numbers, forbidden_graphs,
 def zero_eigenvectors_mp(construction, types, flags):
     return construction.zero_eigenvectors(types, flags)
 
+def compute_densities_mp(g, dg):
+    dv = 0
+    for h, coeff in dg:
+        if h.n == g.n:å
+            if g == h:
+                dv += coeff
+        else:
+            dv += coeff * g.subgraph_density(h)
+    return dv
+
 def block_structure(M):
     """
     Given a matrix, this function returns a tuple. The first entry is the number of
@@ -609,28 +619,27 @@ class Problem(SageObject):
         
     def _compute_densities(self):
 
-        # TODO: parallelize?
-        from tqdm import tqdm
-
-        with tqdm(total=len(self._density_graphs)*len(self._graphs)) as pb:
-
-            self._densities = []
-            for dg in self._density_graphs:
-                density_values = []
-                for g in self._graphs:
-                    dv = 0
-                    for h, coeff in dg:
-                        if h.n == g.n:
-                            # comparison will be fast, as both g and h should have
-                            # _certified_minimal_isomorph set to True
-                            if g == h:
-                                dv += coeff
-                        else:
-                            dv += coeff * g.subgraph_density(h)
-                    density_values.append(dv)
-                    pb.update()
-                self._densities.append(density_values)
-
+        import multiprocessing as mp
+        p = mp.Pool()
+        self._densities = []
+        for dg in self._density_graphs:
+            arguments = [(g, dg) for g in self._graphs]
+            density_values = p.starmap(compute_densities_mp, arguments)
+            # density_values = []
+            # for g in self._graphs:
+            #     dv = 0
+            #     for h, coeff in dg:
+            #         if h.n == g.n:
+            #             # comparison will be fast, as both g and h should have
+            #             # _certified_minimal_isomorph set to True
+            #             if g == h:
+            #                 dv += coeff
+            #         else:
+            #             dv += coeff * g.subgraph_density(h)
+            #     density_values.append(dv)
+            self._densities.append(density_values)
+        p.close()
+            
     def set_density(self, *args):
 
         self.state("set_objective", "yes")
