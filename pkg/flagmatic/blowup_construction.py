@@ -56,6 +56,7 @@ def subgraph_densities_mp(P, n, cn, weights, graph, phantom_edge):
     ghash = hash(ig)
     
     contains_phantom_edge = False
+    gchash = None
     if phantom_edge is not None and all(x in P for x in phantom_edge):
         contains_phantom_edge = True
         phantom_edge = [P.index(x) + 1 for x in phantom_edge]
