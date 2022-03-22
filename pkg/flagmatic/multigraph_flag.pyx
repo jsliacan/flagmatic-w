@@ -56,9 +56,9 @@ cdef class MultigraphFlag (HypergraphFlag):
 
 
         @classmethod
-        def generate_graphs(cls, n, multiplicity=1, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None):
+        def generate_graphs(cls, n, multiplicity=1, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None, use_mp=False):
                 return HypergraphFlag.generate_flags(n, cls(), r=2, oriented=False, multiplicity=multiplicity, forbidden_edge_numbers=forbidden_edge_numbers,
-                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs)
+                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs, use_mp=use_mp)
 
 
         def Graph(self):
@@ -106,9 +106,9 @@ cdef class TwoMultigraphFlag (MultigraphFlag):
 
 
         @classmethod
-        def generate_graphs(cls, n, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None):
+        def generate_graphs(cls, n, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None, use_mp=False):
                 return HypergraphFlag.generate_flags(n, cls(), r=2, oriented=False, multiplicity=2, forbidden_edge_numbers=forbidden_edge_numbers,
-                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs)
+                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs, use_mp=use_mp)
 
 
 cdef class ThreeMultigraphFlag (MultigraphFlag):
@@ -133,6 +133,6 @@ cdef class ThreeMultigraphFlag (MultigraphFlag):
 
 
         @classmethod
-        def generate_graphs(cls, n, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None):
+        def generate_graphs(cls, n, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None, use_mp=False):
                 return HypergraphFlag.generate_flags(n, cls(), r=2, oriented=False, multiplicity=3, forbidden_edge_numbers=forbidden_edge_numbers,
-                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs)
+                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs, use_mp=use_mp)
