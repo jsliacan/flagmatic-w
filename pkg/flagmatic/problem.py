@@ -79,6 +79,9 @@ def process_products_mp(tg, flag, n, flag_cls, graphs):
 def generate_flags_mp(flag_cls, m, tg, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs):
     return flag_cls.generate_flags(m, tg, forbidden_edge_numbers=forbidden_edge_numbers, forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs)
 
+def zero_eigenvectors_mp():
+    
+
 def block_structure(M):
     """
     Given a matrix, this function returns a tuple. The first entry is the number of
@@ -1223,7 +1226,6 @@ class Problem(SageObject):
         self._field = construction.field
 
         sys.stdout.write("Determining which graphs appear in construction...\n")
-        print("!!")
 
         import time
         t = time.perf_counter()
@@ -1255,16 +1257,24 @@ class Problem(SageObject):
 
         sys.stdout.write("Density of construction is %s.\n" % self._target_bound)
 
-        self._zero_eigenvectors = []
-
-        # TODO: probably also mp this
+        
+        arguments = [(construction, self._types[ti], self._flags[ti]) for ti in range(len(self._types))]
+        p = mp.Pool()
+        self._zero_eigenvectors = p.starmap(zero_eigenvectors_mp, tqdm(arguments))
+        p.close()
+        
         for ti in range(len(self._types)):
-
-            self._zero_eigenvectors.append(construction.zero_eigenvectors(self._types[ti], self._flags[ti]))
-
-            sys.stdout.write("Found %d zero eigenvectors for type %d.\n" % (
-                self._zero_eigenvectors[ti].nrows(), ti))
-
+            sys.stdout.write("Found %d zero eigenvectors for type %d.\n" % (self._zero_eigenvectors[ti].nrows(), ti))
+                
+        # self._zero_eigenvectors = []
+        # 
+        # for ti in range(len(self._types)):
+        # 
+        #     self._zero_eigenvectors.append(construction.zero_eigenvectors(self._types[ti], self._flags[ti]))
+        # 
+        #     sys.stdout.write("Found %d zero eigenvectors for type %d.\n" % (
+        #         self._zero_eigenvectors[ti].nrows(), ti))
+        
         for ti in range(len(self._types)):
             self._zero_eigenvectors[ti].set_immutable()
 
