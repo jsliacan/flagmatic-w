@@ -52,6 +52,9 @@ import sys # remove this, just for testing
 import numpy
 cimport numpy
 
+from tqdm import tqdm
+import multiprocessing as mp
+
 from sage.arith.all import binomial, falling_factorial
 from sage.combinat.all import Combinations, Permutations, Tuples, Subsets
 from sage.rings.all import Integer, QQ, ZZ
@@ -584,10 +587,7 @@ cdef class HypergraphFlag (Flag):
                 if multiplicity > 1:
                         possible_edges = sum(([e] * multiplicity for e in possible_edges), [])
                 
-                
                 if use_mp:
-                    import multiprocessing as mp
-
                     arguments = [(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs) for sg in tqdm(smaller_graphs) if show_progress else smaller_graphs]
 
                     p = mp.Pool()
