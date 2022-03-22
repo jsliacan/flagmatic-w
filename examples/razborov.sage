@@ -1,5 +1,0 @@
-problem = ThreeGraphProblem(6, forbid=(4,4), forbid_induced=(4,1))
-construction = ThreeGraphBlowupConstruction("3:112223331123")
-problem.set_extremal_construction(construction)
-problem.solve_sdp()
-problem.make_exact(rank=6)
