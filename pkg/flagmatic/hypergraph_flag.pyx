@@ -598,7 +598,7 @@ cdef class HypergraphFlag (Flag):
                 
                 else:
                     for sg in (tqdm(smaller_graphs) if show_progress else smaller_graphs):
-                        graph_list, hash_list = process_small_graphs_mp((sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs))
+                        graph_list, hash_list = process_small_graphs_mp(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs)
                         for ng, ng_hash in zip(graph_list, hash_list):
                             if not ng_hash in hashes:
                                 new_graphs.append(ng)
