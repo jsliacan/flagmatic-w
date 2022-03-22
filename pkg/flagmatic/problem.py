@@ -79,8 +79,8 @@ def process_products_mp(tg, flag, n, flag_cls, graphs):
 def generate_flags_mp(flag_cls, m, tg, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs):
     return flag_cls.generate_flags(m, tg, forbidden_edge_numbers=forbidden_edge_numbers, forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs)
 
-def zero_eigenvectors_mp():
-    
+def zero_eigenvectors_mp(construction, types, flags):
+    return construction.zero_eigenvectors(types, flags)
 
 def block_structure(M):
     """
