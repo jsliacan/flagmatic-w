@@ -1223,6 +1223,7 @@ class Problem(SageObject):
         self._field = construction.field
 
         sys.stdout.write("Determining which graphs appear in construction...\n")
+        print("!!")
 
         import time
         t = time.perf_counter()
@@ -1249,7 +1250,7 @@ class Problem(SageObject):
                 sys.stdout.write("Warning: non-admissible graph %s appears in construction!\n" % g)
 
         # set target_bound to equal the maximum - probably this will always be what is wanted...
-        print(target_densities)
+        # print(target_densities)
         self._target_bound = max(target_densities)
 
         sys.stdout.write("Density of construction is %s.\n" % self._target_bound)
