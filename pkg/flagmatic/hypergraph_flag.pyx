@@ -58,7 +58,7 @@ from sage.rings.all import Integer, QQ, ZZ
 from sage.matrix.all import matrix, block_matrix
 from sage.modules.misc import gram_schmidt
                 
-def process_small_graphs(args):
+def process_small_graphs_mp(args):
     sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs = args
     
     pe = sg.ne
@@ -591,7 +591,7 @@ cdef class HypergraphFlag (Flag):
                     arguments = [(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs) for sg in smaller_graphs]
 
                     p = mp.Pool()
-                    for graph_list, hash_list in p.map(process_small_graphs, arguments):
+                    for graph_list, hash_list in p.map(process_small_graphs_mp, arguments):
                         for ng, ng_hash in zip(graph_list, hash_list):
                             if not ng_hash in hashes:
                                 new_graphs.append(ng)
@@ -600,7 +600,7 @@ cdef class HypergraphFlag (Flag):
                 
                 else:
                     for sg in smaller_graphs:
-                        graph_list, hash_list = process_small_graphs((sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs))
+                        graph_list, hash_list = process_small_graphs_mp((sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs))
                         for ng, ng_hash in zip(graph_list, hash_list):
                             if not ng_hash in hashes:
                                 new_graphs.append(ng)
@@ -648,7 +648,7 @@ cdef class HypergraphFlag (Flag):
         @classmethod
         def generate_graphs(cls, n, r=3, oriented=False, multiplicity=1, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None, use_mp=False):
                 return cls.generate_flags(n, cls(r=r, oriented=oriented, multiplicity=multiplicity), r, oriented, multiplicity, forbidden_edge_numbers=forbidden_edge_numbers,
-                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs, use_mp=use_mp)
+                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs, use_mp=multiprocessing)
 
 
         @classmethod

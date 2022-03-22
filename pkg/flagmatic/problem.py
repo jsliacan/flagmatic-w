@@ -65,7 +65,7 @@ sdpa_dd_cmd = "sdpa_dd"
 sdpa_qd_cmd = "sdpa_qd"
 dsdp_cmd = "dsdp"
 
-def process_products(args):
+def process_products_mp(args):
     tg, flag, n, flag_cls, graphs = args
     
     graph_block = make_graph_block(graphs, n)
@@ -77,6 +77,10 @@ def process_products(args):
     rarray = flag_cls.flag_products(graph_block, tg, flags_block, None)
     
     return rarray
+
+def generate_flags_mp(args):
+    flag_cls, m, tg, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs = args
+    return flag_cls.generate_flags(m, tg, forbidden_edge_numbers=forbidden_edge_numbers, forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs)
 
 def block_structure(M):
     """
@@ -496,11 +500,16 @@ class Problem(SageObject):
 
             sys.stdout.write("Generated %d types of order %d, " % (len(these_types), s))
 
-            these_flags = []
-            for tg in these_types:
-                these_flags.append(self._flag_cls.generate_flags(m, tg, forbidden_edge_numbers=self._forbidden_edge_numbers,
-                                                                 forbidden_graphs=self._forbidden_graphs,
-                                                                 forbidden_induced_graphs=self._forbidden_induced_graphs))
+            import multiprocessing as mp
+            arguments = [(self._flag_cls, m, tg self._forbidden_edge_numbers, self._forbidden_graphs, self._forbidden_induced_graphs) for tg in these_types]
+            p = mp.Pool()
+            these_flags = p.map(generate_flags_mp, arguments)
+            p.close()
+            # these_flags = []
+            # for tg in these_types:
+            #     these_flags.append(self._flag_cls.generate_flags(m, tg, forbidden_edge_numbers=self._forbidden_edge_numbers,
+            #                                                      forbidden_graphs=self._forbidden_graphs,
+            #                                                      forbidden_induced_graphs=self._forbidden_induced_graphs))
             sys.stdout.write("with %s flags of order %d.\n" % (sum([len(L) for L in these_flags]), m))
 
             self._types.extend(these_types)
@@ -1496,7 +1505,7 @@ class Problem(SageObject):
         # print("Using "+str(mp.cpu_count())+" cores")
         
         p = mp.Pool()
-        for rarray in p.map(process_products, tqdm(arguments)):
+        for rarray in p.map(process_products_mp, tqdm(arguments)):
             self._product_densities_arrays.append(rarray)
         p.close()
         
