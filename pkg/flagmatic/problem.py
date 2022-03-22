@@ -502,7 +502,7 @@ class Problem(SageObject):
             sys.stdout.write("Generated %d types of order %d, " % (len(these_types), s))
 
             import multiprocessing as mp
-            arguments = [(self._flag_cls, m, tg self._forbidden_edge_numbers, self._forbidden_graphs, self._forbidden_induced_graphs) for tg in these_types]
+            arguments = [(self._flag_cls, m, tg, self._forbidden_edge_numbers, self._forbidden_graphs, self._forbidden_induced_graphs) for tg in these_types]
             p = mp.Pool()
             these_flags = p.map(generate_flags_mp, arguments)
             p.close()
