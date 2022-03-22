@@ -593,6 +593,7 @@ cdef class HypergraphFlag (Flag):
                     p = mp.Pool()
                     for graph_list, hash_list in p.map(process_small_graphs_mp, tqdm(arguments) if show_progress else arguments):
                         for ng, ng_hash in zip(graph_list, hash_list):
+                            print(".")
                             if not ng_hash in hashes:
                                 new_graphs.append(ng)
                                 hashes.add(ng_hash)
@@ -602,7 +603,6 @@ cdef class HypergraphFlag (Flag):
                     for sg in (tqdm(smaller_graphs) if show_progress else smaller_graphs):
                         graph_list, hash_list = process_small_graphs_mp((sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs))
                         for ng, ng_hash in zip(graph_list, hash_list):
-                            print(".")
                             if not ng_hash in hashes:
                                 new_graphs.append(ng)
                                 hashes.add(ng_hash)
