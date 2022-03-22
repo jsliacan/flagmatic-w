@@ -648,7 +648,7 @@ cdef class HypergraphFlag (Flag):
         @classmethod
         def generate_graphs(cls, n, r=3, oriented=False, multiplicity=1, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None, use_mp=False, show_progress=False):
                 return cls.generate_flags(n, cls(r=r, oriented=oriented, multiplicity=multiplicity), r, oriented, multiplicity, forbidden_edge_numbers=forbidden_edge_numbers,
-                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs, use_mp=multiprocessing, show_progress=show_progress)
+                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs, use_mp=use_mp, show_progress=show_progress)
 
 
         @classmethod
