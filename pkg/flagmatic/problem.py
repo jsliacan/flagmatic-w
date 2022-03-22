@@ -463,7 +463,7 @@ class Problem(SageObject):
 
         sys.stdout.write("Generating graphs...\n")
         self._graphs = self._flag_cls.generate_graphs(n, forbidden_edge_numbers=self._forbidden_edge_numbers,
-                                                      forbidden_graphs=self._forbidden_graphs, forbidden_induced_graphs=self._forbidden_induced_graphs)
+                                                      forbidden_graphs=self._forbidden_graphs, forbidden_induced_graphs=self._forbidden_induced_graphs, use_mp=True)
         sys.stdout.write("Generated %d graphs.\n" % len(self._graphs))
 
         for g in self._graphs:    # Make all the graphs immutable
@@ -599,6 +599,7 @@ class Problem(SageObject):
         
     def _compute_densities(self):
 
+        # TODO: parallelize?
         from tqdm import tqdm
 
         with tqdm(total=len(self._density_graphs)*len(self._graphs)) as pb:

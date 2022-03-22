@@ -517,7 +517,7 @@ cdef class HypergraphFlag (Flag):
         
 
         @classmethod
-        def generate_flags(cls, n, tg, r=3, oriented=False, multiplicity=1, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None):
+        def generate_flags(cls, n, tg, r=3, oriented=False, multiplicity=1, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None, use_mp=False):
                 """
                 For an integer n, and a type tg, returns a list of all tg-flags on n
                 vertices, that satisfy certain constraints.
@@ -567,7 +567,7 @@ cdef class HypergraphFlag (Flag):
                 hashes = set()
                 
                 smaller_graphs = cls.generate_flags(n - 1, tg, r, oriented, multiplicity, forbidden_edge_numbers=forbidden_edge_numbers,
-                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs)
+                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs, use_mp=use_mp)
                 
                 possible_edges = []
         
@@ -585,20 +585,26 @@ cdef class HypergraphFlag (Flag):
                         possible_edges = sum(([e] * multiplicity for e in possible_edges), [])
                 
                 
-                # from tqdm import tqdm
-                import multiprocessing as mp
+                if use_mp:
+                    import multiprocessing as mp
+
+                    arguments = [(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs) for sg in smaller_graphs]
+
+                    p = mp.Pool()
+                    for graph_list, hash_list in p.map(process_small_graphs, arguments):
+                        for ng, ng_hash in zip(graph_list, hash_list):
+                            if not ng_hash in hashes:
+                                new_graphs.append(ng)
+                                hashes.add(ng_hash)
+                    p.close()
                 
-                # print("Using "+str(mp.cpu_count())+" cores")
-
-                arguments = [(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs) for sg in smaller_graphs]
-
-                p = mp.Pool()
-                for graph_list, hash_list in p.map(process_small_graphs, arguments):
-                    for ng, ng_hash in zip(graph_list, hash_list):
-                        if not ng_hash in hashes:
-                            new_graphs.append(ng)
-                            hashes.add(ng_hash)
-                p.close()
+                else:
+                    for sg in smaller_graphs:
+                        graph_list, hash_list = process_small_graphs((sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs))
+                        for ng, ng_hash in zip(graph_list, hash_list):
+                            if not ng_hash in hashes:
+                                new_graphs.append(ng)
+                                hashes.add(ng_hash)
                 
                 # for sg in smaller_graphs:
                 # 
@@ -640,9 +646,9 @@ cdef class HypergraphFlag (Flag):
 
 
         @classmethod
-        def generate_graphs(cls, n, r=3, oriented=False, multiplicity=1, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None):
+        def generate_graphs(cls, n, r=3, oriented=False, multiplicity=1, forbidden_edge_numbers=None, forbidden_graphs=None, forbidden_induced_graphs=None, use_mp=False):
                 return cls.generate_flags(n, cls(r=r, oriented=oriented, multiplicity=multiplicity), r, oriented, multiplicity, forbidden_edge_numbers=forbidden_edge_numbers,
-                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs)
+                        forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs, use_mp=use_mp)
 
 
         @classmethod
