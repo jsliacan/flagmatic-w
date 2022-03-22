@@ -65,9 +65,7 @@ sdpa_dd_cmd = "sdpa_dd"
 sdpa_qd_cmd = "sdpa_qd"
 dsdp_cmd = "dsdp"
 
-def process_products_mp(args):
-    tg, flag, n, flag_cls, graphs = args
-    
+def process_products_mp(tg, flag, n, flag_cls, graphs):
     graph_block = make_graph_block(graphs, n)
     
     s = tg.n
@@ -78,8 +76,7 @@ def process_products_mp(args):
     
     return rarray
 
-def generate_flags_mp(args):
-    flag_cls, m, tg, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs = args
+def generate_flags_mp(flag_cls, m, tg, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs):
     return flag_cls.generate_flags(m, tg, forbidden_edge_numbers=forbidden_edge_numbers, forbidden_graphs=forbidden_graphs, forbidden_induced_graphs=forbidden_induced_graphs)
 
 def block_structure(M):
@@ -504,7 +501,7 @@ class Problem(SageObject):
             import multiprocessing as mp
             arguments = [(self._flag_cls, m, tg, self._forbidden_edge_numbers, self._forbidden_graphs, self._forbidden_induced_graphs) for tg in these_types]
             p = mp.Pool()
-            these_flags = p.map(generate_flags_mp, arguments)
+            these_flags = p.starmap(generate_flags_mp, arguments)
             p.close()
             # these_flags = []
             # for tg in these_types:
@@ -1506,7 +1503,7 @@ class Problem(SageObject):
         # print("Using "+str(mp.cpu_count())+" cores")
         
         p = mp.Pool()
-        for rarray in p.map(process_products_mp, tqdm(arguments)):
+        for rarray in p.starmap(process_products_mp, tqdm(arguments)):
             self._product_densities_arrays.append(rarray)
         p.close()
         

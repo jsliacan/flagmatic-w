@@ -61,9 +61,7 @@ from sage.rings.all import Integer, QQ, ZZ
 from sage.matrix.all import matrix, block_matrix
 from sage.modules.misc import gram_schmidt
                 
-def process_small_graphs_mp(args):
-    sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs = args
-    
+def process_small_graphs_mp(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs):
     pe = sg.ne
     ds = sg.degrees()
     maxd = max(ds[s:] + (0,))
@@ -591,10 +589,7 @@ cdef class HypergraphFlag (Flag):
                     arguments = [(sg, n, s, max_ne, possible_edges, oriented, forbidden_edge_numbers, forbidden_graphs, forbidden_induced_graphs) for sg in smaller_graphs]
 
                     p = mp.Pool()
-                    idx = 0
                     for graph_list, hash_list in p.map(process_small_graphs_mp, tqdm(arguments) if show_progress else arguments):
-                        idx += 1
-                        print(idx)
                         for ng, ng_hash in zip(graph_list, hash_list):
                             if not ng_hash in hashes:
                                 new_graphs.append(ng)
