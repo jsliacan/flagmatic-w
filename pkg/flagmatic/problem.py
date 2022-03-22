@@ -1517,29 +1517,24 @@ class Problem(SageObject):
         #     flags_block = make_graph_block(self._flags[ti], m)
         #     
         #     rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
+        #     self._product_densities_arrays.append(rarr
+        
+        # from tqdm import tqdm
+        # 
+        # for ti in tqdm(range(num_types)):
+        # 
+        #     tg = self._types[ti]
+        #     s = tg.n
+        #     m = (self._n + s) / 2
+        # 
+        #     flags_block = make_graph_block(self._flags[ti], m)
+        #     rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
         #     self._product_densities_arrays.append(rarray)
-        #     print(rarray)
-        #     
-        
-        
-        """
-        from tqdm import tqdm
-
-        for ti in tqdm(range(num_types)):
-
-            tg = self._types[ti]
-            s = tg.n
-            m = (self._n + s) / 2
-
-            flags_block = make_graph_block(self._flags[ti], m)
-            rarray = self._flag_cls.flag_products(graph_block, tg, flags_block, None)
-            self._product_densities_arrays.append(rarray)
-
-            #sys.stdout.write(".")
-            #sys.stdout.flush()
-
-        #sys.stdout.write("\n")
-        """
+        # 
+        #     #sys.stdout.write(".")
+        #     #sys.stdout.flush()
+        # 
+        # #sys.stdout.write("\n")
 
     def _set_block_matrix_structure(self):
 

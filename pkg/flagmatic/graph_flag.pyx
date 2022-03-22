@@ -43,7 +43,7 @@ cdef class GraphFlag (HypergraphFlag):
                         super(GraphFlag, self).__init__(g.order(), r=2, oriented=False)
                         vertices = g.vertices()
                         for edge in g.edge_iterator():
-                                self.add_edge(map(lambda i : vertices.index(i) + 1, edge[:2]))
+                                self.add_edge(list(map(lambda i : vertices.index(i) + 1, edge[:2])))
                 else:
                         super(GraphFlag, self).__init__(representation=representation, r=2, oriented=False)
                         
