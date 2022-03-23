@@ -1,85 +1,109 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Flagmatic by jsliacan</title>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width">
-    <!--[if lt IE 9]>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <title>Flagmatic by jsliacan</title>
+
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/github-light.css">
+  <meta name="viewport" content="width=device-width">
+  <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>Flagmatic</h1>
-        <p>A version of Flagmatic that is kept alive (maybe unconscious but alive for now).</p>
+</head>
 
-        <p class="view"><a href="https://github.com/jsliacan/flagmatic">View the Project on GitHub <small>jsliacan/flagmatic</small></a></p>
+<body>
+  <div class="wrapper">
+    <header>
+      <h1>Flagmatic</h1>
+      <p>A modified version of original Flagmatic-2.0</p>
+
+      <p class="view"><a href="https://github.com/jsliacan/flagmatic">View the Project on GitHub
+          <small>jsliacan/flagmatic</small></a></p>
 
 
-        <ul>
-          <li><a href="https://github.com/jsliacan/flagmatic/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/jsliacan/flagmatic/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/jsliacan/flagmatic">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h3> <a id="Welcome to Flagmatic website" class="anchor" href="#welcome-to-flagmatic-website" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to a provisional Flagmatic website.
-        </h3>
-        <p>The original website <a href="https://flagmatic.org">Flagmatic.org</a> is down, so I set up this temporary page. The latest version of <a href="http://www.sagemath.org/">Sage</a> that I know Flagmatic runs on (and gives approximately correct answers) is Sage-7.3beta3 (so Sage-7.2 if you want a released version).
-        </p>
+      <ul>
+        <li><a href="https://github.com/jsliacan/flagmatic/zipball/master">Download <strong>ZIP File</strong></a></li>
+        <li><a href="https://github.com/jsliacan/flagmatic/tarball/master">Download <strong>TAR Ball</strong></a></li>
+        <li><a href="https://github.com/jsliacan/flagmatic">View On <strong>GitHub</strong></a></li>
+      </ul>
+    </header>
+    <section>
+      <h3> <a id="Welcome to Flagmatic website" class="anchor" href="#welcome-to-flagmatic-website"
+          aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to a provisional
+        Flagmatic website.
+      </h3>
+      <p>The original website <a href="https://flagmatic.org">Flagmatic.org</a> is down, so I set up this temporary
+        page. The latest version of <a href="http://www.sagemath.org/">Sage</a> that I know Flagmatic runs on (and gives
+        approximately correct answers) is Sage-9.5.
+      </p>
 
-        <p>
-          Flagmatic is a package for computing bounds for Turán type problems. The structures it supports are multiple: graphs, 3-regular hypergraphs, directed graphs, and multigraphs.  It was developed by Emil R. Vaughan while working with Victor Falgas-Ravry (<a href="http://arxiv.org/abs/1110.1623">see their paper</a>). Flagmatic uses the flag algebra calculus introduced in <a href="http://people.cs.uchicago.edu/~razborov/files/flag.pdf">Razborov in 2007</a>. By now, there are various resources where you can find out more about the method of flag algebras and its uses so I won't list more papers here.
-        </p>
+      <p>
+        Flagmatic is a package for computing bounds for Turán type problems. The structures it supports are:
+        graphs, 3-regular hypergraphs, directed graphs, and multigraphs. It was developed by Emil R. Vaughan while
+        working with Victor Falgas-Ravry (<a href="http://arxiv.org/abs/1110.1623">see their paper</a>). Flagmatic uses
+        the flag algebra calculus introduced in <a
+          href="http://people.cs.uchicago.edu/~razborov/files/flag.pdf">Razborov in 2007</a>.
+      </p>
 
-        <p>
-          One last piece of information. The version of Flagmatic that this site links to is not Emil's original version. I had to modify a few functions and installation settings to keep up with the novelties in Sage as it developed. At the same time, I was altering Flagmatic-2.0 to be more functional (with <a href="http://homepages.warwick.ac.uk/~maskat/">Oleg Pikhurko</a>). Therefore, I only kept alive the version of Flagmatic that I needed (I used to refer to it as Flagmatic-dev). Now I simplified things, and only keep "Flagmatic" alive. Flagmatic has the functionality of Flagmatic-dev and more -- I still alter it from time to time -- and it works with the latest version of Sage. While this means that new functionality is available, it also means that bugs could exist that were not present in Emil's Flagmatic-2.0. Please keep this in mind! And of course, if you find a bug (of any kind) please feel free to comment on my Github or email me. Thank you.
-        </p>
-        
-        <h3>
-          <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>
-          Installation
-        </h3>
-        <p>
-          See the README file in the Github repository. It gives a short and hopefully working sequence of steps to get Flagmatic set up in Sage.
-        </p>
+      <p>
+        The version of Flagmatic that this site links to is not Emil's original version -- that can be found <a
+          href="https://github.com/emil79/flagmatic">here</a>. This version includes changes introduced when working
+        with <a href="http://homepages.warwick.ac.uk/~maskat/">Oleg Pikhurko</a>.
+      </p>
 
-        
-        <h3>
-          <a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>
-          Documentation
-        </h3>
-        <p>
-          You can find the original User Guide by Emil <a href="https://github.com/jsliacan/flagmatic/blob/master/doc/UsersGuide.pdf">here</a>. The same folder contains a User Guide for the <code>dev</code> version of Flagmatic. In the dev user guide, ignore the installation instructions (they should work though). 
-        </p>
+      <h3>
+        <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true"
+            class="octicon octicon-link"></span></a>
+        Installation
+      </h3>
+      <p>
+        See the README file in the Github repository. It gives a short and hopefully working sequence of steps to get
+        Flagmatic set up with Sage.
+      </p>
 
-        <h3>
-          <a id="history" class="anchor" href="#history" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>
-          History
-        </h3>
-        <p>
-          The very first version of Flagmatic was Sage independent, and it is still hosted on its <a href="http://www.maths.qmul.ac.uk/~ev/flagmatic/">original website</a>. The website contains a list of results obtained or re-obtained with Flagmatic and Flagmatic-2.0 (until Emil stopped maintaining it). 
-        </p>
 
-        <h3>
-          <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors
-        </h3>
-        <p>
-          In 2013, Emil Vaughan (<a href="https://github.com/emil79" class="user-mention">@emil79</a>) wrote the original version of Flagmatic-2.0. He stopped maintaining it when he left academia.
-        </p>
-     
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/jsliacan">jsliacan</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
+      <h3>
+        <a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span aria-hidden="true"
+            class="octicon octicon-link"></span></a>
+        Documentation
+      </h3>
+      <p>
+        You can find the original User Guide by Emil <a
+          href="https://github.com/jsliacan/flagmatic/blob/master/doc/UsersGuide.pdf">here</a>.
+      </p>
+
+      <h3>
+        <a id="history" class="anchor" href="#history" aria-hidden="true"><span aria-hidden="true"
+            class="octicon octicon-link"></span></a>
+        History
+      </h3>
+      <p>
+        The very first version of Flagmatic was Sage independent, and it is still hosted on its <a
+          href="http://www.maths.qmul.ac.uk/~ev/flagmatic/">original website</a>. The website contains a list of results
+        obtained or re-obtained with Flagmatic and Flagmatic-2.0.
+      </p>
+
+      <h3>
+        <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span
+            aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors
+      </h3>
+      <p>
+        In 2013, Emil Vaughan (<a href="https://github.com/emil79" class="user-mention">@emil79</a>) wrote the original
+        version of Flagmatic-2.0.
+      </p>
+
+    </section>
+    <footer>
+      <p>This project is maintained by <a href="https://github.com/jsliacan">jsliacan</a></p>
+      <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small>
+      </p>
+    </footer>
+  </div>
+  <script src="javascripts/scale.fix.js"></script>
+
+</body>
+
 </html>
